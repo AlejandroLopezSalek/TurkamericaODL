@@ -19,9 +19,8 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          script: |
-            cd /var/www/turkamerica_project
-            
-            # Ejecutar el script maestro de despliegue
-            # Esto asegura que el deploy manual y el automático hagan EXACTAMENTE lo mismo
-            ./deploy.sh
+          cd /var/www/turkamerica_project
+          
+          # Ejecutar el script maestro de despliegue
+          # Esto asegura que el deploy manual y el automático hagan EXACTAMENTE lo mismo
+          ./deploy.sh
