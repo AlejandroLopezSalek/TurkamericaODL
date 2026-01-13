@@ -12,6 +12,10 @@ echo "🚀 Starting deployment..."
 echo "📥 Pulling latest code..."
 git pull origin main
 
+# Load NVM (Node Version Manager) if it exists, because SSH non-interactive shells might not have 'npm' in PATH
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
 # 2. Install dependencies (only production)
 echo "📦 Installing dependencies..."
 npm ci --only=production
