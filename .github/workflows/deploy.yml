@@ -19,28 +19,9 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /var/www/turkamerica_project
-          
-          # 1. Obtener los últimos cambios
-          git fetch --all
-          git reset --hard origin/main
-          
-          # 2. Instalar dependencias nuevas (si las hay)
-          npm ci --production
-          
-          # 3. Construir el sitio estático
-          npm run build
-          
-          # 4. Iniciar o Recargar aplicación con PM2
-          # Si ecosystem.config.js existe, úsalo
-          if [ -f "ecosystem.config.js" ]; then
-            pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
-          else
-            # Fallback al método antiguo si no hay ecosystem
-            pm2 reload turkamerica || pm2 start server/server.js --name turkamerica
-          fi
-          
-          # 5. Guardar estado de PM2
-          pm2 save
-          
-          echo "✅ Despliegue completado con éxito"
+          script: |
+            cd /var/www/turkamerica_project
+            
+            # Ejecutar el script maestro de despliegue
+            # Esto asegura que el deploy manual y el automático hagan EXACTAMENTE lo mismo
+            ./deploy.sh
