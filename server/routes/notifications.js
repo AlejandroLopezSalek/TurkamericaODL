@@ -1,0 +1,98 @@
+const express = require('express');
+const router = express.Router();
+const webpush = require('web-push');
+const Subscription = require('../models/Subscription');
+const User = require('../models/User');
+
+// Configure web-push
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+        'mailto:admin@turkamerica.com',
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+    );
+} else {
+    console.warn("⚠️ VAPID Keys not found. Push notifications will not work.");
+}
+
+// GET /api/notifications/public-key
+router.get('/public-key', (req, res) => {
+    res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
+// POST /api/notifications/subscribe
+router.post('/subscribe', async (req, res) => {
+    try {
+        const subscription = req.body;
+        const user = req.user; // If we use auth middleware later
+
+        if (!subscription || !subscription.endpoint) {
+            return res.status(400).json({ error: 'Invalid subscription' });
+        }
+
+        // Check if exists
+        const exists = await Subscription.findOne({ endpoint: subscription.endpoint });
+        if (exists) {
+            // Update userId if available
+            if (req.body.userId && !exists.userId) {
+                exists.userId = req.body.userId;
+                await exists.save();
+            }
+            return res.status(200).json({ message: 'Subscription updated' });
+        }
+
+        const newSub = new Subscription({
+            ...subscription,
+            userId: req.body.userId || null,
+            userAgent: req.get('User-Agent')
+        });
+
+        await newSub.save();
+        res.status(201).json({ message: 'Subscribed successfully' });
+
+        // Optional: Send welcome push
+        /*
+        const payload = JSON.stringify({ title: '¡Bienvenido!', body: 'Gracias por activar las notificaciones.' });
+        webpush.sendNotification(subscription, payload).catch(err => console.error(err));
+        */
+
+    } catch (error) {
+        console.error('Subscription Error:', error);
+        res.status(500).json({ error: 'Failed to subscribe' });
+    }
+});
+
+// POST /api/notifications/send (Admin only - protect this!)
+router.post('/send', async (req, res) => {
+    try {
+        // Simple protection: Check for a secret header or just assume admin for now (MVP)
+        // In production, use auth middleware!
+        const { title, body, url } = req.body;
+
+        const payload = JSON.stringify({ title, body, url });
+
+        const subscriptions = await Subscription.find();
+
+        const promises = subscriptions.map(sub => {
+            return webpush.sendNotification({
+                endpoint: sub.endpoint,
+                keys: sub.keys
+            }, payload).catch(err => {
+                if (err.statusCode === 410 || err.statusCode === 404) {
+                    // Subscription is gone, delete it
+                    return Subscription.deleteOne({ _id: sub._id });
+                }
+                console.error('Push Error:', err.message);
+            });
+        });
+
+        await Promise.all(promises);
+
+        res.json({ message: `Sent notifications to ${subscriptions.length} devices` });
+
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to send notifications' });
+    }
+});
+
+module.exports = router;

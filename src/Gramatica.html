@@ -1,0 +1,61 @@
+---
+layout: base.njk
+styles:
+- tailwind-output.css
+scripts:
+- gramatica.js
+---
+
+{% import "components.njk" as components %}
+
+<div class="px-8 py-6">
+    <h2 class="flex items-center justify-center gap-3 text-3xl font-bold text-slate-800 dark:text-slate-100 
+               mb-8 pb-4 border-b-2 border-slate-200 dark:border-slate-700">
+        <i class="fas fa-globe text-blue-600 dark:text-blue-400"></i>
+        Páginas de Internet
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {# Sección Gramática #}
+        <div class="bg-slate-50 dark:bg-slate-800 
+                    border-2 border-slate-200 dark:border-slate-700
+                    rounded-2xl p-6
+                    hover:border-slate-300 dark:hover:border-slate-600
+                    hover:shadow-xl
+                    transition-all duration-300">
+            <h3 class="flex items-center gap-3 text-xl font-semibold 
+                       text-slate-800 dark:text-slate-100
+                       mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-700">
+                <i class="fas fa-grammar text-purple-600 dark:text-purple-400"></i>
+                Gramática
+            </h3>
+            <ul class="flex flex-col gap-3">
+                {{ components.resourceLink("https://quizlet.com", "Quizlet") }}
+                {{ components.resourceLink("https://elon.io/", "Elon") }}
+                {{ components.resourceLink("https://www.turkishtextbook.com/", "TurkishTextBook") }}
+                {{ components.resourceLink("https://hepturkce.com/", "HepTürkçe") }}
+                {{ components.resourceLink("https://lms.apitwist.com/course/index.php?categoryid=4&lang=en", "Apitwist")
+                }}
+            </ul>
+        </div>
+
+        {# Sección Diccionarios #}
+        <div class="bg-slate-50 dark:bg-slate-800 
+                    border-2 border-slate-200 dark:border-slate-700
+                    rounded-2xl p-6
+                    hover:border-slate-300 dark:hover:border-slate-600
+                    hover:shadow-xl
+                    transition-all duration-300">
+            <h3 class="flex items-center gap-3 text-xl font-semibold 
+                       text-slate-800 dark:text-slate-100
+                       mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-700">
+
+                Diccionarios
+            </h3>
+            <ul class="flex flex-col gap-3">
+                {{ components.resourceLink("https://sozluk.gov.tr", "Sozluk.gov.tr") }}
+                {{ components.resourceLink("https://wordreference.com", "WordReference") }}
+            </ul>
+        </div>
+    </div>
+</div>

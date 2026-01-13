@@ -1,0 +1,39 @@
+---
+layout: auth_base.njk
+title: Iniciar Sesión
+---
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 px-4">
+    <div
+        class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 dark:border-slate-700 transition-all">
+        <h1 class="text-3xl font-bold text-center mb-8 text-slate-800 dark:text-slate-100">Iniciar Sesión</h1>
+        <form id="loginForm" class="space-y-6">
+            <div class="space-y-2">
+                <label for="username" class="block text-sm font-semibold text-slate-600 dark:text-slate-400">Usuario o
+                    Email:</label>
+                <input type="text" id="username" required placeholder="Ingresa tu usuario o email"
+                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+            </div>
+            <div class="space-y-2">
+                <label for="password"
+                    class="block text-sm font-semibold text-slate-600 dark:text-slate-400">Contraseña:</label>
+                <input type="password" id="password" required placeholder="Ingresa tu contraseña"
+                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+            </div>
+            <button type="submit"
+                class="w-full py-3 mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5 hover:shadow-indigo-500/30 active:scale-[0.98]">
+                Entrar
+            </button>
+            <div class="hidden p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-200 dark:border-red-800"
+                id="errorMessage"></div>
+        </form>
+        <p class="text-center mt-8 text-slate-600 dark:text-slate-400 text-sm">
+            ¿No tienes cuenta? <a href="/register/"
+                class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Regístrate</a>
+        </p>
+        <p class="text-center mt-4">
+            <a href="/"
+                class="text-slate-500 dark:text-slate-500 text-sm hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Volver
+                al inicio</a>
+        </p>
+    </div>
+</div>
