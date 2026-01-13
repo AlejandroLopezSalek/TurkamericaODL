@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# TurkAmerica Deployment Script
+# Usage: ./deploy.sh
+
+# Stop on error
+set -e
+
+echo "🚀 Starting deployment..."
+
+# 1. Pull latest changes
+echo "📥 Pulling latest code..."
+git pull origin main
+
+# 2. Install dependencies (only production)
+echo "📦 Installing dependencies..."
+npm ci --only=production
+
+# 3. Build Frontend (Eleventy + Tailwind)
+echo "🏗️  Building frontend..."
+# Ensure devDependencies are available for build if needed, or if npm ci removed them
+# If build tools are in devDependencies, we might need 'npm install' instead of 'npm ci --production'
+# Checking package.json... Tailwind and Eleventy are in devDependencies.
+# So we need full install for build phase.
+npm install
+npm run build
+
+# 4. Restart Server with PM2
+echo "🔄 Reloading PM2..."
+# Check if app is running, if so reload, else start
+if pm2 list | grep -q "turkamerica"; then
+    pm2 reload turkamerica
+else
+    npm run start:prod
+fi
+
+echo "✅ Deployment complete!"
