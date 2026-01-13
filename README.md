@@ -3,31 +3,35 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4.4%2B-green)](https://www.mongodb.com/)
 
+Muchas gracias por pasarte a ver esta es la uand elas mil veces qu resubo mis repos!
+Por motivos de seguridad decidi poner las muestras antiguas en privado.
+Asi que me gustaria decirles que este proyecto fue hecho con mucho esmero y tiempo para nuestra comunidad cualquier persona que quiera contactarse conmigo y trabajar estaria mas que contento.
+
 
 Plataforma web completa para aprender turco dirigida a hispanohablantes, con sistema de autenticación, gestión de progreso, rachas de estudio y recursos educativos organizados por niveles (A1-C1).
 
-## ✨ Características
+##  Características
 
-### 🎓 **Recursos Educativos**
+###  **Recursos Educativos**
 - Materiales organizados por niveles (A1 a C1)
 - PDFs oficiales del Instituto Yunus Emre
 - Explicaciones de gramática interactivas
 - Enlaces curados a canales de YouTube y recursos externos
 
-### 👤 **Sistema de Usuarios**
+###  **Sistema de Usuarios**
 - Registro y autenticación con JWT
 - Perfil personalizable con avatar
 - Sistema de rachas de estudio
 - Sincronización de progreso
 
-### 🎨 **Interfaz Moderna**
+###  **Interfaz Moderna**
 - Diseño responsive y adaptativo
 - Modo oscuro completo
 - Animaciones suaves y microinteracciones
 - Soporte para diferentes tamaños de fuente
 
 
-## 🏗️ Stack Tecnológico
+##  Stack Tecnológico
 
 ### Backend
 - **Node.js** - Runtime de JavaScript
@@ -49,34 +53,23 @@ Plataforma web completa para aprender turco dirigida a hispanohablantes, con sis
 - **Rate Limiting** - Protección contra ataques
 - **express-validator** - Validación de datos
 
-## 📝 Roadmap  futuro
 
-- [ ] Tests unitarios y de integración
-- [ ] Sistema de recuperación de contraseña
-- [ ] Chat en vivo con tutores
-- [ ] Sistema de gamificación avanzado
-- [ ] App móvil nativa (iOS/Android)
-- [ ] API pública para developers
-- [ ] Integración con servicios de pago
-- [ ] Certificaciones oficiales
 
-## 📄 Licencia
+##  Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
 
-## 👤 Autor
+##  Autor
 
 **LatinCTC**
 - GitHub: [@LatinCTC](https://github.com/LatinCTC)
 - Email: contact@turkamerica.com
 
-## 🙏 Agradecimientos
-
-- Instituto Yunus Emre por los materiales educativos
+##  Agradecimientos
 - Comunidad de aprendices de turco
 - Todos los contributors y supporters
 
-## 💖 Apoyo
+##  Apoyo
 
 Si este proyecto te ha sido útil, considera:
 - ⭐ Dar una estrella al repositorio
@@ -84,6 +77,5 @@ Si este proyecto te ha sido útil, considera:
 - 💡 Sugerir nuevas características
 - 💰 [Apoyar el proyecto](https://whydonate.com/fundraising/-apoya-mas-desarollos-para-nuestra-comunidad)
 
----
 
-**Made with ❤️ by LatinCTC**
+**Made with ❤️ by ODL**

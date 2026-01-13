@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const path = require('path');
+const compression = require('compression'); // New optimization
 const mongoSanitize = require('mongo-sanitize');
 const xss = require('xss-clean');
 
@@ -132,6 +133,9 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
+// Compress all responses
+app.use(compression());
+
 // Body parsing with size limits
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -209,7 +213,6 @@ app.use('/api/*', (req, res) => {
 
 // Serve frontend for all non-API routes (SPA support)
 app.get('*', (req, res) => {
-  // ⬇️ MODIFICADO para servir el index.html de la carpeta _site de Eleventy
   res.sendFile(path.join(FRONTEND_PATH, 'index.html'), (err) => {
     if (err) {
       console.error('Error serving index.html:', err);
@@ -333,12 +336,12 @@ const gracefulShutdown = (signal) => {
   // Close server first
   const server = app.listen(PORT);
   server.close(() => {
-    console.log('🚪 HTTP server closed');
+    console.log(' HTTP server closed');
 
     // Then close database
     // Then close database
     mongoose.connection.close().then(() => {
-      console.log('📦 MongoDB connection closed');
+      console.log(' MongoDB connection closed');
       process.exit(0);
     });
   });

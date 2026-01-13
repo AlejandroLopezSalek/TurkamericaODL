@@ -92,13 +92,13 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // ⚡ CRITICAL FIX: Skip non-http protocols (chrome-extension, etc)
+    // Skip non-http protocols (chrome-extension, etc)
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
         console.log('[SW] Skipping non-http protocol:', url.protocol);
         return;
     }
 
-    // ⚡ SKIP ADS: Let the browser/adblocker handle these, don't crash SW
+    //  Let the browser/adblocker handle these, don't crash SW
     if (url.hostname.includes('googlesyndication') ||
         url.hostname.includes('doubleclick') ||
         url.hostname.includes('adtrafficquality') ||
