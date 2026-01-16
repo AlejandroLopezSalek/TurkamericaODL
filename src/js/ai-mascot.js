@@ -440,7 +440,7 @@ async function handleSend(e) {
         const savedHistory = JSON.parse(sessionStorage.getItem('capi_chat_history') || '[]');
         const history = savedHistory.map(h => ({ role: h.role, content: h.text }));
 
-        const token = localStorage.getItem('token'); // Get auth token directly
+        const token = localStorage.getItem('authToken'); // Fixed: Match auth.js key
         const headers = {
             'Content-Type': 'application/json'
         };

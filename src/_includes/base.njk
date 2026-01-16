@@ -24,18 +24,9 @@
 
 
     <!-- Lazy Load AdSense -->
-    <script>
-        document.addEventListener('scroll', function() {
-            if (!window.adsLoaded) {
-                var script = document.createElement('script');
-                script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7159335195531967";
-                script.crossOrigin = "anonymous";
-                script.async = true;
-                document.head.appendChild(script);
-                window.adsLoaded = true;
-            }
-        }, { once: true });
-    </script>
+    <!-- Google AdSense Standard -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7159335195531967"
+     crossorigin="anonymous"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -181,6 +172,8 @@
                         <a href="/Contribuidores/" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contribuidores</a>
                         <span class="text-slate-300 dark:text-slate-600">•</span>
                         <a href="https://whydonate.com/fundraising/-apoya-mas-desarollos-para-nuestra-comunidad" target="_blank" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Apoyar</a>
+                        <span class="text-slate-300 dark:text-slate-600">•</span>
+                        <a href="/Privacy/" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacidad</a>
                     </div>
                     <p class="text-xs md:text-sm text-slate-500 dark:text-slate-500">
                         Hecho con <i class="fas fa-heart text-red-500 animate-pulse"></i> para la comunidad latina por ODL
@@ -328,7 +321,9 @@
     <script src="/js/analytics.js?v={{ timestamp }}" defer></script>
     <script src="/js/search.js?v={{ timestamp }}" defer></script>
     <script src="/js/pronunciation.js?v={{ timestamp }}" defer></script>
+
     <script src="/js/ads.js?v={{ timestamp }}" defer></script>
+    <script src="/js/cookie-consent.js?v={{ timestamp }}" defer></script>
     
     {% if scripts %}
     {% for script in scripts %}

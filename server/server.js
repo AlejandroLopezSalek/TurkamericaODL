@@ -140,7 +140,7 @@ app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// ✅ MODIFICADO para servir la carpeta _site de Eleventy
+
 const FRONTEND_PATH = path.join(__dirname, '..', '_site');
 app.use(express.static(FRONTEND_PATH, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
@@ -179,7 +179,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes - Authentication only for MVP
+// API Routes 
 app.use('/api/auth', authRoutes);
 app.use('/api/contributions', require('./routes/contributions'));
 app.use('/api/lessons', require('./routes/lessons'));
@@ -232,20 +232,20 @@ app.get('*', (req, res) => {
 const mongoose = require('mongoose');
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err);
+  console.error(' MongoDB connection error:', err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️  MongoDB disconnected. Attempting to reconnect...');
+  console.log(' MongoDB disconnected. Attempting to reconnect...');
 });
 
 mongoose.connection.on('reconnected', () => {
-  console.log('✅ MongoDB reconnected');
+  console.log('MongoDB reconnected');
 });
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error('❌ Error:', error.message);
+  console.error(' Error:', error.message);
 
   // CORS errors
   if (error.message === 'Not allowed by CORS') {
@@ -310,7 +310,7 @@ app.use((error, req, res, next) => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error(' Unhandled Rejection at:', promise, 'reason:', reason);
   // Don't exit the process in production
   if (process.env.NODE_ENV !== 'production') {
     process.exit(1);
@@ -319,7 +319,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error(' Uncaught Exception:', error);
   // Give time to log before exiting
   setTimeout(() => {
     process.exit(1);
@@ -331,7 +331,7 @@ process.on('uncaughtException', (error) => {
 // ================================
 
 const gracefulShutdown = (signal) => {
-  console.log(`\n🔄 Received ${signal}. Starting graceful shutdown...`);
+  console.log(`\n Received ${signal}. Starting graceful shutdown...`);
 
   // Close server first
   const server = app.listen(PORT);
@@ -348,7 +348,7 @@ const gracefulShutdown = (signal) => {
 
   // Force close after 10 seconds
   setTimeout(() => {
-    console.error('⚠️  Forced shutdown after timeout');
+    console.error('  Forced shutdown after timeout');
     process.exit(1);
   }, 10000);
 };

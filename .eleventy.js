@@ -13,6 +13,7 @@ module.exports = function (eleventyConfig) {
 
     // Archivos sueltos/root
     eleventyConfig.addPassthroughCopy({ "src/sw.js": "sw.js" });
+    eleventyConfig.addPassthroughCopy({ "src/ads.txt": "ads.txt" });
 
     // Reglas nuevas
     eleventyConfig.addPassthroughCopy("public");
