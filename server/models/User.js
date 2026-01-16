@@ -20,8 +20,14 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    // Password is only required if googleId is NOT present
+    required: function () { return !this.googleId; },
     minlength: [6, 'Password must be at least 6 characters']
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple documents to have no googleId
   },
   profile: {
     firstName: String,

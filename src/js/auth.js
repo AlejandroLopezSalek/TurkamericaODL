@@ -156,6 +156,38 @@ class AuthService {
         }
     }
 
+    async loginWithGoogle(credential) {
+        try {
+            const API_URL = `${window.location.origin}/api/auth/google`;
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: credential })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Error en Google Login');
+            }
+
+            this.token = data.token;
+            this.currentUser = data.user;
+
+            localStorage.setItem(window.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
+            localStorage.setItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
+
+            this.dispatchAuthEvent(true);
+
+            return { success: true, user: this.currentUser };
+
+        } catch (error) {
+            console.error('Error en Google login:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     async logout() {
         try {
             if (this.token && !ENABLE_MOCK) {

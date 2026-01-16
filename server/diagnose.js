@@ -14,21 +14,21 @@ let warnings = 0;
 // ================================
 // 1. Check Node.js Version
 // ================================
-console.log('📦 Checking Node.js version...');
+console.log('Checking Node.js version...');
 const nodeVersion = process.version;
 const majorVersion = parseInt(nodeVersion.split('.')[0].substring(1));
 
 if (majorVersion >= 16) {
-    console.log(`✅ Node.js ${nodeVersion} (OK)`);
+    console.log(`Node.js ${nodeVersion} (OK)`);
 } else {
-    console.log(`❌ Node.js ${nodeVersion} (Need v16+)`);
+    console.log(` Node.js ${nodeVersion} (Need v16+)`);
     errors++;
 }
 
 // ================================
 // 2. Check Required Files
 // ================================
-console.log('\n📁 Checking required files...');
+console.log('\n Checking required files...');
 
 const requiredFiles = [
     'server.js',
@@ -41,9 +41,9 @@ const requiredFiles = [
 
 requiredFiles.forEach(file => {
     if (fs.existsSync(file)) {
-        console.log(`✅ ${file}`);
+        console.log(` ${file}`);
     } else {
-        console.log(`❌ ${file} (MISSING)`);
+        console.log(` ${file} (MISSING)`);
         errors++;
     }
 });
@@ -51,7 +51,7 @@ requiredFiles.forEach(file => {
 // ================================
 // 3. Check .env Configuration
 // ================================
-console.log('\n⚙️  Checking .env configuration...');
+console.log('\n  Checking .env configuration...');
 
 if (fs.existsSync('.env')) {
     const envContent = fs.readFileSync('.env', 'utf8');

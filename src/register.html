@@ -34,6 +34,33 @@ title: Registrarse
                 class="w-full py-3 mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5 hover:shadow-indigo-500/30 active:scale-[0.98]">
                 Registrarse
             </button>
+            <div class="relative flex items-center justify-center my-6">
+                <span class="absolute px-3 bg-white dark:bg-slate-800 text-slate-400 text-sm">O regístrate con</span>
+                <div class="w-full h-px bg-slate-200 dark:bg-slate-700"></div>
+            </div>
+
+            <!-- GOOGLE SIGN IN (SAME CONFIG) -->
+            <div id="g_id_onload"
+                data-client_id="851628305222-0esr3799u256av6tnbvr7fqh19ut0unb.apps.googleusercontent.com"
+                data-callback="handleCredentialResponse" data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signup_with"
+                data-shape="rectangular" data-logo_alignment="left" data-width="382">
+            </div>
+
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+            <script>
+                async function handleCredentialResponse(response) {
+                    const result = await window.AuthService.loginWithGoogle(response.credential);
+                    if (result.success) {
+                        if (window.toastSuccess) window.toastSuccess('Registro con Google exitoso', 'Bienvenido', 3000);
+                        setTimeout(() => window.location.href = '/', 1500);
+                    } else {
+                        if (window.toastError) window.toastError(result.error, 'Error', 4000);
+                    }
+                }
+            </script>
+
             <div class="hidden p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-200 dark:border-red-800"
                 id="errorMessage"></div>
         </form>
