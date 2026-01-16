@@ -18,20 +18,50 @@ title: Registrarse
                 <input type="email" id="email" required placeholder="tu@email.com"
                     class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
             </div>
+            <!-- Password Field -->
             <div class="space-y-2">
                 <label for="password"
                     class="block text-sm font-semibold text-slate-600 dark:text-slate-400">Contraseña:</label>
-                <input type="password" id="password" required minlength="6" placeholder="Mínimo 6 caracteres"
-                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                <div class="relative">
+                    <input type="password" id="password" required minlength="6" placeholder="Mínimo 6 caracteres"
+                        class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    <button type="button" onclick="togglePassword('password')"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                        <i class="fas fa-eye" id="password-icon"></i>
+                    </button>
+                </div>
+                <!-- Strength Meter -->
+                <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
+                    <div id="strengthBar" class="h-full w-0 transition-all duration-300 bg-red-500"></div>
+                </div>
+                <p id="strengthText" class="text-xs text-slate-500 dark:text-slate-400 text-right">Fuerza: <span
+                        id="strengthLabel">Vacía</span></p>
+                <!-- Requirements -->
+                <ul class="text-xs text-slate-500 dark:text-slate-400 space-y-1 mt-1 pl-1">
+                    <li id="req-length"><i class="fas fa-circle text-[8px] mr-1 text-slate-300"></i> Mínimo 8 caracteres
+                    </li>
+                    <li id="req-safe"><i class="fas fa-circle text-[8px] mr-1 text-slate-300"></i> Número o símbolo se
+                        recomienda</li>
+                </ul>
             </div>
+
+            <!-- Confirm Password Field -->
             <div class="space-y-2">
                 <label for="confirmPassword"
                     class="block text-sm font-semibold text-slate-600 dark:text-slate-400">Confirmar Contraseña:</label>
-                <input type="password" id="confirmPassword" required placeholder="Repite tu contraseña"
-                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                <div class="relative">
+                    <input type="password" id="confirmPassword" required placeholder="Repite tu contraseña"
+                        class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    <button type="button" onclick="togglePassword('confirmPassword')"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                        <i class="fas fa-eye" id="confirmPassword-icon"></i>
+                    </button>
+                </div>
+                <p id="matchText" class="text-xs hidden mt-1 font-medium"></p>
             </div>
-            <button type="submit"
-                class="w-full py-3 mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5 hover:shadow-indigo-500/30 active:scale-[0.98]">
+
+            <button type="submit" id="submitBtn" disabled
+                class="w-full py-3 mt-4 bg-slate-400 cursor-not-allowed text-white rounded-lg font-bold shadow-lg transform transition disabled:opacity-70 disabled:hover:translate-y-0">
                 Registrarse
             </button>
             <div class="relative flex items-center justify-center my-6">
@@ -39,27 +69,20 @@ title: Registrarse
                 <div class="w-full h-px bg-slate-200 dark:bg-slate-700"></div>
             </div>
 
-            <!-- GOOGLE SIGN IN (SAME CONFIG) -->
-            <div id="g_id_onload"
-                data-client_id="851628305222-0esr3799u256av6tnbvr7fqh19ut0unb.apps.googleusercontent.com"
-                data-callback="handleCredentialResponse" data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signup_with"
-                data-shape="rectangular" data-logo_alignment="left" data-width="382">
+            <!-- GOOGLE SIGN IN (Responsive Wrapper) -->
+            <div class="w-full flex justify-center overflow-hidden">
+                <div id="g_id_onload"
+                    data-client_id="851628305222-0esr3799u256av6tnbvr7fqh19ut0unb.apps.googleusercontent.com"
+                    data-callback="handleCredentialResponse" data-auto_prompt="false">
+                </div>
+                <!-- Fixed width 320px for mobile safety -->
+                <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
+                    data-text="signup_with" data-shape="rectangular" data-logo_alignment="left" data-width="320">
+                </div>
             </div>
 
             <script src="https://accounts.google.com/gsi/client" async defer></script>
-            <script>
-                async function handleCredentialResponse(response) {
-                    const result = await window.AuthService.loginWithGoogle(response.credential);
-                    if (result.success) {
-                        if (window.toastSuccess) window.toastSuccess('Registro con Google exitoso', 'Bienvenido', 3000);
-                        setTimeout(() => window.location.href = '/', 1500);
-                    } else {
-                        if (window.toastError) window.toastError(result.error, 'Error', 4000);
-                    }
-                }
-            </script>
+
 
             <div class="hidden p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-200 dark:border-red-800"
                 id="errorMessage"></div>

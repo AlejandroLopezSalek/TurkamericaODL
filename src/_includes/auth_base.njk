@@ -27,6 +27,12 @@
         }
         body.loaded { opacity: 1;
         }
+
+        /* Hide native password eye in Edge/IE */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,6 +46,9 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Auth UI Logic (Loaded early to define globals) -->
+    <script src="/js/auth-ui.js?v={{ timestamp }}"></script>
 </head>
 <body class="auth-page">
     {{ content | safe }}
