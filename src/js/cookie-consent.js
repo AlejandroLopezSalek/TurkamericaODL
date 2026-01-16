@@ -8,9 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showCookieBanner() {
+        if (document.getElementById('cookieConsentBanner')) return;
+
         const banner = document.createElement('div');
         banner.id = 'cookieConsentBanner';
-        banner.className = 'fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 p-4 z-[9999] shadow-2xl transform translate-y-full transition-transform duration-500';
+        banner.className = 'fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 p-4 z-[9999] shadow-2xl transform translate-y-full transition-transform duration-500 will-change-transform';
         banner.innerHTML = `
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="text-slate-300 text-sm md:text-base text-center md:text-left">
@@ -32,10 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.appendChild(banner);
 
-        // Animate in
-        requestAnimationFrame(() => {
+        // Animate in - Double RAF or setTimeout ensures DOM paint first
+        setTimeout(() => {
             banner.classList.remove('translate-y-full');
-        });
+        }, 100);
 
         // Event Listeners
         document.getElementById('acceptCookiesBtn').addEventListener('click', () => {

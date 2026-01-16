@@ -360,11 +360,40 @@ window.AppUtils.Notifications = {
 
             console.log('Subscribed successfully!');
             this.updateUI(true);
-            alert('¡Notificaciones activadas! Te avisaremos para que vuelvas a estudiar.');
+            if (window.toastSuccess) {
+                window.toastSuccess('¡Notificaciones activadas! Te avisaremos para que vuelvas a estudiar.', 'Éxito', 5000);
+            } else {
+                alert('¡Notificaciones activadas! Te avisaremos para que vuelvas a estudiar.');
+            }
 
         } catch (error) {
             console.error('Subscription failed:', error);
-            alert('No se pudo activar las notificaciones. Intenta más tarde.');
+            if (window.toastError) {
+                window.toastError('No se pudo activar las notificaciones. Intenta más tarde.', 'Error', 5000);
+            } else {
+                alert('No se pudo activar las notificaciones. Intenta más tarde.');
+            }
+        }
+    },
+
+    async unsubscribe() {
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            if (subscription) {
+                await subscription.unsubscribe();
+                // Optional: Call backend to remove subscription here
+                console.log('Unsubscribed successfully');
+            }
+            this.updateUI(false);
+            if (window.toastInfo) {
+                window.toastInfo('Notificaciones desactivadas. Ya no recibirás alertas.', 'Desactivado', 4000);
+            }
+        } catch (error) {
+            console.error('Error unsubscribing', error);
+            if (window.toastError) {
+                window.toastError('No se pudo desactivar. Intenta de nuevo.', 'Error', 4000);
+            }
         }
     },
 
@@ -379,11 +408,19 @@ window.AppUtils.Notifications = {
 
             newToggle.addEventListener('change', (e) => {
                 if (e.target.checked) {
+                    // AUTH CHECK
+                    if (window.AuthService && !window.AuthService.isLoggedIn()) {
+                        e.target.checked = false;
+                        if (window.toastWarning) {
+                            window.toastWarning('Debes iniciar sesión para activar las notificaciones.', 'Solo Usuarios Registrados', 4000);
+                        } else {
+                            alert('Debes iniciar sesión para activar las notificaciones.');
+                        }
+                        return;
+                    }
                     this.subscribe();
                 } else {
-                    // Logic to unsubscribe could go here, for now just UI
-                    alert('Para desactivar notificaciones por completo, hazlo desde la configuración de tu navegador.');
-                    e.target.checked = true; // Keep it on until we implement unsusbscribe
+                    this.unsubscribe();
                 }
             });
         }
