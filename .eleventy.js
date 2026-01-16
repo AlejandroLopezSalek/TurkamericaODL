@@ -17,7 +17,7 @@ module.exports = function (eleventyConfig) {
 
     // Reglas nuevas
     eleventyConfig.addPassthroughCopy("public");
-    eleventyConfig.addPassthroughCopy("icons");
+    eleventyConfig.addPassthroughCopy({ "src/icons": "icons" });
     eleventyConfig.addPassthroughCopy("images");
     eleventyConfig.addPassthroughCopy({ "src/manifest.json": "manifest.json" });
     eleventyConfig.addPassthroughCopy("favicon.ico");
