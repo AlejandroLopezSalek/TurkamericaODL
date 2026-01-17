@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 function editPublishedLesson(id) {
-    window.location.href = `/ Contribute /? editLesson = ${id} `;
+    window.location.href = `/Contribute/?editLesson=${id}`;
 }
 
 // Custom Delete Modal Logic

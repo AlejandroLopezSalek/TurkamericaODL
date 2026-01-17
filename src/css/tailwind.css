@@ -48,6 +48,7 @@
         @apply bg-gradient-to-br from-purple-600 to-purple-800 text-white border-transparent shadow-lg shadow-purple-500/30;
     }
 
+    /* Modal Styles Removed to prevent conflicts with Universal Modal Component */
     /* Books Grid - Mobile Static (Stacked) */
     .books-grid {
         display: grid;

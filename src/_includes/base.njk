@@ -50,6 +50,10 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .animate-scaleIn { animation: scaleIn 0.3s ease-out forwards; }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
         
         /* Utility for hiding scrollbars but allowing scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }

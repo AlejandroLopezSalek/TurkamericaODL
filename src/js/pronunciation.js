@@ -50,6 +50,10 @@ class PronunciationSystem {
     }
 
     // Main function to inject buttons into a container
+    scanAndInject(container) {
+        this.inject(container);
+    }
+
     inject(container) {
         if (!container) return;
 

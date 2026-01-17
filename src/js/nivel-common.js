@@ -1,453 +1,306 @@
 // =====================================================
-// UNIVERSAL NIVEL JAVASCRIPT - WORKS FOR ALL LEVELS
-// Auto-detects level from URL (A1, A2, B1, B2, C1)
+// TURKAMERICA STANDARD - NIVEL COMMON JS (CLEAN REWRITE)
+// Handles: Level Detection, Lesson Fetching, Universal Modal
 // =====================================================
 
-// Detect current level from URL
+// 1. Level Detection
 function getCurrentLevel() {
     const path = window.location.pathname;
     const match = path.match(/Nivel([ABC][12])/i);
-    if (match) {
-        return match[1].toUpperCase(); // Returns 'A1', 'A2', 'B1', 'B2', or 'C1'
-    }
-    return 'A1'; // Default fallback
+    return match ? match[1].toUpperCase() : 'A1';
 }
 
 const CURRENT_LEVEL = getCurrentLevel();
 const LEVEL_LOWER = CURRENT_LEVEL.toLowerCase();
-
-// Almacenar las explicaciones globalmente una vez cargadas
 let explanationsCache = null;
 
-// Función para obtener las explicaciones del archivo JSON (o caché)
+// 2. Data Fetching
 async function getExplanations() {
-    if (explanationsCache) {
-        return explanationsCache;
-    }
+    if (explanationsCache) return explanationsCache;
 
     try {
-        // 1. Fetch Static Data
-        const response = await fetch(`/data/${LEVEL_LOWER}_lessons.json`);
-        let data = {};
-        if (response.ok) {
-            data = await response.json();
-        }
+        console.log(`📚 Loading lessons for ${CURRENT_LEVEL}...`);
 
-        // 2. Fetch Dynamic Data (Published edits/new lessons)
+        // Fetch Static Data
+        const response = await fetch(`/data/${LEVEL_LOWER}_lessons.json`);
+        let data = response.ok ? await response.json() : {};
+
+        // Fetch Dynamic Data (if service exists)
         if (window.ContributionService) {
             try {
                 const dynamicLessons = await window.ContributionService.getPublishedLessons();
-                console.log('📥 Dynamic lessons fetched:', dynamicLessons);
-
                 if (Array.isArray(dynamicLessons)) {
-                    // Filter: Show published lessons for this level
-                    // CRITICAL: Strict separation. ONLY show lessons created cleanly as "nivel-edit" or native JSON.
-                    // If we allow "community" lessons here, then the separation breaks.
-                    // But we must also support legacy lessons (no source).
-                    // Logic:
-                    // - If source is 'nivel-edit': INCLUDE
-                    // - If source is undefined: INCLUDE (Legacy support for lessons created before this change, assuming they belong anywhere level matches)
-                    // - If source is 'community': EXCLUDE (User request: community lessons stay in community)
+                    // Filter: Match Level + Exclude Community Source
                     const levelLessons = dynamicLessons.filter(l => {
-                        const lessonLevel = (l.level || '').toUpperCase();
-                        const isCorrectLevel = lessonLevel === CURRENT_LEVEL;
-
-                        if (!isCorrectLevel) return false;
-
-                        // Strict Source Check
-                        if (l.source === 'community') return false;
-                        // implicitly allows 'nivel-edit' and undefined/null
-
-                        return true;
+                        const isLevelMatch = (l.level || '').toUpperCase() === CURRENT_LEVEL;
+                        const isNotCommunity = l.source !== 'community'; // Strict separation
+                        return isLevelMatch && isNotCommunity;
                     });
+
+                    // Render Cards for New Lessons
+                    renderDynamicCards(levelLessons);
 
                     levelLessons.forEach(lesson => {
                         const key = lesson.id || lesson.lessonId;
                         if (key) {
-                            console.log(`🔄 Merging dynamic lesson: ${key}`);
-                            // Verify structure matches what the UI expects
                             data[key] = {
-                                title: lesson.title || (data[key] ? data[key].title : 'Nueva Lección'),
-                                content: lesson.content || lesson.newContent || (data[key] ? data[key].content : ''),
-                                description: lesson.description || (data[key] ? data[key].description : '')
+                                title: lesson.title || 'Nueva Lección',
+                                content: lesson.content || lesson.newContent || '',
+                                description: lesson.description || '',
+                                id: key,
+                                source: lesson.source,
+                                _id: lesson._id
                             };
                         }
                     });
                 }
-            } catch (err) {
-                console.warn('⚠️ Could not fetch dynamic lessons:', err);
-            }
+            } catch (err) { console.warn('⚠️ Dynamic fetch warning:', err); }
         }
-
         explanationsCache = data;
         return data;
     } catch (error) {
-        console.error(`Error al cargar las lecciones de ${CURRENT_LEVEL}:`, error);
-        const modal = document.getElementById('universalLessonModal');
-        if (modal) {
-            document.getElementById('universalModalTitle').textContent = "Error de Carga";
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+        console.error('❌ Critical Error loading lessons:', error);
+        return {};
     }
 }
 
-// Función para cerrar el modal - GLOBAL para sobrescribir gramatica.js
-window.closeModal = function () {
-    console.log('✅ closeModal() from nivel-common.js');
+// 3. Modal Logic (Simplified & Robust)
+window.closeUniversalModal = function () {
     const modal = document.getElementById('universalLessonModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = 'auto';
-        console.log('✅ Modal closed');
-        setTimeout(() => {
-            const modalContent = document.getElementById('universalModalContent');
-            if (modalContent) modalContent.innerHTML = '';
-            const modalActions = document.getElementById('universalModalActions');
-            if (modalActions) modalActions.innerHTML = '';
-        }, 100);
-    }
+    if (!modal) return;
+
+    console.log('🔒 Closing Modal...');
+    // Force Hide
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = ''; // Restore scroll
+
+    // Clear content slightly later
+    setTimeout(() => {
+        const content = document.getElementById('universalModalContent');
+        if (content) content.innerHTML = '';
+        const actions = document.getElementById('universalModalActions');
+        if (actions) actions.innerHTML = '';
+    }, 100);
 };
 
-// Función para abrir explicaciones
+// Open Function
 async function openExplanation(topic) {
+    console.log('🚀 Opening topic:', topic);
     const modal = document.getElementById('universalLessonModal');
-    const title = document.getElementById('universalModalTitle');
-    const content = document.getElementById('universalModalContent');
-    const actions = document.getElementById('universalModalActions');
+    const titleEl = document.getElementById('universalModalTitle');
+    const contentEl = document.getElementById('universalModalContent');
+    const actionsEl = document.getElementById('universalModalActions');
 
-    const explanations = await getExplanations();
-
-    if (explanations && explanations[topic]) {
-        const item = explanations[topic];
-        title.textContent = item.title;
-        content.innerHTML = item.content;
-
-        // Add Edit Button if dynamic (has _id or is user created)
-        if (actions) {
-            actions.innerHTML = ''; // Clear previous
-            if (item._id || item.source === 'nivel-edit') {
-                const editBtn = document.createElement('button');
-                editBtn.className = 'bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-sm transition-colors';
-                editBtn.innerHTML = '<i class="fas fa-edit mr-1"></i>Editar';
-                editBtn.onclick = () => {
-                    window.location.href = `/Contribute/?editLesson=${item.id || item._id}`;
-                };
-                actions.appendChild(editBtn);
-            }
-        }
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        document.body.style.overflow = 'hidden';
-
-        // Inject Pronunciation Buttons
-        if (window.PronunciationSystem) {
-            // Small delay to ensure DOM is ready
-            setTimeout(() => window.PronunciationSystem.inject(content), 100);
-        }
-
-        // Inject Edit Button AFTER modal is displayed
-        requestAnimationFrame(() => {
-            let editBtn = document.getElementById('modalEditBtn');
-            if (!editBtn) {
-                editBtn = document.createElement('a');
-                editBtn.id = 'modalEditBtn';
-                editBtn.className = 'btn btn-outline-secondary btn-sm';
-                editBtn.style.marginLeft = 'auto';
-                editBtn.style.marginRight = '10px';
-                editBtn.style.display = 'flex';
-                editBtn.style.alignItems = 'center';
-                editBtn.style.gap = '5px';
-                editBtn.style.textDecoration = 'none';
-                editBtn.style.cursor = 'pointer';
-                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-
-                // Check auth status for UI feedback
-
-                if (window.AuthService && !window.AuthService.isLoggedIn()) {
-                    editBtn.title = "Editar lección (Requiere iniciar sesión)";
-                    editBtn.classList.add('opacity-50'); // Optional: make it look slightly disabled
-                } else {
-                    editBtn.title = "Editar esta lección";
-                }
-
-                editBtn.title = "Editar esta lección (Auth Check Bypassed)";
-
-                // Insert before close button
-                const closeBtn = document.getElementById('closeModalBtn');
-                const header = document.querySelector('.modal-header');
-                if (header && closeBtn) {
-                    header.insertBefore(editBtn, closeBtn);
-                }
-            }
-
-            // Update to use Inline Editor
-            editBtn.href = '#';
-            editBtn.onclick = (e) => {
-                e.preventDefault();
-                // Check Auth before opening editor
-
-                if (window.AuthService && !window.AuthService.isLoggedIn()) {
-                    if (window.toastWarning) {
-                        window.toastWarning("Debes iniciar sesión para editar (Solo usuarios registrados)", "Acceso Restringido");
-                    } else {
-                        alert("Debes iniciar sesión para editar (Solo usuarios registrados)");
-                    }
-                    return;
-                }
-
-                openInlineEditor(topic);
-            };
-        });
-    } else {
-        title.textContent = "Error";
-        content.innerHTML = "<p>Contenido no encontrado para este tema.</p>";
-        modal.style.display = 'flex';
+    if (!modal || !titleEl || !contentEl) {
+        console.error('❌ Modal DOM elements missing!');
+        return;
     }
+
+    // Show loading state potentially? Or just wait.
+    document.body.style.cursor = 'wait';
+
+    // Load Data
+    const explanations = await getExplanations();
+    document.body.style.cursor = 'default';
+
+    const item = explanations ? explanations[topic] : null;
+
+    if (!item) {
+        titleEl.textContent = 'Tema no encontrado';
+        contentEl.innerHTML = '<p class="text-center text-gray-500 my-4">No se encontró contenido para este tema.</p>';
+    } else {
+        titleEl.textContent = item.title;
+        contentEl.innerHTML = item.content;
+
+        // Simple Edit Button Logic
+        if (actionsEl) {
+            actionsEl.innerHTML = '';
+            // Show for nivel-edit OR if it has an ID (covers both cases)
+            // Determine if it's a DB lesson (has ID) or Static (topic only)
+            const dbId = item.id || item._id;
+
+            if (dbId || topic) {
+                const btn = document.createElement('button');
+                btn.className = 'bg-white/20 hover:bg-white/30 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors';
+                btn.innerHTML = '<i class="fas fa-edit"></i>';
+                btn.title = "Editar Lección";
+
+                btn.onclick = () => {
+                    if (dbId) {
+                        window.location.href = `/Contribute/?editLesson=${dbId}`;
+                    } else {
+                        // Static lesson: passed as topic + level to fetch from JSON
+                        window.location.href = `/Contribute/?topic=${topic}&level=${CURRENT_LEVEL}`;
+                    }
+                };
+                actionsEl.appendChild(btn);
+            }
+        }
+
+        // Pronunciation Injection (Safe Check)
+        if (window.PronunciationSystem && typeof window.PronunciationSystem.scanAndInject === 'function') {
+            setTimeout(() => {
+                window.PronunciationSystem.scanAndInject(contentEl);
+            }, 50);
+        } else if (window.PronunciationSystem && typeof window.PronunciationSystem.inject === 'function') {
+            // Fallback to old name just in case
+            setTimeout(() => window.PronunciationSystem.inject(contentEl), 50);
+        }
+    }
+
+    // SHOW MODAL - Force it
+    console.log('✨ Displaying Modal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex'; // Explicit override
+    document.body.style.overflow = 'hidden'; // Lock scroll
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function () {
-    // Define closeModal AQUÍ para sobrescribir gramatica.js que se carga antes
-    window.closeModal = function () {
-        console.log('✅ closeModal() from nivel-common.js');
-        const modal = document.getElementById('explanationModal');
-        if (modal) {
-            modal.classList.remove('active');
-            modal.style.display = 'none';
-            modal.style.setProperty('display', 'none', 'important');
-            document.body.style.overflow = 'auto';
-            console.log('✅ Modal closed');
-            setTimeout(() => {
-                const modalContent = document.getElementById('modalContent');
-                if (modalContent) modalContent.innerHTML = '';
-            }, 100);
-        }
-    };
+// 4. Render Dynamic Cards Function
+function renderDynamicCards(lessons) {
+    const container = document.querySelector('.grammar-cards-container, .grammar-cards');
+    if (!container) return;
 
-    // Hoist Modal to Body to fix positioning issues (backdrop-filter causing containing block)
-    const modalToHoist = document.getElementById('explanationModal');
-    if (modalToHoist && modalToHoist.parentElement !== document.body) {
-        document.body.appendChild(modalToHoist);
-        console.log('✅ Modal moved to body root for fixed positioning');
-    }
+    lessons.forEach(lesson => {
+        // Avoid duplicates if card already exists (check by data-topic or ID)
+        // Static cards usually have data-topic. Dynamic ones will use ID.
+        const id = lesson.id || lesson._id;
+        if (container.querySelector(`[data-topic="${id}"]`)) return;
 
-    const panel = document.getElementById('topicsPanel');
-    const panelToggle = document.getElementById('panelToggle');
-    const searchInput = document.getElementById('topicSearch');
-    const grammarCards = document.querySelectorAll('.grammar-card');
+        const card = document.createElement('div');
+        // Match existing card styles (based on components.njk grammarCard)
+        card.className = 'grammar-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative group';
+        card.setAttribute('data-topic', id);
 
-    // Toggle panel
-    if (panelToggle && panel) {
-        panelToggle.addEventListener('click', function (e) {
+        card.innerHTML = `
+            <div class="absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                Nuevo
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                ${lesson.title}
+            </h3>
+            <div class="flex items-center gap-2 mb-4">
+                <span class="px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                    Básico
+                </span>
+            </div>
+            <p class="card-description text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-3">
+                ${lesson.description || 'Sin descripción'}
+            </p>
+            <button class="explanation-btn w-full py-2.5 rounded-lg font-semibold bg-indigo-600 text-white shadow-md hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center justify-center gap-2"
+                    data-topic="${id}">
+                <i class="fas fa-book-open"></i>
+                Ver Explicación
+            </button>
+        `;
+
+        // Bind the button event immediately
+        const btn = card.querySelector('.explanation-btn');
+        btn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            panel.classList.toggle('collapsed');
+            openExplanation(id);
         });
 
-        const panelHeader = document.querySelector('.panel-header');
-        if (panelHeader) {
-            panelHeader.addEventListener('click', function (e) {
-                // Prevent toggle if clicking search box or toggle button (handled above)
-                if (e.target.closest('.search-box') || e.target.closest('.panel-toggle')) return;
-                panel.classList.toggle('collapsed');
-            });
-        }
-    }
+        container.appendChild(card);
+    });
+}
 
-    // Búsqueda que filtra las tarjetas de gramática
-    if (searchInput) {
-        searchInput.addEventListener('input', function () {
-            const searchTerm = this.value.toLowerCase().trim();
+// 5. Initialization & Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ Nivel Common Loaded (Clean Version)');
 
-            if (searchTerm === '') {
-                grammarCards.forEach(card => {
-                    card.style.display = '';
-                });
-            } else {
-                grammarCards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    const description = card.querySelector('.card-description').textContent.toLowerCase();
+    // Bind Explanation Buttons
+    const buttons = document.querySelectorAll('.explanation-btn');
+    console.log(`Found ${buttons.length} explanation buttons`);
 
-                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
-        });
-    }
-
-    // Agregar event listeners a los botones de explicación
-    const explanationButtons = document.querySelectorAll('.explanation-btn');
-    explanationButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const topic = this.getAttribute('data-topic');
-            if (topic) {
-                openExplanation(topic);
-            }
+    buttons.forEach(btn => {
+        // Clone to remove old listeners if any, or just add new one? 
+        // Better to just add. If double click issues, we can optimize.
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const topic = btn.getAttribute('data-topic');
+            if (topic) openExplanation(topic);
         });
     });
 
-    // Agregar event listener al botón de cerrar modal (usando delegación)
-    const modal = document.getElementById('explanationModal');
-    if (modal) {
-        modal.addEventListener('click', function (e) {
-            console.log('Modal clicked:', e.target);
-
-            // Close if clicking the X button, its icon, or anywhere inside the button
-            const closeBtn = e.target.closest('#closeModalBtn') || e.target.closest('.close-modal');
-            const isCloseIcon = e.target.classList.contains('fa-times');
-
-            if (closeBtn || isCloseIcon || e.target.id === 'closeModalBtn' || e.target.classList.contains('close-modal')) {
-                console.log('Close button clicked!');
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-                return;
-            }
-
-            // Close if clicking outside modal content
-            if (e.target.id === 'explanationModal') {
-                console.log('Clicked outside modal');
-                closeModal();
-            }
-        });
-    }
-
-    // Also add direct listener as backup
-    const closeBtn = document.getElementById('closeModalBtn');
+    // Bind Close Button (Universal)
+    const closeBtn = document.getElementById('closeUniversalModalBtn');
     if (closeBtn) {
-        closeBtn.addEventListener('click', function (e) {
-            console.log('Direct close button click');
+        closeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            closeModal();
+            window.closeUniversalModal();
         });
     }
 
-    // Initialize Inline Editor
+    // Bind Overlay Click (Close when clicking outside)
+    const modal = document.getElementById('universalLessonModal');
+    if (modal) {
+        // HOIST TO BODY: VALIDATE FIX for "Modal at bottom" issue
+        // detailed explanation: if a parent has backdrop-filter or transform, fixed children are relative to IT, not viewport.
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+            console.log('🚀 Modal hoisted to body for correct full-screen positioning');
+        }
+
+        modal.addEventListener('click', (e) => {
+            // Check if specifically clicking the backdrop (id match)
+            if (e.target.id === 'universalLessonModal') {
+                window.closeUniversalModal();
+            }
+        });
+    }
+
+    // Initialize Inline Editor (if available)
     if (typeof LessonEditor !== 'undefined') {
         window.inlineLessonEditor = new LessonEditor('inlineLessonContentEditor');
     }
 
-    // Cancel Edit Button
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    if (cancelEditBtn) {
-        cancelEditBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            closeInlineEditor();
-        });
-    }
-
-    // Handle Inline Submit
+    // Handle Inline Form Submit (Legacy Support)
     const inlineForm = document.getElementById('inlineLessonForm');
     if (inlineForm) {
         inlineForm.addEventListener('submit', handleInlineSubmit);
     }
+
+    // TRIGGER INITIAL LOAD to render dynamic cards
+    getExplanations();
 });
 
-// ==========================================
-// INLINE EDITOR FUNCTIONS
-// ==========================================
-
-function openInlineEditor(topic) {
-    // Get lesson data from cache
-    getExplanations().then(explanations => {
-        if (!explanations || !explanations[topic]) {
-            if (window.toastError) window.toastError('Error al cargar la lección', 'Error');
-            else alert('Error al cargar la lección');
-            return;
-        }
-
-        const lesson = explanations[topic];
-
-        // Populate Form
-        const titleInput = document.getElementById('inlineLessonTitle');
-        const idInput = document.getElementById('inlineLessonId');
-        const descInput = document.getElementById('inlineLessonDescription');
-
-        if (titleInput) titleInput.value = lesson.title;
-        if (idInput) idInput.value = topic;
-        if (descInput) descInput.value = ''; // Description might not exist in JSON
-
-        if (window.inlineLessonEditor) {
-            window.inlineLessonEditor.setContent(lesson.content || '');
-        }
-
-        // Show Editor, Hide Content
-        const editorContainer = document.getElementById('inlineEditorContainer');
-        const cardsContainer = document.querySelector('.grammar-cards-container, .grammar-cards');
-        const topicsPanel = document.getElementById('topicsPanel');
-        const modal = document.getElementById('explanationModal');
-
-        if (editorContainer) editorContainer.style.display = 'block';
-        if (cardsContainer) cardsContainer.style.display = 'none';
-        if (topicsPanel) topicsPanel.style.display = 'none';
-        if (modal) {
-            modal.style.display = 'none';
-            // Unlock scroll when switching from modal to inline editor
-            document.body.style.overflow = 'auto';
-        }
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
-
-function closeInlineEditor() {
-    const editorContainer = document.getElementById('inlineEditorContainer');
-    const cardsContainer = document.querySelector('.grammar-cards-container, .grammar-cards');
-    const topicsPanel = document.getElementById('topicsPanel');
-
-    if (editorContainer) editorContainer.style.display = 'none';
-    if (cardsContainer) cardsContainer.style.display = '';
-    if (topicsPanel) topicsPanel.style.display = '';
-}
-
+// 5. Legacy Inline Submit Logic (Kept for compatibility)
 async function handleInlineSubmit(e) {
     e.preventDefault();
+    if (!window.ContributionService) {
+        alert('Servicio de contribución no disponible');
+        return;
+    }
 
     const content = window.inlineLessonEditor ? window.inlineLessonEditor.getContent() : '';
-
-    if (!content || content.trim() === '') {
-        if (window.toastWarning) window.toastWarning('Por favor añade contenido a la lección', 'Campo Requerido');
-        else alert('Por favor añade contenido a la lección');
+    if (!content || !content.trim()) {
+        alert('Por favor añade contenido');
         return;
     }
 
     const lessonData = {
-        lessonTitle: document.getElementById('inlineLessonTitle').value,
+        lessonTitle: document.getElementById('inlineLessonTitle')?.value || 'Sin Título',
         level: CURRENT_LEVEL,
-        description: document.getElementById('inlineLessonDescription').value,
+        description: document.getElementById('inlineLessonDescription')?.value || '',
         newContent: content,
-        lessonId: document.getElementById('inlineLessonId').value,
-        source: 'nivel-edit' // Mark as nivel-specific edit
+        lessonId: document.getElementById('inlineLessonId')?.value,
+        source: 'nivel-edit'
     };
 
     try {
-        // Use ContributionService if available
-        if (window.ContributionService) {
-            await window.ContributionService.submitLessonEdit(lessonData);
+        await window.ContributionService.submitLessonEdit(lessonData);
+        if (window.ToastSystem) window.ToastSystem.success('¡Propuesta enviada!', 'Éxito');
+        else alert('¡Propuesta enviada!');
 
-            // Show success message
-            if (window.ToastSystem) {
-                window.ToastSystem.success('¡Propuesta de edición enviada! Gracias por contribuir.', 'Enviado');
-            } else {
-                alert('¡Propuesta de edición enviada!');
-            }
+        // Close inline editor panels if they exist (simplified)
+        const editorContainer = document.getElementById('inlineEditorContainer');
+        if (editorContainer) editorContainer.style.display = 'none';
 
-            closeInlineEditor();
-        } else {
-            console.error('ContributionService not found');
-            if (window.toastError) window.toastError('Servicio de contribución no disponible', 'Error Sistema');
-            else alert('Error: Servicio de contribución no disponible');
-        }
     } catch (error) {
-        console.error('Error submitting edit:', error);
-        if (window.toastError) window.toastError('Error al enviar la edición. Intenta de nuevo.', 'Error');
-        else alert('Error al enviar la edición');
+        console.error('Submit error:', error);
+        alert('Error al enviar la edición');
     }
 }

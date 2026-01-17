@@ -114,11 +114,15 @@ async function fetchExistingLesson(topic, level) {
         const lesson = data[topic];
 
         if (lesson) {
-            // Scroll to form
-            document.querySelector('.contribution-types').scrollIntoView({ behavior: 'smooth' });
+            // Scroll to form if element exists
+            const typesSection = document.querySelector('.contribution-types');
+            if (typesSection) {
+                typesSection.scrollIntoView({ behavior: 'smooth' });
+            }
 
             // Switch to lesson form
-            document.getElementById('lessonTypeBtn').click();
+            const lessonTypeBtn = document.getElementById('lessonTypeBtn');
+            if (lessonTypeBtn) lessonTypeBtn.click();
 
             // Fill form with lesson data
             document.getElementById('lessonTitle').value = `Edición: ${lesson.title}`;
@@ -252,7 +256,10 @@ async function editLesson(lessonId) {
     }
 
     // Scroll to form
-    document.querySelector('.contribution-types').scrollIntoView({ behavior: 'smooth' });
+    const typesSection = document.querySelector('.contribution-types');
+    if (typesSection) {
+        typesSection.scrollIntoView({ behavior: 'smooth' });
+    }
 
     // Switch to lesson form
     const lessonBtn = document.getElementById('lessonTypeBtn');
