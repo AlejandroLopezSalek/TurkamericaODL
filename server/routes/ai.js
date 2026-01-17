@@ -185,7 +185,7 @@ NAVIGATION:
         }
 
     } catch (error) {
-        console.error('❌ Groq API Error:', error);
+        console.error(' Groq API Error:', error);
 
         // Return specific error message for debugging
         res.status(500).json({

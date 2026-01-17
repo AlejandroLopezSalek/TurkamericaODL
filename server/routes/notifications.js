@@ -12,7 +12,7 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
         process.env.VAPID_PRIVATE_KEY
     );
 } else {
-    console.warn("⚠️ VAPID Keys not found. Push notifications will not work.");
+    console.warn("VAPID Keys not found. Push notifications will not work.");
 }
 
 // GET /api/notifications/public-key
@@ -50,20 +50,16 @@ router.post('/subscribe', async (req, res) => {
         await newSub.save();
         res.status(201).json({ message: 'Subscribed successfully' });
 
-        // Optional: Send welcome push
-        /*
-        const payload = JSON.stringify({ title: '¡Bienvenido!', body: 'Gracias por activar las notificaciones.' });
-        webpush.sendNotification(subscription, payload).catch(err => console.error(err));
-        */
-
     } catch (error) {
         console.error('Subscription Error:', error);
         res.status(500).json({ error: 'Failed to subscribe' });
     }
 });
 
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
+
 // POST /api/notifications/send (Admin only - protect this!)
-router.post('/send', async (req, res) => {
+router.post('/send', authenticateToken, requireAdmin, async (req, res) => {
     try {
         // Simple protection: Check for a secret header or just assume admin for now (MVP)
         // In production, use auth middleware!

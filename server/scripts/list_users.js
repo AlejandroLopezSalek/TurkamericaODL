@@ -31,7 +31,7 @@ const listUsers = async () => {
         }
 
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
     } finally {
         await mongoose.connection.close();
         process.exit(0);

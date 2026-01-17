@@ -100,6 +100,8 @@
 
         async submitLessonEdit(data) {
             const user = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('authToken');
+
             const payload = {
                 type: 'lesson_edit',
                 title: data.lessonTitle,
@@ -108,9 +110,12 @@
                 submittedBy: user ? { id: user.id || user._id, username: user.username, email: user.email } : null
             };
 
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const response = await fetch(this.API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify(payload)
             });
 
@@ -120,6 +125,8 @@
 
         async submitBookUpload(data) {
             const user = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('authToken');
+
             const payload = {
                 type: 'book_upload',
                 title: data.title,
@@ -128,9 +135,12 @@
                 submittedBy: user ? { id: user.id || user._id, username: user.username, email: user.email } : null
             };
 
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const response = await fetch(this.API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify(payload)
             });
 
@@ -143,14 +153,18 @@
         // ========================================
 
         async approveRequest(requestId, finalContent = null) {
+            const token = localStorage.getItem('authToken');
             let body = { status: 'approved' };
             if (finalContent) {
                 body.finalContent = finalContent;
             }
 
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const response = await fetch(`${this.API_URL}/${requestId}/status`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify(body)
             });
 
@@ -162,9 +176,13 @@
         }
 
         async rejectRequest(requestId, reason) {
+            const token = localStorage.getItem('authToken');
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const response = await fetch(`${this.API_URL}/${requestId}/status`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ status: 'rejected', reason: reason })
             });
 
@@ -174,8 +192,13 @@
         }
 
         async deleteRequest(requestId) {
+            const token = localStorage.getItem('authToken');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const response = await fetch(`${this.API_URL}/${requestId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: headers
             });
             if (!response.ok) throw new Error('Failed to delete request');
             const text = await response.text();
@@ -184,9 +207,14 @@
 
         // Make deleteContribution available for community lessons
         async deleteContribution(id) {
+            const token = localStorage.getItem('authToken');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             // Assuming the same endpoint works or there's a lessons endpoint
             const response = await fetch(`${this.LESSONS_API_URL}/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: headers
             });
             if (!response.ok) throw new Error('Failed to delete lesson');
             const text = await response.text();

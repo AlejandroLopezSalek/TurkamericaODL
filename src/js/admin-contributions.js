@@ -245,7 +245,7 @@ async function viewRequest(id) {
                     
                     <!-- View Mode -->
                     <div id="contentPreview" class="prose dark:prose-invert max-w-none bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700 max-h-[500px] overflow-y-auto">
-                        ${request.data.newContent || '<p class="text-slate-400 italic">Sin contenido</p>'}
+                        ${request.data.newContent ? sanitizeHtml(request.data.newContent) : '<p class="text-slate-400 italic">Sin contenido</p>'}
                     </div>
                     
                     <!-- Edit Mode -->
@@ -501,6 +501,33 @@ function truncate(text, length) {
     if (!text) return '';
     if (text.length <= length) return text;
     return text.substring(0, length) + '...';
+}
+
+function sanitizeHtml(html) {
+    if (!html) return '';
+    const tempDiv = document.createElement('div');
+    tempDiv.textContent = html; // Simple escape
+
+    // Low-tech sanitizer:
+    // 1. Create a template element
+    const template = document.createElement('template');
+    template.innerHTML = html;
+
+    // 2. Remove script tags and event handlers
+    const scripts = template.content.querySelectorAll('script');
+    scripts.forEach(script => script.remove());
+
+    const allElements = template.content.querySelectorAll('*');
+    allElements.forEach(el => {
+        const attributes = el.attributes;
+        for (let i = attributes.length - 1; i >= 0; i--) {
+            if (attributes[i].name.startsWith('on') || attributes[i].value.startsWith('javascript:')) {
+                el.removeAttribute(attributes[i].name);
+            }
+        }
+    });
+
+    return template.innerHTML;
 }
 
 function showToast(message, type = 'info') {

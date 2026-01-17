@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Lesson = require('../models/Lesson');
 
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
+
 // GET all published lessons
 router.get('/', async (req, res) => {
     try {
@@ -27,8 +29,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// DELETE lesson
-router.delete('/:id', async (req, res) => {
+// DELETE lesson (Admin only)
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const result = await Lesson.findOneAndDelete({ id: req.params.id });
         if (!result) {

@@ -3,6 +3,8 @@ const router = express.Router();
 const Contribution = require('../models/Contribution');
 const Lesson = require('../models/Lesson');
 
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
+
 // GET all requests
 router.get('/', async (req, res) => {
     try {
@@ -14,8 +16,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET pending requests
-router.get('/pending', async (req, res) => {
+// GET pending requests (Admin only)
+router.get('/pending', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const contributions = await Contribution.find({ status: 'pending' }).sort({ submittedAt: -1 });
         res.json(contributions);
@@ -37,8 +39,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// DELETE request
-router.delete('/:id', async (req, res) => {
+// DELETE request (Admin only)
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const result = await Contribution.findOneAndDelete({ _id: req.params.id }); // Use _id for MongoDB auto-generated ID, or id if using custom
         // Check if we are using custom 'id' string or MongoDB '_id'
@@ -57,8 +59,8 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// PUT update status (Approve/Reject)
-router.put('/:id/status', async (req, res) => {
+// PUT update status (Approve/Reject) (Admin only)
+router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { status } = req.body;
         if (!['approved', 'rejected', 'pending'].includes(status)) {
