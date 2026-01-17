@@ -17,6 +17,10 @@ const lessonSchema = new mongoose.Schema({
     status: {
         type: String,
         default: 'published'
+    },
+    source: {
+        type: String, // 'community', 'level', 'official', etc.
+        default: 'community'
     }
 });
 

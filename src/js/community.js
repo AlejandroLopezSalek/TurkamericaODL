@@ -116,6 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
             filterContent(searchParam);
         }, 600);
     }
+
+    // Hoist Modal to Body to fix positioning issues (similar to levels)
+    const modalToHoist = document.getElementById('lessonModal');
+    if (modalToHoist && modalToHoist.parentElement !== document.body) {
+        document.body.appendChild(modalToHoist);
+        console.log('✅ Community Modal moved to body root for fixed positioning');
+    }
+
+    console.log('✅ Community JS loaded'); // Debug log
 });
 
 function filterContent(searchTerm = '') {
@@ -222,6 +231,10 @@ async function loadLessons(searchTerm = '') {
     const container = document.getElementById('lessonsList');
     // Use cached lessons
     let lessons = [...allLessons];
+
+    // Filter by source: ONLY show community lessons, except for admins who might want to see all or debug
+    // Default behavior: Show only 'community' lessons
+    lessons = lessons.filter(l => !l.source || l.source === 'community');
 
     // Filter by level
     if (currentLevel !== 'all') {

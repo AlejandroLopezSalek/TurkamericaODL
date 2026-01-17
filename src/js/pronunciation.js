@@ -115,6 +115,11 @@ class PronunciationSystem {
 
         // If we found bold tags, process them
         targets.forEach(el => {
+            // FORCE injection if it has the explicit class
+            if (el.classList.contains('pronounce-me')) {
+                this.injectButton(el, el.textContent.trim(), 'append');
+                return;
+            }
             this.processTarget(el, forceTurkishContext);
         });
 

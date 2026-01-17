@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Check if editing existing lesson (legacy params)
-    const editLessonId = urlParams.get('edit');
+    const editLessonId = urlParams.get('edit') || urlParams.get('editLesson');
     const topic = urlParams.get('topic');
     const level = urlParams.get('level');
 

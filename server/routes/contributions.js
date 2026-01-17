@@ -90,7 +90,10 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
                 description: contribution.data.description,
                 content: contribution.data.newContent,
                 status: 'published',
-                publishedAt: new Date()
+                content: contribution.data.newContent,
+                status: 'published',
+                publishedAt: new Date(),
+                source: contribution.data.source || 'community'
             };
 
             // Check if lesson exists to update, or create new
