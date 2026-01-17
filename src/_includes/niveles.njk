@@ -141,25 +141,8 @@ layout: base.njk
     });
 </script>
 
-
-<!-- EXPLANATION MODAL (Moved outside container) -->
-
-
 <!-- EXPLANATION MODAL -->
-<!-- EXPLANATION MODAL -->
-<div id="explanationModal" class="modal hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="modal-content bg-white dark:bg-slate-800 rounded-2xl w-11/12 max-w-7xl h-auto max-h-[85vh] flex flex-col shadow-2xl ring-1 ring-slate-900/5 dark:ring-slate-100/10 overflow-hidden relative z-[10000]">
-        <div class="modal-header bg-gradient-to-r from-blue-600 to-blue-700 p-4 sm:p-5 flex justify-between items-center text-white shrink-0">
-            <h3 id="modalTitle" class="text-xl font-bold m-0 text-white !important">Explicación</h3>
-            <button class="close-modal bg-white/10 hover:bg-white/20 text-white w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:rotate-90" id="closeModalBtn">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body p-4 sm:p-6 overflow-y-auto text-slate-700 dark:text-slate-300 custom-scrollbar flex-1">
-            <div id="modalContent" class="prose dark:prose-invert max-w-none"></div>
-        </div>
-    </div>
-</div>
+{% include "components/universal-lesson-modal.njk" %}
 
     <!-- 4. Auth & page-specific -->
     <script src="/js/nivel-common.js?v={{ timestamp }}"></script>

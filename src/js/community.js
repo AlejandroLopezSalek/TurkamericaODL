@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Hoist Modal to Body to fix positioning issues (similar to levels)
-    const modalToHoist = document.getElementById('lessonModal');
+    const modalToHoist = document.getElementById('universalLessonModal');
     if (modalToHoist && modalToHoist.parentElement !== document.body) {
         document.body.appendChild(modalToHoist);
         console.log('✅ Community Modal moved to body root for fixed positioning');
@@ -234,6 +234,7 @@ async function loadLessons(searchTerm = '') {
 
     // Filter by source: ONLY show community lessons, except for admins who might want to see all or debug
     // Default behavior: Show only 'community' lessons
+    // Strict separation: Exclude 'nivel-edit'
     lessons = lessons.filter(l => !l.source || l.source === 'community');
 
     // Filter by level
@@ -373,65 +374,98 @@ async function loadLessons(searchTerm = '') {
 }
 
 async function viewLesson(id) {
-    const lesson = await window.ContributionService.getLessonById(id);
-    if (!lesson) return;
+    try {
+        const lesson = await window.ContributionService.getLessonById(id);
+        if (!lesson) return;
 
-    document.getElementById('lessonTitle').textContent = lesson.title;
+        const modal = document.getElementById('universalLessonModal');
+        const title = document.getElementById('universalModalTitle');
+        const content = document.getElementById('universalModalContent');
+        const actions = document.getElementById('universalModalActions');
 
-    const lessonBody = document.getElementById('lessonBody');
-    lessonBody.innerHTML = `
-        <div class="mb-8 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
-                <i class="fas fa-info-circle"></i> Información
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                <div>
-                    <strong class="text-slate-700 dark:text-slate-300 block mb-1">Nivel:</strong>
-                    <span class="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded font-semibold">${lesson.level}</span>
+        if (modal && title && content) {
+            title.textContent = lesson.title;
+            content.innerHTML = `
+                <div class="mb-8 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+                        <i class="fas fa-info-circle"></i> Información
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <strong class="text-slate-700 dark:text-slate-300 block mb-1">Nivel:</strong>
+                            <span class="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded font-semibold">${lesson.level || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-slate-700 dark:text-slate-300 block mb-1">Autor:</strong>
+                            <span class="text-slate-600 dark:text-slate-400">${lesson.author || 'Anónimo'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-slate-700 dark:text-slate-300 block mb-1">Fecha:</strong>
+                            <span class="text-slate-600 dark:text-slate-400">${formatDate(lesson.publishedAt)}</span>
+                        </div>
+                    </div>
                 </div>
                 <div>
-                    <strong class="text-slate-700 dark:text-slate-300 block mb-1">Autor:</strong>
-                    <span class="text-slate-600 dark:text-slate-400">${lesson.author}</span>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+                        <i class="fas fa-book text-indigo-600 dark:text-indigo-400"></i> Contenido
+                    </h3>
+                    <div class="prose dark:prose-invert max-w-none lesson-content">
+                        ${marked.parse(lesson.content || '')}
+                    </div>
                 </div>
-                <div>
-                    <strong class="text-slate-700 dark:text-slate-300 block mb-1">Fecha:</strong>
-                    <span class="text-slate-600 dark:text-slate-400">${formatDate(lesson.publishedAt)}</span>
-                </div>
-            </div>
-        </div>
-        <div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                <i class="fas fa-book text-indigo-600 dark:text-indigo-400"></i> Contenido
-            </h3>
-            <div class="prose dark:prose-invert max-w-none lesson-content">
-                ${lesson.content}
-            </div>
-        </div>
-    `;
+            `;
 
-    // Inject Pronunciation Buttons
-    if (window.PronunciationSystem) {
-        setTimeout(() => {
-            const contentDiv = document.querySelector('.lesson-content');
-            if (contentDiv) window.PronunciationSystem.inject(contentDiv);
-        }, 100);
+            // Inject Edit Button
+            if (actions) {
+                actions.innerHTML = '';
+                // Only show edit if it has an ID
+                if (lesson.id || lesson._id) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-sm transition-colors flex items-center gap-2';
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i> <span class="hidden sm:inline">Sugerir Edición</span>';
+                    editBtn.onclick = () => editPublishedLesson(lesson.id || lesson._id);
+                    actions.appendChild(editBtn);
+                }
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+
+            // Pronunciation
+            if (window.PronunciationSystem) {
+                setTimeout(() => window.PronunciationSystem.scanAndInject(content), 100);
+            }
+        }
+    } catch (e) {
+        console.error('Error viewing lesson:', e);
     }
-
-    const modal = document.getElementById('lessonModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
 }
 
 function closeLessonModal() {
-    const modal = document.getElementById('lessonModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
+    const modal = document.getElementById('universalLessonModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
 }
 
+// Add event listener for close button
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('closeUniversalModalBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeLessonModal);
+    }
+    const modal = document.getElementById('universalLessonModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeLessonModal();
+        });
+    }
+});
 function editPublishedLesson(id) {
-    window.location.href = `/Contribute/?editLesson=${id}`;
+    window.location.href = `/ Contribute /? editLesson = ${id} `;
 }
 
 // Custom Delete Modal Logic
@@ -510,7 +544,7 @@ function updateContributeButton() {
         contributeBtn.href = '/Contribute/';
     } else {
         // Pass the selected level as a parameter
-        contributeBtn.href = `/Contribute/?level=${currentLevel}`;
+        contributeBtn.href = `/ Contribute /? level = ${currentLevel} `;
     }
 }
 

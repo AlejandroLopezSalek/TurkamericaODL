@@ -26,11 +26,13 @@ function removeMascotUI() {
     const chat = document.getElementById('turkbot-chat');
     if (btn) {
         btn.classList.add('scale-0', 'opacity-0');
-        setTimeout(() => btn.remove(), 300);
+        // Do NOT remove, just hide. It might be needed again if re-enabled.
+        // But if we want to truly disable, we can add 'hidden' after transition
+        setTimeout(() => btn.classList.add('hidden'), 300);
     }
     if (chat) {
         chat.classList.add('opacity-0', 'translate-y-10');
-        setTimeout(() => chat.remove(), 300);
+        setTimeout(() => chat.classList.add('hidden'), 300);
     }
 }
 
@@ -38,7 +40,11 @@ function createMascotUI() {
     // 1. Get or Create Floating Button
     let mascotBtn = document.getElementById('turkbot-btn');
 
-    if (!mascotBtn) {
+    if (mascotBtn) {
+        // If exists (hidden or not), ensure it's visible
+        mascotBtn.classList.remove('hidden');
+        // Animation handled below
+    } else {
         mascotBtn = document.createElement('div');
         mascotBtn.id = 'turkbot-btn';
         mascotBtn.className = 'fixed bottom-6 right-6 z-[9990] cursor-pointer group transition-all duration-300 hover:scale-110 transform scale-0 opacity-0'; // Start hidden for animation

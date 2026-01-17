@@ -40,20 +40,37 @@ async function getExplanations() {
                 console.log('📥 Dynamic lessons fetched:', dynamicLessons);
 
                 if (Array.isArray(dynamicLessons)) {
-                    dynamicLessons.forEach(lesson => {
-                        // Normalize Level (A1 vs a1)
-                        const lessonLevel = (lesson.level || '').toUpperCase();
-                        if (lessonLevel === CURRENT_LEVEL) {
-                            const key = lesson.id || lesson.lessonId;
-                            if (key) {
-                                console.log(`🔄 Merging dynamic lesson: ${key}`);
-                                // Verify structure matches what the UI expects
-                                data[key] = {
-                                    title: lesson.title || (data[key] ? data[key].title : 'Nueva Lección'),
-                                    content: lesson.content || lesson.newContent || (data[key] ? data[key].content : ''),
-                                    description: lesson.description || (data[key] ? data[key].description : '')
-                                };
-                            }
+                    // Filter: Show published lessons for this level
+                    // CRITICAL: Strict separation. ONLY show lessons created cleanly as "nivel-edit" or native JSON.
+                    // If we allow "community" lessons here, then the separation breaks.
+                    // But we must also support legacy lessons (no source).
+                    // Logic:
+                    // - If source is 'nivel-edit': INCLUDE
+                    // - If source is undefined: INCLUDE (Legacy support for lessons created before this change, assuming they belong anywhere level matches)
+                    // - If source is 'community': EXCLUDE (User request: community lessons stay in community)
+                    const levelLessons = dynamicLessons.filter(l => {
+                        const lessonLevel = (l.level || '').toUpperCase();
+                        const isCorrectLevel = lessonLevel === CURRENT_LEVEL;
+
+                        if (!isCorrectLevel) return false;
+
+                        // Strict Source Check
+                        if (l.source === 'community') return false;
+                        // implicitly allows 'nivel-edit' and undefined/null
+
+                        return true;
+                    });
+
+                    levelLessons.forEach(lesson => {
+                        const key = lesson.id || lesson.lessonId;
+                        if (key) {
+                            console.log(`🔄 Merging dynamic lesson: ${key}`);
+                            // Verify structure matches what the UI expects
+                            data[key] = {
+                                title: lesson.title || (data[key] ? data[key].title : 'Nueva Lección'),
+                                content: lesson.content || lesson.newContent || (data[key] ? data[key].content : ''),
+                                description: lesson.description || (data[key] ? data[key].description : '')
+                            };
                         }
                     });
                 }
@@ -66,10 +83,11 @@ async function getExplanations() {
         return data;
     } catch (error) {
         console.error(`Error al cargar las lecciones de ${CURRENT_LEVEL}:`, error);
-        const modal = document.getElementById('explanationModal');
+        const modal = document.getElementById('universalLessonModal');
         if (modal) {
-            document.getElementById('modalTitle').textContent = "Error de Carga";
-            modal.style.display = 'none';
+            document.getElementById('universalModalTitle').textContent = "Error de Carga";
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
     }
 }
@@ -77,34 +95,51 @@ async function getExplanations() {
 // Función para cerrar el modal - GLOBAL para sobrescribir gramatica.js
 window.closeModal = function () {
     console.log('✅ closeModal() from nivel-common.js');
-    const modal = document.getElementById('explanationModal');
+    const modal = document.getElementById('universalLessonModal');
     if (modal) {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-        modal.style.setProperty('display', 'none', 'important');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
         document.body.style.overflow = 'auto';
         console.log('✅ Modal closed');
         setTimeout(() => {
-            const modalContent = document.getElementById('modalContent');
+            const modalContent = document.getElementById('universalModalContent');
             if (modalContent) modalContent.innerHTML = '';
+            const modalActions = document.getElementById('universalModalActions');
+            if (modalActions) modalActions.innerHTML = '';
         }, 100);
     }
 };
 
 // Función para abrir explicaciones
 async function openExplanation(topic) {
-    const modal = document.getElementById('explanationModal');
-    const title = document.getElementById('modalTitle');
-    const content = document.getElementById('modalContent');
+    const modal = document.getElementById('universalLessonModal');
+    const title = document.getElementById('universalModalTitle');
+    const content = document.getElementById('universalModalContent');
+    const actions = document.getElementById('universalModalActions');
 
     const explanations = await getExplanations();
 
     if (explanations && explanations[topic]) {
-        title.textContent = explanations[topic].title;
-        content.innerHTML = explanations[topic].content;
+        const item = explanations[topic];
+        title.textContent = item.title;
+        content.innerHTML = item.content;
 
-        modal.classList.add('active');
-        modal.style.display = 'flex';
+        // Add Edit Button if dynamic (has _id or is user created)
+        if (actions) {
+            actions.innerHTML = ''; // Clear previous
+            if (item._id || item.source === 'nivel-edit') {
+                const editBtn = document.createElement('button');
+                editBtn.className = 'bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-sm transition-colors';
+                editBtn.innerHTML = '<i class="fas fa-edit mr-1"></i>Editar';
+                editBtn.onclick = () => {
+                    window.location.href = `/Contribute/?editLesson=${item.id || item._id}`;
+                };
+                actions.appendChild(editBtn);
+            }
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
         document.body.style.overflow = 'hidden';
 
         // Inject Pronunciation Buttons
