@@ -65,6 +65,8 @@
         body { opacity: 0; transition: opacity 0.3s ease; }
         body.loaded { opacity: 1; }
     </style>
+    <!-- Mascot CSS -->
+    <link rel="stylesheet" href="/css/mascot.css?v={{ timestamp }}">
 
     <link rel="stylesheet" href="/css/tailwind-output.css?v={{ timestamp }}">
     <!-- Inlined Content Styles (Professional & Clean) -->
@@ -300,6 +302,71 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
             </span>
+        </div>
+    </div>
+
+    <!-- Capi Chat Window (Static HTML) -->
+    <div id="turkbot-chat" class="capi-chat-modal transform translate-y-10 opacity-0 pointer-events-none hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-600 to-purple-600 md:rounded-t-2xl text-white shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 flex items-center justify-center -ml-2">
+                        <img src="/assets/mascotaODLw.svg" class="w-full h-full object-contain drop-shadow-md" alt="Capi">
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Capi AI</h3>
+                    <p class="text-xs text-indigo-100 flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        En línea
+                    </p>
+                </div>
+            </div>
+            <!-- Expanded Actions -->
+            <div class="flex items-center gap-1">
+                    <button id="close-chat-btn" class="p-2 hover:bg-white/20 rounded-full transition-colors" title="Cerrar chat">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50 scroll-smooth">
+            <!-- Welcome Message -->
+            <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-200 dark:border-indigo-700">
+                    <img src="/assets/mascotaODLw.svg" class="w-full h-full object-contain" alt="Capi">
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 dark:border-slate-700 max-w-[85%]">
+                    <p class="text-sm text-slate-600 dark:text-slate-300">
+                        ¡Hola! 👋<br>
+                        Soy Capi, tu asistente de turco. ¿En qué puedo ayudarte hoy?
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 md:rounded-b-2xl">
+            <form id="turkbot-form" class="relative flex items-end gap-2">
+                <textarea 
+                    id="chat-input" 
+                    rows="1"
+                    class="w-full bg-slate-50 dark:bg-slate-900 border-0 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 resize-none max-h-32 text-sm shadow-inner"
+                    placeholder="Escribe tu pregunta a Capi..."
+                ></textarea>
+                <button 
+                    type="button"
+                    id="send-msg-btn"
+                    class="p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                >
+                    <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </form>
+            <div class="text-center mt-2">
+                <p class="text-[10px] text-slate-400 dark:text-slate-500">
+
+                </p>
+            </div>
         </div>
     </div>
 

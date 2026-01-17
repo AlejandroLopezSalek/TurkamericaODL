@@ -6,7 +6,7 @@
 
 A comprehensive web platform designed for Spanish speakers to learn Turkish effectively. This project integrates a robust backend with a static-site generated frontend to deliver a fast, interactive, and personalized learning experience, complete with authentication, progress tracking, and AI-powered assistance.
 
-## 🏗️ Architecture
+## Architecture
 
 The infrastructure allows for secure and scalable interactions, handling user traffic efficiently from the request entry point to the core application logic and external AI services.
 
@@ -38,7 +38,7 @@ graph LR
 4.  **Core Application**: The application (built with Node.js/Express and optimized by Eleventy) processes the request. It handles authentication, retrieves data from MongoDB, or renders pages.
 5.  **AI Integration**: For chatbot features, the application securely communicates with an external AI API (Groq) to process natural language queries and provide context-aware responses.
 
-## 💡 Project Contribution & Value
+##  Project Contribution & Value
 
 This project aims to bridge the language gap for Spanish speakers learning Turkish by providing:
 
@@ -46,7 +46,7 @@ This project aims to bridge the language gap for Spanish speakers learning Turki
 *   **Contextualized AI**: An AI assistant ("Capi") that understands the specific context of the lessons and user progress, offering help beyond generic translation.
 *   **Community Focus**: By open-sourcing this platform, we contribute to the educational technology community, providing a reference architecture for building language learning apps with modern web technologies.
 
-## ✨ Features
+##  Features
 
 ### **Educational Resources**
 - **Level-Based Content**: Structured lessons ranging from A1 (Beginner) to C1 (Advanced).
@@ -63,7 +63,7 @@ This project aims to bridge the language gap for Spanish speakers learning Turki
 - **Dark Mode**: Native dark mode support for visual comfort.
 - **Performance**: Static site generation (SSG) for lightning-fast page loads.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 This project leverages a modern JavaScript stack to ensure performance and developer experience.
 
@@ -85,11 +85,11 @@ This project leverages a modern JavaScript stack to ensure performance and devel
 - **Rate Limiting**: Prevents abuse and DDoS attempts.
 - **Input Sanitization**: Protects against XSS and injection attacks.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Author
+## Author
 
 **LatinCTC**
 - GitHub: [@LatinCTC](https://github.com/LatinCTC)

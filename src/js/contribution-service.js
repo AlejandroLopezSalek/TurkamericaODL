@@ -59,7 +59,13 @@
 
         async getPendingRequests() {
             // Can filter on server or client. Server has /pending endpoint.
-            const response = await fetch(`${this.API_URL}/pending`);
+            const token = localStorage.getItem('authToken');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`${this.API_URL}/pending`, {
+                headers: headers
+            });
             if (!response.ok) throw new Error('Failed to fetch pending requests');
             return await response.json();
         }
