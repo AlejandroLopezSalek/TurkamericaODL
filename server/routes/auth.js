@@ -14,7 +14,7 @@ const registerValidation = [
     body('username')
         .isLength({ min: 3, max: 20 })
         .withMessage('El nombre de usuario debe tener entre 3 y 20 caracteres')
-        .matches(/^[a-zA-Z0-9_]+$/)
+        .matches(/^\w+$/) // Letters, numbers, underscores
         .withMessage('El nombre de usuario solo puede contener letras, números y guiones bajos'),
     body('email')
         .isEmail()
@@ -200,7 +200,7 @@ router.post('/google', async (req, res) => {
                 // Create new user
                 const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
                 const firstName = name ? name.split(' ')[0] : 'User';
-                const lastName = name && name.includes(' ') ? name.split(' ').slice(1).join(' ') : '';
+                const lastName = name?.includes(' ') ? name.split(' ').slice(1).join(' ') : '';
 
                 user = new User({
                     username: email.split('@')[0] + Math.floor(Math.random() * 1000), // Ensure unique username

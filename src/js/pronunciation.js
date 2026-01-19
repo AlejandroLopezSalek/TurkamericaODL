@@ -5,7 +5,7 @@
 
 class PronunciationSystem {
     constructor() {
-        this.synth = window.speechSynthesis;
+        this.synth = globalThis.speechSynthesis;
         this.voice = null;
         this.lang = 'tr-TR'; // Turkish
         this.init();
@@ -19,7 +19,7 @@ class PronunciationSystem {
         this.setVoice();
 
         // Expose global instance
-        window.pronounce = (text) => this.speak(text);
+        globalThis.pronounce = (text) => this.speak(text);
     }
 
     setVoice() {
@@ -44,7 +44,7 @@ class PronunciationSystem {
 
         utterThis.lang = 'tr-TR';
         utterThis.rate = 0.8; // Slower for better clarity
-        utterThis.pitch = 1.0;
+        utterThis.pitch = 1;
 
         this.synth.speak(utterThis);
     }
@@ -175,10 +175,10 @@ class PronunciationSystem {
         // Prevent dupes on direct parent
         if (position === 'append') {
             const next = targetEl.nextSibling;
-            if (next && next.classList && next.classList.contains('pronounce-btn')) return;
+            if (next?.classList?.contains('pronounce-btn')) return;
         } else {
             const prev = targetEl.previousSibling;
-            if (prev && prev.classList && prev.classList.contains('pronounce-btn')) return;
+            if (prev?.classList?.contains('pronounce-btn')) return;
         }
 
         const btn = this.createButton(text);
@@ -254,12 +254,9 @@ class PronunciationSystem {
 
     looksLikeTurkish(text) {
         // Has Turkish chars?
-        if (/[ışğüöçİŞĞÜÖÇ]/.test(text)) return true;
-        // Ends with common suffixes?
-        // Basic heuristic
-        return false;
+        return /[ışğüöçİŞĞÜÖÇ]/.test(text);
     }
 }
 
 // Initialize
-window.PronunciationSystem = new PronunciationSystem();
+globalThis.PronunciationSystem = new PronunciationSystem();

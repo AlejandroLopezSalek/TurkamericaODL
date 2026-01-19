@@ -24,9 +24,9 @@ router.get('/public-key', (req, res) => {
 router.post('/subscribe', async (req, res) => {
     try {
         const subscription = req.body;
-        // const user = req.user; // If we use auth middleware later
 
-        if (!subscription || !subscription.endpoint) {
+
+        if (!subscription?.endpoint) {
             return res.status(400).json({ error: 'Invalid subscription' });
         }
 
@@ -86,9 +86,8 @@ router.post('/send', authenticateToken, requireAdmin, async (req, res) => {
 
         await Promise.all(promises);
 
-        res.json({ message: `Sent notifications to ${subscriptions.length} devices` });
-
     } catch (error) {
+        console.error('Notification Error:', error);
         res.status(500).json({ error: 'Failed to send notifications' });
     }
 });

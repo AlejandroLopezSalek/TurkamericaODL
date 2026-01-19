@@ -37,15 +37,88 @@ const groq = new Groq({
 // Helper to get user from token
 const getUserFromRequest = async (req) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = authHeader?.split(' ')[1];
     if (!token) return null;
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
         return await User.findById(String(decoded.userId));
     } catch (err) {
+        // Token invalid or expired
+        if (process.env.NODE_ENV === 'development') console.debug('Auth check failed:', err.message);
         return null;
     }
+};
+
+// POST / (Mounted at /api/chat)
+// Helper to extract lesson context
+const getLessonContext = (context) => {
+    let currentPage = "";
+    if (typeof context === 'object' && context.page) {
+        currentPage = context.page;
+    } else if (typeof context === 'string') {
+        if (context.includes('/')) currentPage = context;
+    }
+
+    if (currentPage && (currentPage.includes('/Lesson/') || currentPage.includes('/Leccion/'))) {
+        const cleanPath = currentPage.endsWith('/') ? currentPage.slice(0, -1) : currentPage;
+        const parts = cleanPath.split('/');
+        const slug = parts.at(-1);
+
+        if (slug && allLessons[slug]) {
+            const lesson = allLessons[slug];
+            const cleanContent = lesson.content.replaceAll(/<[^>]+>/g, ' ');
+            return `
+*** ACTIVE LESSON CONTEXT ***
+User is currently viewing the lesson: "${lesson.title}"
+Content: ${cleanContent.substring(0, 1500)}...
+(Use this information to answer specific questions about the lesson topic)
+`;
+        }
+    }
+    return "";
+};
+
+// Helper to construct system prompt
+const buildSystemPrompt = (user, context, lessonContentContext, memoryContext) => {
+    let userContext = "User: Guest";
+
+    if (user) {
+        userContext = `User: ${user.username} | Level: ${user.profile?.level || 'A1'} | Streak: ${user.stats?.streak || 0} days`;
+    }
+
+    const contextStr = typeof context === 'object' ? JSON.stringify(context) : String(context || '');
+    let specialInstructions = "";
+
+    if (contextStr.includes('Contribuir') || contextStr.includes('Admin') || contextStr.includes('Lección')) {
+        specialInstructions = `
+*** SPECIAL CONTEXT: LESSON MODE ***
+If the user is creating a lesson (Contribute), assist with Turkish examples and grammar.
+If the user is viewing a lesson, answer based on the ACTIVE LESSON CONTEXT provided below.
+`;
+    }
+
+    return `You are "Capi", the AI mascot for "TurkAmerica".
+Your goal: Help Spanish speakers learn Turkish correctly.
+
+CONTEXT:
+${userContext}
+${lessonContentContext}
+Current Page: ${contextStr || 'General Dashboard'}${memoryContext || ''}
+
+CRITICAL RULES:
+1. **Language**: EXPLAIN in Spanish, but PROVIDE EXAMPLES in Turkish.
+2. **Clarity**: Finish your sentences. Do not trail off.
+3. **Grammar**: When explaining grammar, be structured. Don't mix Spanish endings into Turkish words unless comparing them.
+4. **Personality**: You can use emojis to be friendly! 🌟
+5. **Length**: If the answer is long, break it into bullet points.
+
+${specialInstructions}
+
+NAVIGATION:
+- Only navigate if explicitly asked (e.g., "Ir a perfil").
+- Valid: /Inicio, /Consejos/, /Gramatica/, /Community-Lessons/, /NivelA1/ thru /NivelC1/, /Perfil/
+- Example: "Llevame a perfil" -> "Vamos al perfil. [[NAVIGATE:/Perfil/]]"`;
 };
 
 // POST / (Mounted at /api/chat)
@@ -66,82 +139,13 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        // --- CONTEXT INJECTION ---
-        let userContext = "User: Guest";
+        const lessonContentContext = getLessonContext(context);
         let memoryContext = "";
-
-        if (user) {
-            userContext = `User: ${user.username} | Level: ${user.profile?.level || 'A1'} | Streak: ${user.stats?.streak || 0} days`;
-            if (user.stats?.lastViewedLesson?.title) {
-                memoryContext = `\nMEMORY: The user was last studying "${user.stats.lastViewedLesson.title}".`;
-            }
+        if (user?.stats?.lastViewedLesson?.title) {
+            memoryContext = `\nMEMORY: The user was last studying "${user.stats.lastViewedLesson.title}".`;
         }
 
-        // Active Lesson Context
-        let lessonContentContext = "";
-        let currentPage = "";
-
-        // Handle context object or string
-        if (typeof context === 'object' && context.page) {
-            currentPage = context.page;
-        } else if (typeof context === 'string') {
-            // Try to extract path from string if possible, or just search it
-            if (context.includes('/')) currentPage = context;
-        }
-
-        if (currentPage && (currentPage.includes('/Lesson/') || currentPage.includes('/Leccion/'))) {
-            // Extract slug: /Lesson/a1/alfabeto/ -> alfabeto
-            // Remove trailing slash if present
-            const cleanPath = currentPage.endsWith('/') ? currentPage.slice(0, -1) : currentPage;
-            const parts = cleanPath.split('/');
-            const slug = parts[parts.length - 1];
-
-            if (slug && allLessons[slug]) {
-                const lesson = allLessons[slug];
-                // Strip HTML tags for cleaner token usage
-                const cleanContent = lesson.content.replace(/<[^>]*>?/gm, ' ');
-                lessonContentContext = `
-*** ACTIVE LESSON CONTEXT ***
-User is currently viewing the lesson: "${lesson.title}"
-Content: ${cleanContent.substring(0, 1500)}...
-(Use this information to answer specific questions about the lesson topic)
-`;
-            }
-        }
-
-        // System Prompt Construction
-        const contextStr = typeof context === 'object' ? JSON.stringify(context) : String(context || '');
-
-        let specialInstructions = "";
-        if (contextStr.includes('Contribuir') || contextStr.includes('Admin') || contextStr.includes('Lección')) {
-            specialInstructions = `
-*** SPECIAL CONTEXT: LESSON MODE ***
-If the user is creating a lesson (Contribute), assist with Turkish examples and grammar.
-If the user is viewing a lesson, answer based on the ACTIVE LESSON CONTEXT provided below.
-`;
-        }
-
-        let systemPrompt = `You are "Capi", the AI mascot for "TurkAmerica".
-Your goal: Help Spanish speakers learn Turkish correctly.
-
-CONTEXT:
-${userContext}
-${lessonContentContext}
-Current Page: ${contextStr || 'General Dashboard'}${memoryContext}
-
-CRITICAL RULES:
-1. **Language**: EXPLAIN in Spanish, but PROVIDE EXAMPLES in Turkish.
-2. **Clarity**: Finish your sentences. Do not trail off.
-3. **Grammar**: When explaining grammar, be structured. Don't mix Spanish endings into Turkish words unless comparing them.
-4. **Personality**: You can use emojis to be friendly! 🌟
-5. **Length**: If the answer is long, break it into bullet points.
-
-${specialInstructions}
-
-NAVIGATION:
-- Only navigate if explicitly asked (e.g., "Ir a perfil").
-- Valid: /Inicio, /Consejos/, /Gramatica/, /Community-Lessons/, /NivelA1/ thru /NivelC1/, /Perfil/
-- Example: "Llevame a perfil" -> "Vamos al perfil. [[NAVIGATE:/Perfil/]]"`;
+        const systemPrompt = buildSystemPrompt(user, context, lessonContentContext, memoryContext);
 
         const messages = [{ role: "system", content: systemPrompt }];
 
