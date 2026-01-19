@@ -42,6 +42,9 @@ router.post('/', async (req, res) => {
 // DELETE request (Admin only)
 router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
+        if (!require('mongoose').Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid ID format' });
+        }
         const result = await Contribution.findOneAndDelete({ _id: req.params.id }); // Use _id for MongoDB auto-generated ID, or id if using custom
         // Check if we are using custom 'id' string or MongoDB '_id'
         // The service logic below will determine how we send IDs. Mongoose usually uses _id.

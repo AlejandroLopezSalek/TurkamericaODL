@@ -5,7 +5,7 @@ const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const ChatLog = require('../models/ChatLog');
-const path = require('path');
+// path removed
 
 // Load Lesson Data for Context
 let allLessons = {};
@@ -99,7 +99,7 @@ router.post('/', async (req, res) => {
             if (slug && allLessons[slug]) {
                 const lesson = allLessons[slug];
                 // Strip HTML tags for cleaner token usage
-                const cleanContent = lesson.content.replace(/<[^>]*>?/gm, ' ');
+                const cleanContent = lesson.content.replace(/<[^>]+>/g, ' ');
                 lessonContentContext = `
 *** ACTIVE LESSON CONTEXT ***
 User is currently viewing the lesson: "${lesson.title}"

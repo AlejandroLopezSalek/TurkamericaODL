@@ -210,7 +210,7 @@ async function cacheFirstWithExpiry(request, cacheName, maxAge) {
 
                         cache.put(request, modifiedResponse);
                     }
-                }).catch(() => { });
+                }).catch((err) => { console.debug('[SW] Cache update error', err) });
 
                 return cachedResponse;
             }

@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
         };
 
         // Save to MongoDB asynchronously (fire and forget to not slow down client)
-        Analytics.create(record).catch(err => console.error('Error saving analytics:', err.message));
+        await Analytics.create(record).catch(err => console.error('Error saving analytics:', err.message));
 
         // Respond immediately
         res.status(200).json({ status: 'received' });

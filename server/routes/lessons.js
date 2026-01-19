@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 // GET single lesson
 router.get('/:id', async (req, res) => {
     try {
-        const lesson = await Lesson.findOne({ id: req.params.id });
+        const lesson = await Lesson.findOne({ id: String(req.params.id) });
         if (!lesson) {
             return res.status(404).json({ error: 'Lesson not found' });
         }
@@ -32,7 +32,7 @@ router.get('/:id', async (req, res) => {
 // DELETE lesson (Admin only)
 router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const result = await Lesson.findOneAndDelete({ id: req.params.id });
+        const result = await Lesson.findOneAndDelete({ id: String(req.params.id) });
         if (!result) {
             return res.status(404).json({ error: 'Lesson not found' });
         }

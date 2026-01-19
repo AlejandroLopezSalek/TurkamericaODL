@@ -24,7 +24,7 @@ router.get('/public-key', (req, res) => {
 router.post('/subscribe', async (req, res) => {
     try {
         const subscription = req.body;
-        const user = req.user; // If we use auth middleware later
+        // const user = req.user; // If we use auth middleware later
 
         if (!subscription || !subscription.endpoint) {
             return res.status(400).json({ error: 'Invalid subscription' });
@@ -42,7 +42,9 @@ router.post('/subscribe', async (req, res) => {
         }
 
         const newSub = new Subscription({
-            ...subscription,
+            endpoint: subscription.endpoint,
+            keys: subscription.keys,
+            // Allow other specific fields if needed, but avoid spread ...subscription for safety
             userId: req.body.userId || null,
             userAgent: req.get('User-Agent')
         });

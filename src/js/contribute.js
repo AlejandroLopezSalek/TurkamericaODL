@@ -184,7 +184,7 @@ function initContributionPage() {
 // LESSON CREATION FORM (SIMPLIFIED)
 // ========================================
 
-function handleLessonSubmit(e) {
+async function handleLessonSubmit(e) {
     e.preventDefault();
 
     const lessonContent = lessonEditor ? lessonEditor.getContent() : '';
@@ -207,7 +207,7 @@ function handleLessonSubmit(e) {
     };
 
     try {
-        const request = window.ContributionService.submitLessonEdit(lessonData);
+        await window.ContributionService.submitLessonEdit(lessonData);
 
         const message = editingLessonId
             ? '¡Propuesta de edición enviada! Será revisada por un administrador.'
@@ -289,7 +289,7 @@ window.editLesson = editLesson;
 // BOOK UPLOAD FORM
 // ========================================
 
-function handleBookSubmit(e) {
+async function handleBookSubmit(e) {
     e.preventDefault();
 
     const bookData = {
@@ -313,7 +313,7 @@ function handleBookSubmit(e) {
     }
 
     try {
-        const request = window.ContributionService.submitBookUpload(bookData);
+        await window.ContributionService.submitBookUpload(bookData);
 
         showToast('¡Libro compartido con éxito! Será revisado por un administrador.', 'success');
 
