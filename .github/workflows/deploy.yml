@@ -21,6 +21,11 @@ jobs:
         script: |
           cd /var/www/turkamerica_project
           
+          # Force sync with repo to fix any conflicts (like package-lock.json)
+          git fetch --all
+          git reset --hard origin/main
+          chmod +x deploy.sh
+          
           # Ejecutar el script maestro de despliegue
           # Esto asegura que el deploy manual y el automático hagan EXACTAMENTE lo mismo
           ./deploy.sh

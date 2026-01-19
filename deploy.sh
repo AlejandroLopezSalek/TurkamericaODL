@@ -8,9 +8,10 @@ set -e
 
 echo "🚀 Starting deployment..."
 
-# 1. Pull latest changes
+# 1. Pull latest changes (Force Reset to avoid conflicts)
 echo "📥 Pulling latest code..."
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
 
 # Load NVM (Node Version Manager) if it exists, because SSH non-interactive shells might not have 'npm' in PATH
 export NVM_DIR="$HOME/.nvm"
