@@ -257,7 +257,7 @@ class PronunciationSystem {
         if (/[ışğüöçİŞĞÜÖÇ]/.test(text)) return true;
         // Ends with common suffixes?
         // Basic heuristic
-        return true;
+        return false;
     }
 }
 

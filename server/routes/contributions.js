@@ -45,7 +45,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
         if (!require('mongoose').Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: 'Invalid ID format' });
         }
-        const result = await Contribution.findOneAndDelete({ _id: req.params.id }); // Use _id for MongoDB auto-generated ID, or id if using custom
+        const result = await Contribution.findOneAndDelete({ _id: { $eq: req.params.id } }); // Use _id for MongoDB auto-generated ID, or id if using custom
         // Check if we are using custom 'id' string or MongoDB '_id'
         // The service logic below will determine how we send IDs. Mongoose usually uses _id.
         // If the query fails to find by _id (if we sent a string like 'req-123'), we might try finding by 'id' field if schema had it?
@@ -70,8 +70,8 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
             return res.status(400).json({ error: 'Invalid status' });
         }
 
-        const contribution = await Contribution.findByIdAndUpdate(
-            req.params.id,
+        const contribution = await Contribution.findOneAndUpdate(
+            { _id: { $eq: req.params.id } },
             {
                 status: status,
                 processedAt: new Date()

@@ -31,7 +31,7 @@ router.post('/subscribe', async (req, res) => {
         }
 
         // Check if exists
-        const exists = await Subscription.findOne({ endpoint: subscription.endpoint });
+        const exists = await Subscription.findOne({ endpoint: { $eq: subscription.endpoint } });
         if (exists) {
             // Update userId if available
             if (req.body.userId && !exists.userId) {

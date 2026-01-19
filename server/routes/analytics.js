@@ -19,9 +19,16 @@ router.post('/', async (req, res) => {
     try {
         const eventData = req.body;
 
+        const sanitizedData = {};
+        for (const key of Object.keys(eventData)) {
+            if (!key.startsWith('$')) {
+                sanitizedData[key] = eventData[key];
+            }
+        }
+
         // Add server-side timestamp
         const record = {
-            ...eventData,
+            ...sanitizedData,
             serverTimestamp: new Date()
         };
 

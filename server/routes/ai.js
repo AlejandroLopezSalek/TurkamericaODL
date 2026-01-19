@@ -42,7 +42,7 @@ const getUserFromRequest = async (req) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
-        return await User.findById(decoded.userId);
+        return await User.findById(String(decoded.userId));
     } catch (err) {
         return null;
     }
@@ -99,7 +99,7 @@ router.post('/', async (req, res) => {
             if (slug && allLessons[slug]) {
                 const lesson = allLessons[slug];
                 // Strip HTML tags for cleaner token usage
-                const cleanContent = lesson.content.replace(/<[^>]+>/g, ' ');
+                const cleanContent = lesson.content.replace(/<[^>]*>?/gm, ' ');
                 lessonContentContext = `
 *** ACTIVE LESSON CONTEXT ***
 User is currently viewing the lesson: "${lesson.title}"
