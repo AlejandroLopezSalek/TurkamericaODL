@@ -3,6 +3,7 @@ const router = express.Router();
 const Groq = require('groq-sdk');
 const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
+const striptags = require('striptags');
 const User = require('../models/User');
 const ChatLog = require('../models/ChatLog');
 // path removed
@@ -67,7 +68,7 @@ const getLessonContext = (context) => {
 
         if (slug && allLessons[slug]) {
             const lesson = allLessons[slug];
-            const cleanContent = lesson.content.replaceAll(/<[^>]+>/g, ' ');
+            const cleanContent = striptags(lesson.content);
             return `
 *** ACTIVE LESSON CONTEXT ***
 User is currently viewing the lesson: "${lesson.title}"

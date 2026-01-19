@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
 const { OAuth2Client } = require('google-auth-library');
+const crypto = require('node:crypto');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -86,7 +87,7 @@ router.post('/register', registerValidation, async (req, res) => {
                 email: newUser.email,
                 role: newUser.role
             },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -153,7 +154,7 @@ router.post('/login/', loginValidation, async (req, res) => {
                 email: user.email,
                 role: user.role
             },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -198,7 +199,7 @@ router.post('/google', async (req, res) => {
                 await user.save();
             } else {
                 // Create new user
-                const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+                const randomPassword = crypto.randomBytes(16).toString('hex');
                 const firstName = name ? name.split(' ')[0] : 'User';
                 const lastName = name?.includes(' ') ? name.split(' ').slice(1).join(' ') : '';
 
@@ -230,7 +231,7 @@ router.post('/google', async (req, res) => {
 
         const jwtToken = jwt.sign(
             tokenPayload,
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
