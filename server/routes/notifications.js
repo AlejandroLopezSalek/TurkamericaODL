@@ -3,6 +3,7 @@ const router = express.Router();
 const webpush = require('web-push');
 const Subscription = require('../models/Subscription');
 const User = require('../models/User');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Configure web-push
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
@@ -57,8 +58,6 @@ router.post('/subscribe', async (req, res) => {
         res.status(500).json({ error: 'Failed to subscribe' });
     }
 });
-
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // POST /api/notifications/send (Admin only - protect this!)
 router.post('/send', authenticateToken, requireAdmin, async (req, res) => {

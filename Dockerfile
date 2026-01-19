@@ -1,28 +1,44 @@
-FROM node:18-alpine
+# Stage 1: Build
+FROM node:18-alpine AS builder
 
-# Definir directorio de trabajo
+# Set working directory
 WORKDIR /app
 
-# Copiar archivos de dependencias
+# Copy package files
 COPY package*.json ./
 
-# Instalar dependencias de producción
-RUN npm ci --only=production
+# Install ALL dependencies (including devDependencies for Eleventy/Tailwind build)
+RUN npm ci
 
-# Copiar el resto del código
+# Copy source code
 COPY . .
 
-# Construir el sitio estático (Eleventy)
-# Nota: Si Eleventy necesita devDependencies, podrías necesitar instalar todo y luego podar
-# En este caso asumimos que podemos construir con lo que hay o ajustaremos el proceso
-RUN npm install
+# Build the static site
 RUN npm run build
 
-# Exponer el puerto
+# Stage 2: Production
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ONLY production dependencies and PM2 globally
+RUN npm ci --only=production && npm install pm2 -g
+
+# Copy built frontend from builder stage
+COPY --from=builder /app/_site ./_site
+
+# Copy backend source code from builder stage
+COPY --from=builder /app/server ./server
+
+# Copy ecosystem config
+COPY --from=builder /app/ecosystem.config.js .
+
+# Expose port
 EXPOSE 3000
 
-# Usar PM2-runtime para producción en Docker
-RUN npm install pm2 -g
-
-# Comando de inicio usando el archivo ecosystem
+# Start application using PM2
 CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]

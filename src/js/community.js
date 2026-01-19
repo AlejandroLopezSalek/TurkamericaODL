@@ -9,7 +9,7 @@ const booksData = {
     'A1': [
         {
             title: 'İstanbul A1 Ders Kitabı',
-            url: 'https://github.com/AlejandroLopezSalek/ODL_Turco-Standard/raw/main/A1.pdf',
+            url: '/assets/docs/A1.pdf',
             size: '~8 MB',
             pages: '104',
             description: 'Libro oficial de texto para nivel A1'
@@ -18,7 +18,7 @@ const booksData = {
     'A2': [
         {
             title: 'A2 Türkçe Kitabı',
-            url: 'https://github.com/AlejandroLopezSalek/ODL_Turco-Standard/raw/main/A2.pdf',
+            url: '/assets/docs/A2.pdf',
             size: '~10 MB',
             pages: '120',
             description: 'Libro de texto para nivel A2'
@@ -27,7 +27,7 @@ const booksData = {
     'B1': [
         {
             title: 'B1 Ders Kitabı',
-            url: 'https://github.com/AlejandroLopezSalek/ODL_Turco-Standard/raw/main/B1.pdf',
+            url: '/assets/docs/B1.pdf',
             size: '~12 MB',
             pages: '150',
             description: 'Libro de texto para nivel B1'
@@ -36,7 +36,7 @@ const booksData = {
     'B2': [
         {
             title: 'B2 Ders Kitabı',
-            url: 'https://github.com/AlejandroLopezSalek/ODL_Turco-Standard/raw/main/B2.pdf',
+            url: '/assets/docs/B2.pdf',
             size: '~14 MB',
             pages: '160',
             description: 'Libro de texto para nivel B2'
@@ -45,7 +45,7 @@ const booksData = {
     'C1': [
         {
             title: 'C1 Ders Kitabı',
-            url: 'https://github.com/AlejandroLopezSalek/ODL_Turco-Standard/raw/main/C1.pdf',
+            url: '/assets/docs/C1.pdf',
             size: '~15 MB',
             pages: '180',
             description: 'Libro de texto para nivel C1'
@@ -55,13 +55,13 @@ const booksData = {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Safety check for Service
-    if (window.ContributionService) {
+    if (globalThis.ContributionService) {
         loadInitialData();
         loadBooks();
     } else {
         // Retry once after short delay if script order was off
         setTimeout(() => {
-            if (window.ContributionService) {
+            if (globalThis.ContributionService) {
                 loadInitialData();
                 loadBooks();
             } else {
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Check for search param in URL
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const searchParam = urlParams.get('search');
     if (searchParam && searchInput) {
         searchInput.value = searchParam;
@@ -219,7 +219,7 @@ let allLessons = [];
 
 async function loadInitialData() {
     try {
-        allLessons = await window.ContributionService.getPublishedLessons();
+        allLessons = await globalThis.ContributionService.getPublishedLessons();
         loadLessons();
     } catch (e) {
         console.error('Error loading lessons:', e);
@@ -317,7 +317,7 @@ async function loadLessons(searchTerm = '') {
         actions.appendChild(viewBtn);
 
         // 2. Secondary Actions: Dropdown (More Options)
-        const isAdmin = window.ContributionService && window.ContributionService.isAdmin();
+        const isAdmin = globalThis.ContributionService?.isAdmin();
 
         const dropdownContainer = document.createElement('div');
         dropdownContainer.className = 'relative inline-block';
@@ -375,7 +375,7 @@ async function loadLessons(searchTerm = '') {
 
 async function viewLesson(id) {
     try {
-        const lesson = await window.ContributionService.getLessonById(id);
+        const lesson = await globalThis.ContributionService.getLessonById(id);
         if (!lesson) return;
 
         const modal = document.getElementById('universalLessonModal');
@@ -433,8 +433,8 @@ async function viewLesson(id) {
             document.body.style.overflow = 'hidden';
 
             // Pronunciation
-            if (window.PronunciationSystem) {
-                setTimeout(() => window.PronunciationSystem.scanAndInject(content), 100);
+            if (globalThis.PronunciationSystem) {
+                setTimeout(() => globalThis.PronunciationSystem.scanAndInject(content), 100);
             }
         }
     } catch (e) {
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 function editPublishedLesson(id) {
-    window.location.href = `/Contribute/?editLesson=${id}`;
+    globalThis.location.href = `/Contribute/?editLesson=${id}`;
 }
 
 // Custom Delete Modal Logic
@@ -479,11 +479,9 @@ function deleteLesson(id) {
         // Setup confirm button
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         confirmBtn.onclick = confirmDeleteLesson;
-    } else {
+    } else if (confirm('¿Confirmar eliminación?')) {
         // Fallback if modal missing
-        if (confirm('¿Confirmar eliminación?')) {
-            performDelete(id);
-        }
+        performDelete(id);
     }
 }
 
@@ -501,17 +499,17 @@ async function confirmDeleteLesson() {
 
 async function performDelete(id) {
     try {
-        await window.ContributionService.deleteContribution(id);
-        if (window.toastSuccess) {
-            window.toastSuccess('Lección eliminada correctamente', 'Éxito', 3000);
+        await globalThis.ContributionService.deleteContribution(id);
+        if (globalThis.toastSuccess) {
+            globalThis.toastSuccess('Lección eliminada correctamente', 'Éxito', 3000);
         } else {
             alert('Lección eliminada');
         }
         // Reload
         setTimeout(() => loadLessons(document.getElementById('communitySearch')?.value || ''), 500);
     } catch (e) {
-        if (window.toastError) {
-            window.toastError('Error al eliminar: ' + e.message, 'Error', 4000);
+        if (globalThis.toastError) {
+            globalThis.toastError('Error al eliminar: ' + e.message, 'Error', 4000);
         } else {
             alert('Error al eliminar: ' + e.message);
         }
