@@ -50,4 +50,13 @@ layout: niveles.njk
     {{ components.grammarCard("Intervalos de Tiempo", "Básico", "-DAn hasta -(y)A kadar, antes/después y desde hace.",
     "tiempo-intervalos") }}
   </div>
-</section>
+
+  <!-- SEO Content Injection (Hidden from visual users, visible to bots) -->
+  <div class="sr-only">
+    {% for key, lesson in a1_lessons %}
+    <article id="seo-lesson-{{ key }}">
+      <h2>{{ lesson.title }}</h2>
+      <div>{{ lesson.content | safe }}</div>
+    </article>
+    {% endfor %}
+  </div>

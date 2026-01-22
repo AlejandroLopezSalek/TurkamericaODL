@@ -27,3 +27,13 @@ layout: niveles.njk
     (ni... ni), ya... ya (o... o), ister... ister (ya sea...).", "baglaclar-c1-ciftli") }}
   </div>
 </section>
+
+<!-- SEO Content Injection (Hidden from visual users, visible to bots) -->
+<div class="sr-only">
+  {% for key, lesson in c1_lessons %}
+  <article id="seo-lesson-{{ key }}">
+    <h2>{{ lesson.title }}</h2>
+    <div>{{ lesson.content | safe }}</div>
+  </article>
+  {% endfor %}
+</div>

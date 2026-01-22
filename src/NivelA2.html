@@ -60,3 +60,13 @@ layout: niveles.njk
         "gerundios") }}
     </div>
 </section>
+
+<!-- SEO Content Injection (Hidden from visual users, visible to bots) -->
+<div class="sr-only">
+    {% for key, lesson in a2_lessons %}
+    <article id="seo-lesson-{{ key }}">
+        <h2>{{ lesson.title }}</h2>
+        <div>{{ lesson.content | safe }}</div>
+    </article>
+    {% endfor %}
+</div>
