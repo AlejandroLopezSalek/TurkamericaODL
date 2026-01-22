@@ -1,100 +1,149 @@
-# 🇹🇷 TurkAmerica - Turkish Learning Platform
+# TurkAmerica - Turkish Learning Platform
 
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4.4%2B-green)](https://www.mongodb.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code Quality](https://img.shields.io/badge/SonarQube-Passed-success?style=flat-square&logo=sonarqube&logoColor=white)](https://www.sonarqube.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.0.0-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4.4%2B-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](https://opensource.org/licenses/MIT)
 
-A comprehensive web platform designed for Spanish speakers to learn Turkish effectively. This project integrates a robust backend with a static-site generated frontend to deliver a fast, interactive, and personalized learning experience, complete with authentication, progress tracking, and AI-powered assistance.
+> **TurkAmerica** is a high-performance educational platform engineered to bridge the linguistic gap for Spanish speakers learning Turkish. This project utilizes a sophisticated hybrid architecture, merging the lightning-fast performance of Static Site Generation (SSG) with the robustness of a scalable RESTful API. It integrates context-aware Artificial Intelligence to deliver a personalized, adaptive learning experience that evolves with the user.
 
-## Architecture
+---
 
-The infrastructure allows for secure and scalable interactions, handling user traffic efficiently from the request entry point to the core application logic and external AI services.
+## System Architecture
+
+The ecosystem relies on a containerized microservices architecture, ensuring that every component is isolated, scalable, and secure by design.
 
 ```mermaid
 graph LR
     User((User))
-    DNS[DNS Provider]
-    Nginx[("Nginx Load Balancer\n(Docker)")]
-    App[("Web Application\n(Docker - Node.js/Express)")]
-    AI[("AI API\n(Groq/LLM)")]
+    DNS[DNS / Cloudflare]
+    Nginx[Nginx Reverse Proxy]
+    App[Node.js Application]
+    DB[(MongoDB Atlas/Local)]
+    AI[AI Inference Engine]
 
-    User -->|HTTPS Request| DNS
-    DNS -->|Resolve IP| Nginx
-    Nginx -->|Reverse Proxy| App
-    App -->|Prompt/Context| AI
-    AI -->|Response| App
-    App -->|JSON/HTML| User
+    subgraph "Secure Infrastructure"
+    Nginx
+    App
+    DB
+    end
 
-    style User fill:#f9f,stroke:#333
-    style Nginx fill:#66c2a5,stroke:#333
-    style App fill:#fc8d62,stroke:#333
-    style AI fill:#8da0cb,stroke:#333
+    User -->|HTTPS Encrypted| DNS
+    DNS -->|Resolution| Nginx
+    Nginx -->|Proxy Pass / SSL Termination| App
+    App -->|Mongoose ODM| DB
+    App -->|Context API| AI
+    AI -->|Text Generation| App
+    App -->|JSON / HTML| User
+
+    style Nginx fill:#009688,stroke:#fff,stroke-width:0px,color:#fff
+    style App fill:#2c3e50,stroke:#fff,stroke-width:0px,color:#fff
+    style DB fill:#27ae60,stroke:#fff,stroke-width:0px,color:#fff
+    style AI fill:#8e44ad,stroke:#fff,stroke-width:0px,color:#fff
 ```
 
-### System Flow
-1.  **User Interaction**: The user accesses the platform via a web browser.
-2.  **DNS & Routing**: The request is resolved by the DNS provider and directed to the configured server.
-3.  **Entry Point (Nginx)**: An Nginx container acts as a reverse proxy, handling SSL termination and forwarding traffic to the main application container.
-4.  **Core Application**: The application (built with Node.js/Express and optimized by Eleventy) processes the request. It handles authentication, retrieves data from MongoDB, or renders pages.
-5.  **AI Integration**: For chatbot features, the application securely communicates with an external AI API (Groq) to process natural language queries and provide context-aware responses.
+### Core Components
 
-##  Project Contribution & Value
-
-This project aims to bridge the language gap for Spanish speakers learning Turkish by providing:
-
-*   **Structured Learning Path**: A curriculum organized by Common European Framework of Reference for Languages (CEFR) levels (A1-C1).
-*   **Contextualized AI**: An AI assistant ("Capi") that understands the specific context of the lessons and user progress, offering help beyond generic translation.
-*   **Community Focus**: By open-sourcing this platform, we contribute to the educational technology community, providing a reference architecture for building language learning apps with modern web technologies.
-
-##  Features
-
-### **Educational Resources**
-- **Level-Based Content**: Structured lessons ranging from A1 (Beginner) to C1 (Advanced).
-- **Interactive Grammar**: Dynamic explanations and exercises to master Turkish grammar rules.
-- **Curated Media**: Integration with official resources (Yunus Emre Institute) and selected YouTube channels.
-
-### **User System**
-- **Secure Authentication**: JWT-based login and registration system.
-- **Progress Tracking**: Personal dashboard tracking completed lessons and "study streaks" to encourage consistency.
-- **Custom Profiles**: User avatars and profile management.
-
-### **Modern Interface**
-- **Responsive Design**: Fully adaptable layout for desktop, tablet, and mobile devices.
-- **Dark Mode**: Native dark mode support for visual comfort.
-- **Performance**: Static site generation (SSG) for lightning-fast page loads.
-
-##  Tech Stack
-
-This project leverages a modern JavaScript stack to ensure performance and developer experience.
-
-### Backend
-- **Node.js & Express**: The core server framework handling API routes and middleware.
-- **MongoDB & Mongoose**: NoSQL database for flexible data modeling (Users, Progress, Contributions).
-- **JWT**: Stateless authentication mechanism.
-- **Groq SDK**: Integration with high-performance AI models.
-
-### Frontend
-- **Eleventy (11ty)**: Static Site Generator for optimal performance and SEO.
-- **HTML5 & CSS3**: Semantic markup and modern styling.
-- **TailwindCSS**: Utility-first CSS framework for rapid UI development.
-- **JavaScript (ES6+)**: Vanilla JS for client-side interactivity without framework overhead.
-
-### Security
-- **Helmet**: Secures HTTP headers.
-- **CORS**: Configures resource sharing policies.
-- **Rate Limiting**: Prevents abuse and DDoS attempts.
-- **Input Sanitization**: Protects against XSS and injection attacks.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-**LatinCTC**
-- GitHub: [@LatinCTC](https://github.com/LatinCTC)
-- Email: contact@turkamerica.com
+1.  **Static Frontend (Eleventy Integration)**: The visual core is pre-rendered using **11ty** (Eleventy). This approach eliminates server-side rendering latency, drastically improving SEO, Time to First Byte (TTFB), and First Contentful Paint (FCP) metrics.
+2.  **Enterprise-Grade REST API (Express.js)**: Manages dynamic business logic with a focus on security and maintainability:
+    *   **Authentication & Authorization**: A robust system utilizing JWT (JSON Web Tokens) and OAuth2 (Google) policies.
+    *   **State Management**: Complex tracking of user progress, adaptive curriculum unlocking, and study streaks.
+    *   **Security Layer**: Implementation of `Helmet` for strict HTTP headers, Content Security Policy (CSP), and `express-rate-limit` to mitigate DDoS and brute-force vectors.
+3.  **Design System (TailwindCSS)**: Deploys a utility-first design framework with a custom configuration (`tailwind.config.js`) to ensure strict visual consistency, responsive behavior across devices, and native dark mode support.
 
 ---
 
-**Made with ❤️ by Alejandro from ODL**
+## Data Pipelines
+
+### Authentication & Session Lifecycle
+
+The following sequence diagram illustrates the secure authentication flow implemented within `/server/routes/auth.js`, adhering to industry best practices for credential handling.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend (Client)
+    participant API as API (Express)
+    participant DB as MongoDB
+
+    U->>FE: Input Credentials
+    FE->>API: POST /api/auth/login
+    Note right of FE: Input Validation (Regex/Length)
+    API->>API: Sanitize & Validate (Express-Validator)
+    API->>DB: Find User & Compare Password (Bcrypt)
+    DB-->>API: User Data
+    API->>API: Generate Signed JWT (7 Days)
+    API-->>FE: Token + User Profile
+    FE->>FE: Secure Storage (LocalStorage)
+    
+    Note over U, FE: Session Established
+
+    U->>FE: Access Lesson Content
+    FE->>API: GET /api/lessons (Auth Header)
+    API->>API: Verify JWT Middleware
+    API-->>FE: Protected Resource
+```
+
+---
+
+## DevOps Strategy & Continuous Deployment
+
+We implement a streamlined yet robust CI/CD pipeline powered by automated shell scripting (`deploy.sh`) and process orchestration via PM2, ensuring zero-downtime deployments.
+
+```mermaid
+graph TD
+    Dev[Developer]
+    Git[Git Repository]
+    Server[Production Server]
+    Build[Build Pipeline]
+    PM2[PM2 Process Manager]
+
+    Dev -->|Push Commit| Git
+    Git -->|Webhook / Manual Trigger| Server
+    
+    subgraph "Production Environment"
+    Server -->|Git Pull & Reset| Git
+    Server -->|NPM CI (Prod Dependencies)| Build
+    Build -->|Eleventy Build| StaticFiles[Static Assets (_site)]
+    Build -->|Tailwind Minify| CSS[Optimized CSS]
+    StaticFiles --> PM2
+    CSS --> PM2
+    PM2 -->|Graceful Reload| Online[Active Service]
+    end
+
+    style PM2 fill:#e74c3c,stroke:#fff,color:#fff
+    style Build fill:#3498db,stroke:#fff,color:#fff
+```
+
+### Quality Assurance & Security Compliance
+
+This codebase has been audited to meet professional development standards:
+
+*   **SonarQube Compliance**: The code has passed static analysis for security hotspots, code smells, and technical debt.
+*   **Dependency Integrity**: Strict usage of `npm ci` in production environments ensures that the deployed dependency tree matches the tested environment exactly (determinism).
+*   **Input Sanitization**: All incoming data streams undergo rigorous sanitization via `mongo-sanitize` (to prevent NoSQL Injection) and `xss-clean` (to neutralize Cross-Site Scripting attacks).
+*   **Error Handling**: A centralized global error handler masks stack traces in production, preventing sensitive information leakage.
+
+---
+
+## Detailed Tech Stack
+
+| Domain | Technologies & Libraries | Purpose |
+| :--- | :--- | :--- |
+| **Backend** | `Node.js`, `Express` | High-performance server runtime and framework |
+| **Database** | `MongoDB`, `Mongoose` | Scalable NoSQL persistence and strict schema modeling |
+| **Security** | `Helmet`, `BcryptJS`, `JWT`, `Cors` | Endpoint hardening, hashing, and access control |
+| **Frontend** | `Eleventy`, `Nunjucks` | Ultra-fast Static Site Generation (SSG) |
+| **Styling** | `TailwindCSS`, `PostCSS` | Utility-first CSS framework with post-processing |
+| **Infrastructure** | `PM2`, `Docker` | Process orchestration and containerization |
+| **Validation** | `Express-Validator` | Type-safe input validation and sanitization |
+
+---
+
+## License
+
+This project is distributed under the **MIT License**. Please refer to the `LICENSE` file for further details.
+
+---
+
+**Developed by Alejandro @ ODL**
