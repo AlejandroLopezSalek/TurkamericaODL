@@ -8,7 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initTurkBot() {
     // Check if disabled by user
-    if (localStorage.getItem('turkbot_disabled') === 'true') return;
+    if (localStorage.getItem('turkbot_disabled') === 'true') {
+        const btn = document.getElementById('turkbot-btn');
+        if (btn) btn.classList.add('hidden');
+        return;
+    }
 
     // Prevent duplicates handled in createMascotUI logic
     // if (document.getElementById('turkbot-btn')) return;

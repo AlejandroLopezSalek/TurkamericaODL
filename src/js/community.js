@@ -410,7 +410,7 @@ async function viewLesson(id) {
                         <i class="fas fa-book text-indigo-600 dark:text-indigo-400"></i> Contenido
                     </h3>
                     <div class="prose dark:prose-invert max-w-none lesson-content">
-                        ${marked.parse(lesson.content || '')}
+                        ${(lesson.content || '').trim().startsWith('<') ? lesson.content : marked.parse(lesson.content || '')}
                     </div>
                 </div>
             `;

@@ -324,7 +324,15 @@ window.AppUtils.Notifications = {
 
         // Check permission status
         if (Notification.permission === 'granted') {
-            this.updateUI(true);
+            // Check actual subscription
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.getSubscription();
+                this.updateUI(!!subscription);
+            } catch (e) {
+                console.error('Error checking subscription:', e);
+                this.updateUI(false);
+            }
         } else {
             this.updateUI(false);
         }
