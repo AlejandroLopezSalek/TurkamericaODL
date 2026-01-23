@@ -466,7 +466,8 @@ globalThis.AppUtils.Utils = {
     },
 
     generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        // Use crypto.randomUUID() for cryptographically secure random IDs (fixes SonarCloud security hotspot)
+        return Date.now().toString(36) + crypto.randomUUID().substring(0, 9);
     },
 
     escapeHtml(text) {
