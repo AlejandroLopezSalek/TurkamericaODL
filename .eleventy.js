@@ -1,8 +1,8 @@
 // .eleventy.js adaptado para deploy seguro
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
-module.exports = function (eleventyConfig) {
+module.exports = function eleventyConfigSetup(eleventyConfig) {
 
     // --- Passthrough de assets estáticos (COMBINADO Y AJUSTADO) ---
     // Reglas existentes (asumiendo que los archivos están en 'src/...')
