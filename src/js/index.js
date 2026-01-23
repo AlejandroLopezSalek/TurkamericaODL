@@ -5,7 +5,7 @@
 // Check authentication status on page load
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize auth system
-    if (typeof window.AuthService !== 'undefined') {
+    if (globalThis.AuthService !== undefined) {
         checkAuthenticationStatus();
     }
 
@@ -23,9 +23,7 @@ function checkAuthenticationStatus() {
     if (token && currentUser) {
         try {
             const user = JSON.parse(currentUser);
-            if (window.userDataManager) {
-                window.userDataManager.setCurrentUser(user);
-            }
+            globalThis.userDataManager?.setCurrentUser(user);
             updateUIBasedOnAuth();
         } catch (error) {
             console.error('Error parsing user data:', error);
@@ -120,9 +118,7 @@ function handleLogout() {
     localStorage.removeItem('currentUser');
 
     // Show logout message
-    if (window.AppUtils && window.AppUtils.Notification) {
-        window.AppUtils.Notification.success('Sesión cerrada correctamente');
-    }
+    globalThis.AppUtils?.Notification?.success('Sesión cerrada correctamente');
 
     // Update UI
     setTimeout(() => {
@@ -137,7 +133,8 @@ function handleLogout() {
 // ENABLE REGISTERED USER FEATURES
 // ========================================
 function enableRegisteredUserFeatures() {
-
+    // Placeholder for future features
+    console.log('✅ Registered user features enabled');
 }
 
 // ========================================
@@ -145,15 +142,15 @@ function enableRegisteredUserFeatures() {
 // ========================================
 
 // Listen for storage changes (cross-tab synchronization)
-window.addEventListener('storage', function (e) {
+globalThis.addEventListener('storage', function (e) {
     if (e.key === 'authToken' || e.key === 'currentUser') {
         updateUIBasedOnAuth();
     }
 });
 
 // Listen for authentication events
-window.addEventListener('authStateChanged', function (event) {
-    if (event.detail && event.detail.isLoggedIn) {
+globalThis.addEventListener('authStateChanged', function (event) {
+    if (event.detail?.isLoggedIn) {
         updateUIBasedOnAuth();
     } else {
         showLoginState();
@@ -173,14 +170,14 @@ document.addEventListener('visibilitychange', function () {
 // ========================================
 // GLOBAL EXPORTS
 // ========================================
-window.registrationManager = {
+globalThis.registrationManager = {
     checkStatus: updateUIBasedOnAuth,
     enableFeatures: enableRegisteredUserFeatures,
     showLoginState: showLoginState
 };
 
 // Make handleLogout available globally (for Perfil.html)
-window.handleLogout = handleLogout;
+globalThis.handleLogout = handleLogout;
 
 console.log('📋 Index page initialized successfully!');
 console.log('🔒 Authentication system ready!');

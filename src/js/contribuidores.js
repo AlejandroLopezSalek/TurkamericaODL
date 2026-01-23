@@ -4,11 +4,11 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // Wait for ContributionService to be ready
-    if (window.ContributionService) {
+    if (globalThis.ContributionService) {
         initContributors();
     } else {
         setTimeout(() => {
-            if (window.ContributionService) {
+            if (globalThis.ContributionService) {
                 initContributors();
             } else {
                 console.error('ContributionService not available');
@@ -30,7 +30,7 @@ async function initContributors() {
     const loadMoreBtn = document.getElementById('loadMoreBtn');
 
     try {
-        const lessons = await window.ContributionService.getPublishedLessons();
+        const lessons = await globalThis.ContributionService.getPublishedLessons();
 
         // Extract unique authors safely
         const authorCounts = {};
@@ -113,7 +113,7 @@ function createContributorCard(author) {
     // Use a simple hash of the name to pick a color consistency
     let hash = 0;
     for (let i = 0; i < author.name.length; i++) {
-        hash = author.name.charCodeAt(i) + ((hash << 5) - hash);
+        hash = author.name.codePointAt(i) + ((hash << 5) - hash);
     }
     const index = Math.abs(hash) % colors.length;
     const colorSet = colors[index];

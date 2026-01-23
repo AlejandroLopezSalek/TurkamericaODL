@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('🔧 Profile page initializing...');
 
     // Check authentication
-    if (!window.AuthService || !window.AuthService.isLoggedIn()) {
+    if (!globalThis.AuthService?.isLoggedIn()) {
         console.warn('⚠️ User not logged in. Redirecting to login...');
-        window.location.href = '/login/';
+        globalThis.location.href = '/login/';
         return;
     }
 
@@ -63,12 +63,12 @@ async function handleAvatarUpload(e) {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-        window.toastError('Por favor selecciona una imagen válida');
+        globalThis.toastError('Por favor selecciona una imagen válida');
         return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-        window.toastError('La imagen debe ser menor a 5MB');
+        globalThis.toastError('La imagen debe ser menor a 5MB');
         return;
     }
 
@@ -81,9 +81,9 @@ async function handleAvatarUpload(e) {
         reader.onload = async function (e) {
             const base64Image = e.target.result;
 
-            const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/auth/profile`, {
+            const response = await fetch(`${globalThis.APP_CONFIG.API_BASE_URL}/auth/profile`, {
                 method: 'PUT',
-                headers: window.AuthService.getAuthHeaders(),
+                headers: globalThis.AuthService.getAuthHeaders(),
                 body: JSON.stringify({
                     profile: {
                         avatar: base64Image
@@ -95,7 +95,7 @@ async function handleAvatarUpload(e) {
                 const data = await response.json();
                 localStorage.setItem('currentUser', JSON.stringify(data.user));
                 updateAvatarDisplay(base64Image);
-                window.toastSuccess('Foto de perfil actualizada');
+                globalThis.toastSuccess('Foto de perfil actualizada');
             } else {
                 throw new Error('Error al guardar la imagen');
             }
@@ -112,7 +112,7 @@ async function handleAvatarUpload(e) {
 
     } catch (error) {
         console.error('Error uploading avatar:', error);
-        window.toastError('Error al subir la imagen');
+        globalThis.toastError('Error al subir la imagen');
     }
 }
 
@@ -148,7 +148,7 @@ function updateAvatarDisplay(base64Image) {
 // ================================
 async function loadUserProfile() {
     // 1. Verify Authentication
-    const currentUser = window.AuthService ? window.AuthService.getCurrentUser() : null;
+    const currentUser = globalThis.AuthService ? globalThis.AuthService.getCurrentUser() : null;
 
     if (!currentUser) {
         console.warn('⚠️ No user found in AuthService');
@@ -187,13 +187,7 @@ async function loadUserProfile() {
             updateAvatarDisplay(currentUser.profile.avatar);
         }
 
-        // Fill Form Fields if they exist
-        // Form fields removed
-        /*
-        if (currentUser.profile) {
-            // ... fields removed
-        }
-        */
+
 
         // Load Preferences
         if (currentUser.preferences) {
@@ -206,20 +200,26 @@ async function loadUserProfile() {
                 if (el) el.value = val;
             };
 
-            setChecked('darkModePref', currentUser.preferences.darkMode || false);
+            // IMPORTANT: Check actual dark mode state from DOM, not just stored preference
+            // This prevents dark mode from being disabled when opening profile
+            const actualDarkMode = document.documentElement.classList.contains('dark-mode');
+            setChecked('darkModePref', actualDarkMode);
+
             setChecked('notificationsPref', currentUser.preferences.notifications !== false);
             setChecked('soundPref', currentUser.preferences.sound !== false);
             setValue('languagePref', currentUser.preferences.language || 'es');
             setValue('fontSizePref', currentUser.preferences.fontSize || 'medium');
             setValue('dailyGoalPref', currentUser.preferences.dailyGoal || 30);
 
-            applyPreferences(currentUser.preferences);
+            // Don't apply preferences automatically - let the AppUtils.DarkMode handle it
+            // This prevents the dark mode from being overwritten
+            // applyPreferences(currentUser.preferences);
         }
 
         console.log('✅ User profile loaded successfully');
     } catch (error) {
         console.error('❌ Error loading profile:', error);
-        window.toastError('Error al cargar el perfil');
+        globalThis.toastError('Error al cargar el perfil');
     }
 }
 
@@ -234,9 +234,9 @@ async function loadStreakData() {
         // Mock data removed as requested
 
 
-        const updateResponse = await fetch(`${window.APP_CONFIG.API_BASE_URL}/auth/update-streak`, {
+        const updateResponse = await fetch(`${globalThis.APP_CONFIG.API_BASE_URL}/auth/update-streak`, {
             method: 'POST',
-            headers: window.AuthService.getAuthHeaders()
+            headers: globalThis.AuthService.getAuthHeaders()
         });
 
         let streakData;
@@ -244,8 +244,8 @@ async function loadStreakData() {
             const data = await updateResponse.json();
             streakData = data.streak;
         } else {
-            const getResponse = await fetch(`${window.APP_CONFIG.API_BASE_URL}/auth/streak`, {
-                headers: window.AuthService.getAuthHeaders()
+            const getResponse = await fetch(`${globalThis.APP_CONFIG.API_BASE_URL}/auth/streak`, {
+                headers: globalThis.AuthService.getAuthHeaders()
             });
 
             if (getResponse.ok) {
@@ -372,11 +372,11 @@ function setupEventListeners() {
     const darkModeToggle = document.getElementById('darkModePref');
     if (darkModeToggle) {
         darkModeToggle.addEventListener('change', function () {
-            if (window.AppUtils && window.AppUtils.DarkMode) {
+            if (globalThis.AppUtils && globalThis.AppUtils.DarkMode) {
                 if (this.checked) {
-                    window.AppUtils.DarkMode.enable();
+                    globalThis.AppUtils.DarkMode.enable();
                 } else {
-                    window.AppUtils.DarkMode.disable();
+                    globalThis.AppUtils.DarkMode.disable();
                 }
             } else {
                 // Fallback
@@ -440,13 +440,13 @@ async function handlePreferencesSave() {
                 sound: document.getElementById('soundPref').checked,
                 language: document.getElementById('languagePref').value,
                 fontSize: document.getElementById('fontSizePref').value,
-                dailyGoal: parseInt(document.getElementById('dailyGoalPref').value)
+                dailyGoal: Number.parseInt(document.getElementById('dailyGoalPref').value)
             }
         };
 
-        const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/auth/profile`, {
+        const response = await fetch(`${globalThis.APP_CONFIG.API_BASE_URL}/auth/profile`, {
             method: 'PUT',
-            headers: window.AuthService.getAuthHeaders(),
+            headers: globalThis.AuthService.getAuthHeaders(),
             body: JSON.stringify(preferencesData)
         });
 
@@ -454,7 +454,7 @@ async function handlePreferencesSave() {
             const data = await response.json();
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             applyPreferences(preferencesData.preferences);
-            window.toastSuccess('Preferencias guardadas correctamente');
+            globalThis.toastSuccess('Preferencias guardadas correctamente');
             console.log('✅ Preferences saved successfully');
         } else {
             const error = await response.json();
@@ -462,7 +462,7 @@ async function handlePreferencesSave() {
         }
     } catch (error) {
         console.error('❌ Error saving preferences:', error);
-        window.toastError(error.message || 'Error al guardar preferencias');
+        globalThis.toastError(error.message || 'Error al guardar preferencias');
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
@@ -563,8 +563,8 @@ async function performLogout() {
     try {
         console.log('🔄 Processing logout...');
 
-        if (window.AuthService && typeof window.AuthService.logout === 'function') {
-            await window.AuthService.logout();
+        if (globalThis.AuthService && typeof globalThis.AuthService.logout === 'function') {
+            await globalThis.AuthService.logout();
         } else {
             localStorage.removeItem('token');
             localStorage.removeItem('currentUser');
@@ -573,20 +573,20 @@ async function performLogout() {
         }
 
         console.log('✅ Logout successful');
-        window.toastSuccess('Sesión cerrada correctamente');
+        globalThis.toastSuccess('Sesión cerrada correctamente');
 
         setTimeout(() => {
-            window.location.href = '/';
+            globalThis.location.href = '/';
         }, 1000);
 
     } catch (error) {
         console.error('❌ Error during logout:', error);
         localStorage.clear();
         sessionStorage.clear();
-        window.toastWarning('Error al cerrar sesión, pero se cerró de todas formas');
+        globalThis.toastWarning('Error al cerrar sesión, pero se cerró de todas formas');
 
         setTimeout(() => {
-            window.location.href = '/';
+            globalThis.location.href = '/';
         }, 1500);
     }
 }
@@ -694,7 +694,7 @@ function openChangePasswordModal() {
     modal.firstElementChild.classList.remove('scale-95', 'opacity-0');
 }
 
-window.closeChangePasswordModal = function () {
+globalThis.closeChangePasswordModal = function () {
     const modal = document.getElementById('changePasswordModal');
     if (modal) {
         // Animate out
@@ -719,17 +719,17 @@ async function handleChangePassword(e) {
 
     // Validations
     if (newPassword !== confirmPassword) {
-        window.toastError('Las contraseñas no coinciden');
+        globalThis.toastError('Las contraseñas no coinciden');
         return;
     }
 
     if (newPassword.length < 8) {
-        window.toastError('La contraseña debe tener al menos 8 caracteres');
+        globalThis.toastError('La contraseña debe tener al menos 8 caracteres');
         return;
     }
 
-    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
-        window.toastError('La contraseña debe incluir mayúsculas, minúsculas y números');
+    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/\d/.test(newPassword)) {
+        globalThis.toastError('La contraseña debe incluir mayúsculas, minúsculas y números');
         return;
     }
 
@@ -739,9 +739,9 @@ async function handleChangePassword(e) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cambiando...';
 
     try {
-        const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/auth/change-password`, {
+        const response = await fetch(`${globalThis.APP_CONFIG.API_BASE_URL}/auth/change-password`, {
             method: 'POST',
-            headers: window.AuthService.getAuthHeaders(),
+            headers: globalThis.AuthService.getAuthHeaders(),
             body: JSON.stringify({
                 currentPassword,
                 newPassword
@@ -749,7 +749,7 @@ async function handleChangePassword(e) {
         });
 
         if (response.ok) {
-            window.toastSuccess('Contraseña cambiada correctamente');
+            globalThis.toastSuccess('Contraseña cambiada correctamente');
             closeChangePasswordModal();
             console.log('✅ Password changed successfully');
         } else {
@@ -758,7 +758,7 @@ async function handleChangePassword(e) {
         }
     } catch (error) {
         console.error('❌ Error changing password:', error);
-        window.toastError(error.message || 'Error al cambiar la contraseña');
+        globalThis.toastError(error.message || 'Error al cambiar la contraseña');
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;

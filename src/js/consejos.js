@@ -73,7 +73,7 @@
 
         const title = item.querySelector('h4')?.textContent?.trim() || 'activity';
         const timeSlot = item.querySelector('.time-slot')?.textContent?.trim() || '';
-        const activityId = `${timeSlot}-${title}`.replace(/\s+/g, '-').toLowerCase();
+        const activityId = `${timeSlot}-${title}`.replaceAll(/\s+/g, '-').toLowerCase();
 
         // Set ID on the item itself for easier access
         item.dataset.activityId = activityId;
@@ -127,13 +127,11 @@
             if (icon) icon.className = 'fas fa-check';
         } else {
             // Remove completion
-            item.classList.remove('completed');
-            item.classList.remove(...completedClasses);
+            item.classList.remove('completed', ...completedClasses);
             item.classList.add(...baseClasses);
 
             if (button) {
-                button.classList.remove('completed');
-                button.classList.remove('bg-emerald-500', 'scale-110');
+                button.classList.remove('completed', 'bg-emerald-500', 'scale-110');
                 button.classList.add('bg-purple-600', 'text-white');
             }
             if (icon && originalIconClass) icon.className = originalIconClass;

@@ -4,52 +4,24 @@
 
 let lessonEditor;
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // Check for edit mode and apply compact styles
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode');
-
-    if (mode === 'edit') {
-        document.body.classList.add('compact-mode');
-        // Update page title for context
-        const pageTitle = document.querySelector('.page-title');
-        if (pageTitle) pageTitle.textContent = 'Editar Lección';
-    }
-
-    initContributionPage();
-
-    // UI INITIALIZATION FOR SELECTION CARDS
-    // Ensure forms are hidden initially
-    const lessonForm = document.getElementById('lessonEditForm');
-    const bookForm = document.getElementById('bookUploadForm');
-    if (lessonForm) lessonForm.style.display = 'none';
-    if (bookForm) bookForm.style.display = 'none';
-
-    // Check if we should auto-select based on URL
-    if (urlParams.has('editLesson') || urlParams.has('level')) {
-        selectContributionType('lesson');
-    } else {
-        showSelection();
-    }
-
-    // Check if editing existing lesson (legacy params)
+// Extract URL parameter handling to reduce cognitive complexity
+async function handleUrlParameters(urlParams) {
     const editLessonId = urlParams.get('edit') || urlParams.get('editLesson');
     const topic = urlParams.get('topic');
     const level = urlParams.get('level');
 
     if (editLessonId) {
-        selectContributionType('lesson'); // Ensure form is visible
+        selectContributionType('lesson');
         try {
-            editLesson(editLessonId);
+            await editLesson(editLessonId);
         } catch (error) {
             console.error(error);
-            if (window.toastError) window.toastError('Error al iniciar edición');
+            if (globalThis.toastError) globalThis.toastError('Error al iniciar edición');
         }
     } else if (topic && level) {
         selectContributionType('lesson');
         fetchExistingLesson(topic, level);
     } else if (level) {
-        // Pre-select level for new lesson
         selectContributionType('lesson');
         const levelSelect = document.getElementById('lessonLevel');
         if (levelSelect) {
@@ -57,13 +29,42 @@ document.addEventListener('DOMContentLoaded', async () => {
             showToast(`Creando lección para Nivel ${level}`, 'info');
         }
     }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(globalThis.location.search);
+    const mode = urlParams.get('mode');
+
+    if (mode === 'edit') {
+        document.body.classList.add('compact-mode');
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle) pageTitle.textContent = 'Editar Lección';
+    }
+
+    initContributionPage();
+
+    // Ensure forms are hidden initially
+    const lessonForm = document.getElementById('lessonEditForm');
+    const bookForm = document.getElementById('bookUploadForm');
+    if (lessonForm) lessonForm.style.display = 'none';
+    if (bookForm) bookForm.style.display = 'none';
+
+    // Auto-select based on URL
+    if (urlParams.has('editLesson') || urlParams.has('level')) {
+        selectContributionType('lesson');
+    } else {
+        showSelection();
+    }
+
+    // Handle URL parameters
+    await handleUrlParameters(urlParams);
 });
 
 // ========================================
 // UI NAVIGATION (SELECTION CARDS)
 // ========================================
 
-window.selectContributionType = function (type) {
+globalThis.selectContributionType = function (type) {
     const selectionContainer = document.getElementById('selectionContainer');
     if (selectionContainer) selectionContainer.style.display = 'none';
 
@@ -85,7 +86,7 @@ window.selectContributionType = function (type) {
     }
 };
 
-window.showSelection = function () {
+globalThis.showSelection = function () {
     // Hide forms - using generic class and explicit IDs for safety
     document.querySelectorAll('.contribution-form').forEach(f => f.style.display = 'none');
 
@@ -99,9 +100,9 @@ window.showSelection = function () {
     if (selectionContainer) selectionContainer.style.display = 'block';
 
     // Clear URL params if any
-    if (window.history.pushState) {
-        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+    if (globalThis.history.pushState) {
+        const cleanUrl = globalThis.location.protocol + "//" + globalThis.location.host + globalThis.location.pathname;
+        globalThis.history.pushState({ path: cleanUrl }, '', cleanUrl);
     }
 };
 
@@ -146,11 +147,11 @@ async function fetchExistingLesson(topic, level) {
 
 function initContributionPage() {
     // Initialize visual editor
-    if (typeof LessonEditor !== 'undefined') {
-        lessonEditor = new LessonEditor('lessonContentEditor');
-    } else {
+    if (typeof LessonEditor === 'undefined') {
         console.error('LessonEditor class not found');
+        return;
     }
+    lessonEditor = new LessonEditor('lessonContentEditor');
 
     // Type selection
     const lessonTypeBtn = document.getElementById('lessonTypeBtn');
@@ -197,17 +198,22 @@ async function handleLessonSubmit(e) {
     const form = e.target;
     const editingLessonId = form.dataset.editingLessonId;
 
+    // DETECT SOURCE: Check if this is a nivel edit (has 'topic' param) or community contribution
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNivelEdit = urlParams.has('topic'); // Topic param indicates it's from Niveles page
+    const lessonSource = isNivelEdit ? 'nivel-edit' : 'community';
+
     const lessonData = {
         lessonTitle: document.getElementById('lessonTitle').value,
         level: document.getElementById('lessonLevel').value,
         description: document.getElementById('lessonDescription').value,
         newContent: lessonContent,
         lessonId: editingLessonId || null, // If editing, include original lesson ID
-        source: 'community' // Mark as community contribution
+        source: lessonSource // Mark as 'nivel-edit' or 'community' based on origin
     };
 
     try {
-        await window.ContributionService.submitLessonEdit(lessonData);
+        await globalThis.ContributionService.submitLessonEdit(lessonData);
 
         const message = editingLessonId
             ? '¡Propuesta de edición enviada! Será revisada por un administrador.'
@@ -224,7 +230,7 @@ async function handleLessonSubmit(e) {
         }
 
         // Clear URL parameter
-        window.history.replaceState({}, '', '/Contribute/');
+        globalThis.history.replaceState({}, '', '/Contribute/');
 
         // Reload contributions list
         loadMyContributions();
@@ -240,12 +246,12 @@ async function handleLessonSubmit(e) {
 // ========================================
 
 async function editLesson(lessonId) {
-    let lesson = await window.ContributionService.getLessonById(lessonId);
+    let lesson = await globalThis.ContributionService.getLessonById(lessonId);
 
     // Fallback: Try finding it in the full list if getById fails or returns null
     if (!lesson) {
         try {
-            const lessons = await window.ContributionService.getPublishedLessons();
+            const lessons = await globalThis.ContributionService.getPublishedLessons();
             lesson = lessons.find(l => l.id == lessonId || l._id == lessonId);
         } catch (e) { console.error(e); }
     }
@@ -283,7 +289,7 @@ async function editLesson(lessonId) {
 }
 
 // Make globally available
-window.editLesson = editLesson;
+globalThis.editLesson = editLesson;
 
 // ========================================
 // BOOK UPLOAD FORM
@@ -313,7 +319,7 @@ async function handleBookSubmit(e) {
     }
 
     try {
-        await window.ContributionService.submitBookUpload(bookData);
+        await globalThis.ContributionService.submitBookUpload(bookData);
 
         showToast('¡Libro compartido con éxito! Será revisado por un administrador.', 'success');
 
@@ -340,8 +346,8 @@ async function loadMyContributions() {
     try {
         // Fetch all requests from the service
         let requests = [];
-        if (window.ContributionService && typeof window.ContributionService.getAllRequests === 'function') {
-            requests = await window.ContributionService.getAllRequests();
+        if (globalThis.ContributionService && typeof globalThis.ContributionService.getAllRequests === 'function') {
+            requests = await globalThis.ContributionService.getAllRequests();
         }
 
         if (!Array.isArray(requests)) requests = [];
@@ -419,7 +425,7 @@ async function deleteContribution(id) {
     if (!confirm('¿Estás seguro de que deseas eliminar esta contribución de tu historial?')) return;
 
     try {
-        await window.ContributionService.deleteRequest(id);
+        await globalThis.ContributionService.deleteRequest(id);
         showToast('Contribución eliminada', 'success');
         loadMyContributions();
     } catch (error) {
@@ -459,10 +465,10 @@ function formatDate(dateString) {
 }
 
 function showToast(message, type = 'info') {
-    if (window.ToastSystem) {
-        window.ToastSystem.show({ message, type });
-    } else if (window.ToastManager) {
-        window.ToastManager.show(message, type);
+    if (globalThis.ToastSystem) {
+        globalThis.ToastSystem.show({ message, type });
+    } else if (globalThis.ToastManager) {
+        globalThis.ToastManager.show(message, type);
     } else {
         console.log(`Toast (${type}): ${message}`);
         // Fallback custom toast if system not ready

@@ -4,16 +4,16 @@
 // ========================================
 
 // Global namespace to avoid conflicts
-window.AppUtils = window.AppUtils || {};
+globalThis.AppUtils = globalThis.AppUtils || {};
 
 // ========================================
 // DARK MODE SYSTEM
 // ========================================
-window.AppUtils.DarkMode = {
+globalThis.AppUtils.DarkMode = {
     init() {
         // Apply saved theme immediately (before DOM is fully ready)
         const savedTheme = localStorage.getItem('darkMode');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
 
         // Aplica el tema inicial al <html> inmediatamente, USANDO document.documentElement
         if (savedTheme === 'enabled' || (!savedTheme && prefersDark)) {
@@ -30,14 +30,14 @@ window.AppUtils.DarkMode = {
         }
 
         // Listeners for system preference and storage remain
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             // Solo cambia si el usuario no tiene una preferencia guardada (null)
             if (!localStorage.getItem('darkMode')) {
                 e.matches ? this.enable() : this.disable();
             }
         });
 
-        window.addEventListener('storage', (e) => {
+        globalThis.addEventListener('storage', (e) => {
             if (e.key === 'darkMode') {
                 // Siempre obedece el cambio de almacenamiento para sincronizar entre pestañas
                 e.newValue === 'enabled' ? this.enable() : this.disable();
@@ -84,7 +84,7 @@ window.AppUtils.DarkMode = {
 // ========================================
 // BUTTON RIPPLE/CLICK EFFECTS
 // ========================================
-window.AppUtils.ButtonEffects = {
+globalThis.AppUtils.ButtonEffects = {
     init() {
         // Selecciona todos los elementos clicables, PERO EXCLUYE el que tiene id="settingsTab"
         const clickableElements = document.querySelectorAll(
@@ -141,7 +141,7 @@ window.AppUtils.ButtonEffects = {
 // ========================================
 // SETTINGS PANEL - FINAL FIX
 // ========================================
-window.AppUtils.Settings = {
+globalThis.AppUtils.Settings = {
     initialized: false,
 
     init() {
@@ -247,10 +247,10 @@ window.AppUtils.Settings = {
 // ========================================
 // TAB ACTIVE STATE
 // ========================================
-window.AppUtils.Tabs = {
+globalThis.AppUtils.Tabs = {
     init() {
         const tabs = document.querySelectorAll('.tab:not(#settingsTab)');
-        const currentPath = window.location.pathname;
+        const currentPath = globalThis.location.pathname;
 
         tabs.forEach(tab => {
             const tabPath = tab.getAttribute('href');
@@ -275,7 +275,7 @@ window.AppUtils.Tabs = {
 // ========================================
 // ACCESSIBILITY & PREFERENCES
 // ========================================
-window.AppUtils.Accessibility = {
+globalThis.AppUtils.Accessibility = {
     init() {
         this.applySavedPreferences();
         this.setupPreferenceListeners();
@@ -289,7 +289,7 @@ window.AppUtils.Accessibility = {
         }
 
         // Reduced Motion
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const prefersReducedMotion = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (prefersReducedMotion) {
             document.body.classList.add('reduced-motion');
         }
@@ -315,7 +315,7 @@ window.AppUtils.Accessibility = {
 // ========================================
 // PUSH NOTIFICATIONS
 // ========================================
-window.AppUtils.Notifications = {
+globalThis.AppUtils.Notifications = {
     async init() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             console.log('Push messaging isn\'t supported.');
@@ -368,16 +368,16 @@ window.AppUtils.Notifications = {
 
             console.log('Subscribed successfully!');
             this.updateUI(true);
-            if (window.toastSuccess) {
-                window.toastSuccess('¡Notificaciones activadas! Te avisaremos para que vuelvas a estudiar.', 'Éxito', 5000);
+            if (globalThis.toastSuccess) {
+                globalThis.toastSuccess('¡Notificaciones activadas! Te avisaremos para que vuelvas a estudiar.', 'Éxito', 5000);
             } else {
                 alert('¡Notificaciones activadas! Te avisaremos para que vuelvas a estudiar.');
             }
 
         } catch (error) {
             console.error('Subscription failed:', error);
-            if (window.toastError) {
-                window.toastError('No se pudo activar las notificaciones. Intenta más tarde.', 'Error', 5000);
+            if (globalThis.toastError) {
+                globalThis.toastError('No se pudo activar las notificaciones. Intenta más tarde.', 'Error', 5000);
             } else {
                 alert('No se pudo activar las notificaciones. Intenta más tarde.');
             }
@@ -394,13 +394,13 @@ window.AppUtils.Notifications = {
                 console.log('Unsubscribed successfully');
             }
             this.updateUI(false);
-            if (window.toastInfo) {
-                window.toastInfo('Notificaciones desactivadas. Ya no recibirás alertas.', 'Desactivado', 4000);
+            if (globalThis.toastInfo) {
+                globalThis.toastInfo('Notificaciones desactivadas. Ya no recibirás alertas.', 'Desactivado', 4000);
             }
         } catch (error) {
             console.error('Error unsubscribing', error);
-            if (window.toastError) {
-                window.toastError('No se pudo desactivar. Intenta de nuevo.', 'Error', 4000);
+            if (globalThis.toastError) {
+                globalThis.toastError('No se pudo desactivar. Intenta de nuevo.', 'Error', 4000);
             }
         }
     },
@@ -417,10 +417,10 @@ window.AppUtils.Notifications = {
             newToggle.addEventListener('change', (e) => {
                 if (e.target.checked) {
                     // AUTH CHECK
-                    if (window.AuthService && !window.AuthService.isLoggedIn()) {
+                    if (globalThis.AuthService && !globalThis.AuthService.isLoggedIn()) {
                         e.target.checked = false;
-                        if (window.toastWarning) {
-                            window.toastWarning('Debes iniciar sesión para activar las notificaciones.', 'Solo Usuarios Registrados', 4000);
+                        if (globalThis.toastWarning) {
+                            globalThis.toastWarning('Debes iniciar sesión para activar las notificaciones.', 'Solo Usuarios Registrados', 4000);
                         } else {
                             alert('Debes iniciar sesión para activar las notificaciones.');
                         }
@@ -437,14 +437,14 @@ window.AppUtils.Notifications = {
     urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding)
-            .replace(/-/g, '+')
-            .replace(/_/g, '/');
+            .replaceAll('-', '+')
+            .replaceAll('_', '/');
 
-        const rawData = window.atob(base64);
+        const rawData = globalThis.atob(base64);
         const outputArray = new Uint8Array(rawData.length);
 
         for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
+            outputArray[i] = rawData.codePointAt(i);
         }
         return outputArray;
     }
@@ -453,14 +453,12 @@ window.AppUtils.Notifications = {
 // ========================================
 // GENERIC UTILITIES
 // ========================================
-window.AppUtils.Utils = {
+globalThis.AppUtils.Utils = {
     throttle(func, limit) {
         let inThrottle;
-        return function () {
-            const args = arguments;
-            const context = this;
+        return function (...args) {
             if (!inThrottle) {
-                func.apply(context, args);
+                func.apply(this, args);
                 inThrottle = true;
                 setTimeout(() => inThrottle = false, limit);
             }
@@ -468,7 +466,7 @@ window.AppUtils.Utils = {
     },
 
     generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        return Date.now().toString(36) + Math.random().toString(36).substring(2);
     },
 
     escapeHtml(text) {
@@ -481,7 +479,7 @@ window.AppUtils.Utils = {
 // ========================================
 // INITIALIZATION
 // ========================================
-window.AppUtils.init = function () {
+globalThis.AppUtils.init = function () {
 
     // 1. Initialize dark mode FIRST (before DOM ready). 
     // La detección inicial se hizo en el <head>, aquí solo se inicia el sistema completo.
@@ -515,10 +513,10 @@ window.AppUtils.init = function () {
 (function () {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => window.AppUtils.init(), 50);
+            setTimeout(() => globalThis.AppUtils.init(), 50);
         });
     } else {
-        setTimeout(() => window.AppUtils.init(), 50);
+        setTimeout(() => globalThis.AppUtils.init(), 50);
     }
 })();
 
