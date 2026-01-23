@@ -198,10 +198,17 @@ async function handleLessonSubmit(e) {
     const form = e.target;
     const editingLessonId = form.dataset.editingLessonId;
 
-    // DETECT SOURCE: Check if this is a nivel edit (has 'topic' param) or community contribution
-    const urlParams = new URLSearchParams(window.location.search);
-    const isNivelEdit = urlParams.has('topic'); // Topic param indicates it's from Niveles page
-    const lessonSource = isNivelEdit ? 'nivel-edit' : 'community';
+    // DETECT SOURCE: Check if this is a nivel edit or community contribution
+    // Two scenarios for nivel edits:
+    // 1. Editing static lesson (has 'topic' param)
+    // 2. Creating new lesson from Nivel page (has 'level' param set by updateContributeButton in niveles.njk)
+    const urlParams = new URLSearchParams(globalThis.location.search);
+    const hasTopic = urlParams.has('topic');
+    const levelParam = urlParams.get('level');
+    const validLevels = ['A1', 'A2', 'B1', 'B2', 'C1'];
+    const isFromNivelesPage = hasTopic || (levelParam && validLevels.includes(levelParam.toUpperCase()));
+
+    const lessonSource = isFromNivelesPage ? 'nivel-edit' : 'community';
 
     const lessonData = {
         lessonTitle: document.getElementById('lessonTitle').value,
