@@ -103,7 +103,7 @@ graph TD
     
     subgraph "Production Environment"
     Server -->|Git Pull & Reset| Git
-    Server -->|NPM CI (Prod Dependencies)| Build
+    Server -->|"NPM CI (Prod Dependencies)"| Build
     Build -->|Eleventy Build| StaticFiles[Static Assets (_site)]
     Build -->|Tailwind Minify| CSS[Optimized CSS]
     StaticFiles --> PM2

@@ -66,7 +66,8 @@ const setupConnectionListeners = () => {
     if (process.env.NODE_ENV === 'production') {
       console.log(' Attempting to reconnect...');
       setTimeout(() => {
-        mongoose.connect(process.env.MONGODB_URI, {
+        const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/turkamerica';
+        mongoose.connect(mongoURI, {
           maxPoolSize: 10,
           serverSelectionTimeoutMS: 5000,
           socketTimeoutMS: 45000,

@@ -24,8 +24,34 @@ class PronunciationSystem {
 
     setVoice() {
         const voices = this.synth.getVoices();
-        // Try to find a Turkish voice
-        this.voice = voices.find(v => v.lang.includes('tr')) || voices.find(v => v.lang.includes('en')); // Fallback
+
+        // Priority list for natural Turkish voices
+        const preferredVoices = [
+            'Google Türkçe',
+            'Microsoft Tolga',
+            'Microsoft Emel',
+            'Yelda',
+            'Cem'
+        ];
+
+        // 1. Exact Name Match
+        this.voice = voices.find(v => preferredVoices.some(p => v.name.includes(p)));
+
+        // 2. Strict Locale Match (tr-TR)
+        if (!this.voice) {
+            this.voice = voices.find(v => v.lang === 'tr-TR');
+        }
+
+        // 3. Loose Locale Match (tr)
+        if (!this.voice) {
+            this.voice = voices.find(v => v.lang.toLowerCase().includes('tr'));
+        }
+
+        if (this.voice) {
+            console.log("Pronunciation System: Using voice", this.voice.name);
+        } else {
+            console.warn("Pronunciation System: No Turkish voice found. Using system default.");
+        }
     }
 
     speak(text) {
@@ -43,7 +69,7 @@ class PronunciationSystem {
         }
 
         utterThis.lang = 'tr-TR';
-        utterThis.rate = 0.8; // Slower for better clarity
+        utterThis.rate = 1; // Normal speed is usually best for modern TTS engines
         utterThis.pitch = 1;
 
         this.synth.speak(utterThis);
@@ -78,7 +104,10 @@ class PronunciationSystem {
             if (targetIndices.length === 0) {
                 // assume all columns are potentially Turkish unless they match blacklist
                 headers.forEach((h, index) => {
-                    if (!['traducción', 'español', 'significado', 'descripción', 'pronombre'].some(k => h.includes(k))) {
+                    // Added 'caso', 'verbo', 'uso', 'pronunciación', 'sonido', 'letra' to blacklist
+                    // Also 'alfabeto' just in case.
+                    const lowerH = h.toLowerCase();
+                    if (!['traducción', 'español', 'significado', 'descripción', 'pronombre', 'caso', 'verbo', 'uso', 'pronunciación', 'sonido', 'letra', 'alfabeto', 'final'].some(k => lowerH.includes(k))) {
                         targetIndices.push(index);
                     }
                 });
@@ -114,31 +143,35 @@ class PronunciationSystem {
     }
 
     injectIntoElement(element, forceTurkishContext = false) {
-        // Find explicit targets or bold tags
-        const targets = element.querySelectorAll('.pronounce-me, strong, b');
-
-        // If we found bold tags, process them
-        targets.forEach(el => {
-            // FORCE injection if it has the explicit class
-            if (el.classList.contains('pronounce-me')) {
+        // Find explicit targets
+        const explicitTargets = element.querySelectorAll('.pronounce-me');
+        if (explicitTargets.length > 0) {
+            explicitTargets.forEach(el => {
                 this.injectButton(el, el.textContent.trim(), 'append');
-                return;
-            }
-            this.processTarget(el, forceTurkishContext);
-        });
+            });
+            return;
+        }
 
-        // If forceTurkishContext is true (e.g. Table Cell in a "Turkish" column),
-        // AND there were no bold tags inside, we should try to pronounce the whole text.
-        if (forceTurkishContext && targets.length === 0) {
+        // IMPROVEMENT: If we are in a forced Turkish context (Table Column),
+        // we generally want to pronounce the WHOLE cell content as a sentence,
+        // rather than picking apart bold tags which might just be highlighting a suffix.
+        if (forceTurkishContext) {
             const text = element.textContent.trim();
             // Basic sanity check to avoid empty/symbols
             if (text.length > 1 && /[a-zA-ZğüşöçİĞÜŞÖÇ]/.test(text)) {
-                // Even in forced context, run strict spanish check just in case
+                // Even in forced context, run strict spanish check just in case (e.g. mixed content)
                 if (!this.looksLikeSpanish(text)) {
-                    this.injectButton(element, text, 'prepend');
+                    this.injectButton(element, text, 'append');
                 }
             }
+            return; // Don't process children if we did the whole cell
         }
+
+        // Standard behavior for non-forced context: Look for bold tags
+        const targets = element.querySelectorAll('strong, b');
+        targets.forEach(el => {
+            this.processTarget(el, forceTurkishContext);
+        });
     }
 
     processTarget(el, forceTurkishContext) {
@@ -155,16 +188,39 @@ class PronunciationSystem {
         }
 
         // --- FILTERS ---
+        // 0. Parentheses Check - Skip content in parentheses (usually Spanish translations)
+        const parentText = el.parentElement?.textContent || '';
+        if (parentText.includes('(') && parentText.includes(')')) {
+            // Check if this element is inside parentheses
+            const beforeText = this.getTextBeforeElement(el);
+            const afterText = this.getTextAfterElement(el);
+            if ((beforeText.includes('(') && !beforeText.includes(')')) ||
+                (afterText.includes(')') && !afterText.includes('('))) {
+                return; // This element is inside parentheses, skip it
+            }
+        }
+
         // 1. Accent Check (Definitive Spanish)
         if (/[áéíóúÁÉÍÓÚÑñ¿¡]/.test(text)) return;
 
-        // 2. Keyword Check (Grammar terms)
+        // 2. Turkish Character Check (Definitive Turkish) - If present, it's Turkish!
+        const hasTurkishChars = /[ğışöüçĞİŞÖÜÇ]/.test(text);
+        if (hasTurkishChars) {
+            // Definitely Turkish, inject button
+            this.injectButton(el, text);
+            return;
+        }
+
+        // 3. Keyword Check (Grammar terms)
         if (this.isSpanishKeyword(text)) return;
 
-        // 3. Sentence Check (Stop words like 'de', 'el', 'mientras')
+        // 4. Common Spanish Word Check
+        if (this.isCommonSpanishWord(text)) return;
+
+        // 5. Sentence Check (Stop words like 'de', 'el', 'mientras')
         if (this.looksLikeSpanishSentence(text)) return;
 
-        // 4. Header Check
+        // 6. Header Check
         if (text.endsWith(':')) return;
 
         // If we survived filters, inject!
@@ -172,33 +228,37 @@ class PronunciationSystem {
     }
 
     injectButton(targetEl, text, position = 'append') {
-        // Prevent dupes on direct parent
-        if (position === 'append') {
-            const next = targetEl.nextSibling;
-            if (next?.classList?.contains('pronounce-btn')) return;
-        } else {
-            const prev = targetEl.previousSibling;
-            if (prev?.classList?.contains('pronounce-btn')) return;
-        }
+        // Prevent dupes
+        if (targetEl.querySelector('.pronounce-btn')) return;
 
         const btn = this.createButton(text);
 
-        if (position === 'append') {
-            // If inserting after a bold tag, ensure we don't break layout too much
-            if (targetEl.nextSibling) {
-                targetEl.parentNode.insertBefore(btn, targetEl.nextSibling);
-            } else {
-                targetEl.parentNode.appendChild(btn);
-            }
-        } else {
-            targetEl.insertBefore(btn, targetEl.firstChild);
+        // NEW STRATEGY: Wrap the text content in a span, then inject button right after
+        // This ensures button is inline with text, not affecting table layout
+
+        if (targetEl.nodeType === Node.ELEMENT_NODE) {
+            // Get all text nodes
+            const textContent = targetEl.textContent.trim();
+
+            // Clear and rebuild with wrapper
+            const wrapper = document.createElement('span');
+            wrapper.style.display = 'inline';
+            wrapper.style.whiteSpace = 'nowrap'; // Keep text and button together
+            wrapper.textContent = textContent;
+
+            // Clear the cell and add wrapper with button inside
+            targetEl.textContent = '';
+            targetEl.appendChild(wrapper);
+            wrapper.appendChild(document.createTextNode(' ')); // Small space inside wrapper
+            wrapper.appendChild(btn); // Button inside wrapper to prevent wrapping
         }
     }
 
     createButton(text) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'pronounce-btn inline-flex items-center justify-center w-6 h-6 ml-1.5 align-middle text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-full transition-colors cursor-pointer opacity-70 hover:opacity-100 select-none';
+        // Removed ml-1.5, relying on CSS margin-left: 0.5rem !important
+        btn.className = 'pronounce-btn inline-flex items-center justify-center w-6 h-6 align-middle text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-full transition-colors cursor-pointer opacity-70 hover:opacity-100 select-none';
         btn.setAttribute('aria-label', `Escuchar pronunciación de ${text}`);
         btn.title = "Escuchar pronunciación";
         btn.innerHTML = '<i class="fas fa-volume-high text-xs"></i>';
@@ -225,6 +285,7 @@ class PronunciationSystem {
             'importante', 'atención', 'excepción', 'resumen', 'final', 'letra',
             'sonido', 'nombre', 'cerca', 'lejos', 'aquí', 'allí', 'personal',
             'estado', 'tiempo', 'mientras', 'cuando', 'donde'
+            // Removed 'para' - it's a valid Turkish word (money)
         ];
 
         // Check exact match
@@ -245,7 +306,8 @@ class PronunciationSystem {
     looksLikeSpanishSentence(text) {
         // Stop words that indicate Spanish sentence structure
         // Since Turkish is agglutinative, it rarely has short isolated words like 'de', 'el', 'la'.
-        const spanishStopWords = [' el ', ' la ', ' los ', ' las ', ' un ', ' una ', ' con ', ' para ', ' por ', ' que ', ' de ', ' en ', ' y ', ' es ', ' son ', ' se ', ' lo ', ' mientras ', ' cuando ', ' donde '];
+        // Removed 'para' since it's a valid Turkish word meaning 'money'
+        const spanishStopWords = [' el ', ' la ', ' los ', ' las ', ' un ', ' una ', ' con ', ' por ', ' que ', ' de ', ' en ', ' y ', ' es ', ' son ', ' se ', ' lo ', ' mientras ', ' cuando ', ' donde ', ' como '];
 
         // Add padding to text for exact match checking
         const padded = ' ' + text.toLowerCase() + ' ';
@@ -255,6 +317,83 @@ class PronunciationSystem {
     looksLikeTurkish(text) {
         // Has Turkish chars?
         return /[ışğüöçİŞĞÜÖÇ]/.test(text);
+    }
+
+    // Helper methods for parentheses detection
+    getTextBeforeElement(el) {
+        let text = '';
+        let node = el.previousSibling;
+        while (node) {
+            text = (node.textContent || '') + text;
+            node = node.previousSibling;
+        }
+        return text;
+    }
+
+    getTextAfterElement(el) {
+        let text = '';
+        let node = el.nextSibling;
+        while (node) {
+            text += (node.textContent || '');
+            node = node.nextSibling;
+        }
+        return text;
+    }
+
+    // Check if word is a common Spanish word
+    isCommonSpanishWord(text) {
+        const lower = text.toLowerCase();
+
+        // Check for Spanish adverbs ending in -mente
+        if (lower.endsWith('mente')) return true;
+
+        // Check for Spanish verb conjugations
+        const spanishVerbEndings = [
+            'ían', 'ción', 'ciones', 'dad',
+            'iva', 'ivo', 'ales', 'dades',
+            'aban', 'ieron', 'aron',
+            'emos', 'imos', 'eran',
+            'eza', 'ezo', 'adas'
+        ];
+        if (spanishVerbEndings.some(ending => lower.endsWith(ending))) return true;
+
+        const commonSpanish = [
+            'forma', 'manera', 'estilo', 'mirada', 'vista', 'contiene',
+            'costura', 'curso', 'madre', 'padre', 'gusta', 'nada',
+            'hay', 'sido', 'hacer', 'todos', 'nuevo', 'programa', 'causa',
+            'billete', 'avión', 'vuelta', 'cambios', 'acciones completadas',
+            'deseo', 'contraste', 'poco', 'muy', 'estados pasados',
+            'vuelan', 'esperan', 'abrazaron',
+            'hecho', 'cambiar', 'expresa', 'tareas', 'debería',
+            'tengan', 'entendamos', 'preparar', 'salió', 'dejó',
+            'fumar', 'bastante', 'saludable', 'pesar', 'hace',
+            'deporte', 'pasaré', 'examen', 'estudió', 'mucho',
+            'ir', 'trabajo', 'terminarse', 'salir', 'está',
+            'punto', 'café', 'lista', 'documentos', 'problemas',
+            'extranjero', 'profesor', 'días', 'tema', 'bien',
+            'volver', 'cigarrillo', 'rápido', 'ferry',
+            'lugar', 'muelle', 'caminemos', 'distancia', 'corta',
+            'vez', 'enviar', 'iremos', 'hablar', 'conversación',
+            'preferiría', 'morir', 'antes', 'trabajar', 'recoger',
+            'no', 'cuyos', 'resultados',
+            'terminar', 'deben', 'tomar', 'debe', 'estar',
+            'ser', 'mientras', 'cocinaba', 'corría', 'cuando', 'era',
+            'niño', 'travieso', 'vecino', 'vino', 'visita', 'justo',
+            'casa', 'fue', 'quien', 'más', 'me', 'ayudó', 'enfermo',
+            'sonó', 'alcanzar', 'vitaminas',
+            'plato', 'felices', 'añade', 'frase', 'discurso directo ',
+            'hoy', 'piso', 'Rumores o chismes',
+            'arriba', 'oye', 'Adjetivo completo',
+            'voz', 'hasta', 'estado',
+            'tiempo', 'palabra', 'une', 'equivale', 'puede',
+            'usarse', 'varios', 'tiempos', 'verbales', 'pasado',
+            'presente', 'futuro', 'según', 'significado',
+            'sustantivo', 'adjetivo', 'ejemplos',
+            'teléfono', 'transitivo',
+            'hechos', 'intransitivo'
+        ];
+
+        return commonSpanish.includes(lower);
     }
 }
 

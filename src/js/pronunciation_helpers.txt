@@ -1,0 +1,33 @@
+    // Helper methods for parentheses detection
+    getTextBeforeElement(el) {
+        let text = '';
+        let node = el.previousSibling;
+        while (node) {
+            text = (node.textContent || '') + text;
+            node = node.previousSibling;
+        }
+        return text;
+    }
+
+    getTextAfterElement(el) {
+        let text = '';
+        let node = el.nextSibling;
+        while (node) {
+            text += (node.textContent || '');
+            node = node.nextSibling;
+        }
+        return text;
+    }
+
+    // Check if word is a common Spanish word
+    isCommonSpanishWord(text) {
+        const lower = text.toLowerCase();
+        const commonSpanish = [
+            'forma', 'manera', 'estilo', 'mirada', 'vista', 'opinión', 
+            'costura', 'curso', 'madre', 'padre', 'gusta', 'nada',
+            'hay', 'sido', 'hacer', 'todos', 'nuevo', 'programa',
+            'billete', 'avión', 'vuelta', 'juventud', 'cambios'
+        ];
+        return commonSpanish.includes(lower);
+    }
+}
