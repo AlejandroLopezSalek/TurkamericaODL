@@ -1,6 +1,6 @@
 // Make functions global for Settings Panel control
-window.initTurkBot = initTurkBot;
-window.removeMascotUI = removeMascotUI;
+globalThis.initTurkBot = initTurkBot;
+globalThis.removeMascotUI = removeMascotUI;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTurkBot();
@@ -14,8 +14,7 @@ function initTurkBot() {
         return;
     }
 
-    // Prevent duplicates handled in createMascotUI logic
-    // if (document.getElementById('turkbot-btn')) return;
+
 
     createMascotUI();
 
@@ -99,7 +98,7 @@ function createMascotUI() {
 
     // --- AUTO-HIDE LOGIC ---
     // --- AUTO-HIDE LOGIC ---
-    let lastScrollY = window.scrollY;
+    let lastScrollY = globalThis.scrollY;
     let isScrollingDown = false;
 
     const updateVisibility = () => {
@@ -109,7 +108,7 @@ function createMascotUI() {
         if (footer) {
             const rect = footer.getBoundingClientRect();
             // If top of footer is above bottom of viewport
-            if (rect.top < window.innerHeight) {
+            if (rect.top < globalThis.innerHeight) {
                 isOverFooter = true;
             }
         }
@@ -123,7 +122,7 @@ function createMascotUI() {
 
         // 3. Check Specific Paths
         const hiddenPaths = ['/Lesson/'];
-        const currentPath = window.location.pathname;
+        const currentPath = globalThis.location.pathname;
         const isHiddenPath = hiddenPaths.some(path => currentPath.includes(path));
 
         // Logic: Hide if (Over Footer AND Scrolling Down) OR (Ad Visible) OR (Hidden Path)
@@ -140,12 +139,12 @@ function createMascotUI() {
     // Scroll Listener
     // Scroll Listener Optimized with RAF
     let ticking = false;
-    window.addEventListener('scroll', () => {
-        const currentY = window.scrollY;
+    globalThis.addEventListener('scroll', () => {
+        const currentY = globalThis.scrollY;
 
         // Simple direction and throttle via RAF
         if (!ticking) {
-            window.requestAnimationFrame(() => {
+            globalThis.requestAnimationFrame(() => {
                 const diff = Math.abs(currentY - lastScrollY);
                 if (diff > 5) { // Threshold
                     isScrollingDown = currentY > lastScrollY;
@@ -177,11 +176,11 @@ function createMascotUI() {
 
     // Reveal animation (if not hidden by logic immediately)
     requestAnimationFrame(() => {
-        if (!mascotBtn.classList.contains('translate-y-32')) {
-            mascotBtn.classList.remove('scale-0', 'opacity-0');
-        } else {
+        if (mascotBtn.classList.contains('translate-y-32')) {
             // Just remove the init scale-0, but keep opacity-0 from hide logic
             mascotBtn.classList.remove('scale-0');
+        } else {
+            mascotBtn.classList.remove('scale-0', 'opacity-0');
         }
     });
 
@@ -254,10 +253,9 @@ function loadChatHistory() {
         // We need to wait for DOM to be ready
         setTimeout(() => {
             const chat = document.getElementById('turkbot-chat');
-            if (chat && chat.classList.contains('hidden')) {
+            if (chat?.classList.contains('hidden')) {
                 // Call toggle but ensure we don't mess up animation
-                chat.classList.remove('hidden');
-                chat.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+                chat.classList.remove('hidden', 'translate-y-10', 'opacity-0', 'pointer-events-none');
             }
         }, 500);
     }
@@ -376,7 +374,7 @@ async function handleSend(e) {
     saveChatHistory('user', message);
 
     input.value = '';
-    // input.disabled = true; // ⚡ UX FIX: Don't disable input to keep keyboard open
+
     btn.disabled = true;
 
     // Add loading indicator
@@ -398,7 +396,7 @@ async function handleSend(e) {
 
         // --- CONTEXT GATHERING ---
         const contextData = {
-            page: window.location.pathname,
+            page: globalThis.location.pathname,
             title: document.title
         };
 
@@ -418,7 +416,7 @@ async function handleSend(e) {
             }
         }
 
-        const API_URL = `${window.API_BASE_URL}/chat`;
+        const API_URL = `${globalThis.API_BASE_URL}/chat`;
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: headers,
@@ -451,9 +449,9 @@ async function handleSend(e) {
                 }
 
                 // Execute navigation after short delay
-                // Use window.location.assign to handle history better
+                // Use globalThis.location.assign to handle history better
                 setTimeout(() => {
-                    window.location.assign(url);
+                    globalThis.location.assign(url);
                 }, 1500);
             } else {
                 addMessage('assistant', reply);
@@ -472,7 +470,7 @@ async function handleSend(e) {
         addMessage('assistant', netError);
         console.error(error);
     } finally {
-        // input.disabled = false;
+
         btn.disabled = false;
         input.focus();
     }
@@ -484,19 +482,6 @@ function addMessage(role, text, animate = true) {
 
     const div = document.createElement('div');
     div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-
-    // Parse Markdown if available, otherwise fallback to simple replacement
-    let contentHtml = text;
-    if (typeof marked !== 'undefined' && role === 'assistant') { // Only parse markdown for assistant
-        try {
-            contentHtml = marked.parse(text);
-        } catch (e) {
-            console.error('Markdown parsing check:', e);
-            contentHtml = text.replace(/\n/g, '<br>');
-        }
-    } else {
-        contentHtml = text.replace(/\n/g, '<br>');
-    }
 
     // Styling classes
     // User: Simple text, white color

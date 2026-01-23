@@ -248,7 +248,7 @@ class AnimationSystem {
             document.body.appendChild(button);
 
             button.addEventListener('click', () => {
-                window.scrollTo({
+                globalThis.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
@@ -257,11 +257,11 @@ class AnimationSystem {
 
         // Show/hide on scroll
         let scrollTimeout;
-        window.addEventListener('scroll', () => {
+        globalThis.addEventListener('scroll', () => {
             clearTimeout(scrollTimeout);
 
             scrollTimeout = setTimeout(() => {
-                if (window.scrollY > 300) {
+                if (globalThis.scrollY > 300) {
                     button.classList.add('visible');
                 } else {
                     button.classList.remove('visible');
@@ -341,15 +341,15 @@ class AnimationSystem {
 
         let ticking = false;
 
-        window.addEventListener('scroll', () => {
+        globalThis.addEventListener('scroll', () => {
             if (!ticking) {
-                window.requestAnimationFrame(() => {
+                globalThis.requestAnimationFrame(() => {
                     // Disable on mobile for performance
-                    if (window.innerWidth < 768) return;
+                    if (globalThis.innerWidth < 768) return;
 
                     parallaxElements.forEach(el => {
                         const speed = el.dataset.speed || 0.5;
-                        const yPos = -(window.scrollY * speed);
+                        const yPos = -(globalThis.scrollY * speed);
                         el.style.transform = `translateY(${yPos}px)`;
                     });
                     ticking = false;
@@ -398,10 +398,10 @@ class AnimationSystem {
 }
 
 // Initialize animation system
-window.AnimationSystem = new AnimationSystem();
+globalThis.AnimationSystem = new AnimationSystem();
 
 // Helper functions
-window.animateIn = (element, type, delay) => window.AnimationSystem.animateIn(element, type, delay);
-window.staggerIn = (elements, type, delay) => window.AnimationSystem.staggerIn(elements, type, delay);
+globalThis.animateIn = (element, type, delay) => globalThis.AnimationSystem.animateIn(element, type, delay);
+globalThis.staggerIn = (elements, type, delay) => globalThis.AnimationSystem.staggerIn(elements, type, delay);
 
 console.log('✅ Animation system initialized');

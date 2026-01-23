@@ -19,10 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!adminPage) return;
 
     // Check admin access
-    if (!window.ContributionService || !window.ContributionService.isAdmin()) {
+    if (!globalThis.ContributionService?.isAdmin()) {
         showToast('Acceso denegado. Solo administradores pueden acceder a esta página.', 'error');
         setTimeout(() => {
-            window.location.href = '/';
+            globalThis.location.href = '/';
         }, 2000);
         return;
     }
@@ -80,7 +80,7 @@ function handleTabClick(target) {
 
 async function loadStats() {
     try {
-        const stats = await window.ContributionService.getStats();
+        const stats = await globalThis.ContributionService.getStats();
 
         document.getElementById('statPending').textContent = stats.pending;
         document.getElementById('statApproved').textContent = stats.approved;
@@ -100,7 +100,7 @@ async function loadRequests() {
     const container = document.getElementById('requestsList');
 
     try {
-        let requests = await window.ContributionService.getPendingRequests();
+        let requests = await globalThis.ContributionService.getPendingRequests();
 
         // Apply filter
         if (currentFilter !== 'all') {
@@ -171,7 +171,7 @@ async function loadRequests() {
 
 function handleDelete(id) {
     if (confirm('¿Estás seguro de que deseas eliminar esta solicitud permanentemente?')) {
-        window.ContributionService.deleteRequest(id)
+        globalThis.ContributionService.deleteRequest(id)
             .then(() => {
                 showToast('Solicitud eliminada', 'success');
                 loadStats();
@@ -189,7 +189,7 @@ function handleDelete(id) {
 // ========================================
 
 async function viewRequest(id) {
-    const request = await window.ContributionService.getRequestById(id);
+    const request = await globalThis.ContributionService.getRequestById(id);
     if (!request) return;
 
     currentRequestId = id;
@@ -257,12 +257,12 @@ async function viewRequest(id) {
         `;
 
         // Initialize editor but keep hidden
-        if (typeof LessonEditor !== 'undefined') {
-            window.adminEditorInstance = new LessonEditor('adminEditor');
-            window.adminEditorInstance.setContent(request.data.newContent || '');
-        } else {
+        if (typeof LessonEditor === 'undefined') {
             console.error('LessonEditor class not defined');
             document.getElementById('adminEditorContainer').innerHTML = '<p class="text-red-500">Editor no disponible</p>';
+        } else {
+            globalThis.adminEditorInstance = new LessonEditor('adminEditor');
+            globalThis.adminEditorInstance.setContent(request.data.newContent || '');
         }
 
     } else {
@@ -380,14 +380,14 @@ async function approveRequest() {
     try {
         // Get edited content if in editor mode
         let finalContent = null;
-        if (window.adminEditorInstance) {
+        if (globalThis.adminEditorInstance) {
             const editorContainer = document.getElementById('adminEditorContainer');
             if (editorContainer && editorContainer.style.display !== 'none') {
-                finalContent = window.adminEditorInstance.getContent();
+                finalContent = globalThis.adminEditorInstance.getContent();
             }
         }
 
-        await window.ContributionService.approveRequest(currentRequestId, finalContent);
+        await globalThis.ContributionService.approveRequest(currentRequestId, finalContent);
         showToast('Solicitud aprobada correctamente', 'success');
         closeConfirmModal();
         closeModal();
@@ -402,7 +402,7 @@ async function approveRequest() {
 async function rejectRequest() {
     try {
         const reason = document.getElementById('rejectionReason').value;
-        await window.ContributionService.rejectRequest(currentRequestId, reason);
+        await globalThis.ContributionService.rejectRequest(currentRequestId, reason);
         showToast('Solicitud rechazada', 'info');
         closeConfirmModal();
         closeModal();
@@ -418,7 +418,7 @@ async function rejectRequest() {
 // MODAL CONTROLS
 // ========================================
 
-window.closeModal = function () {
+globalThis.closeModal = function () {
     const modal = document.getElementById('requestModal');
     if (modal) {
         modal.classList.add('opacity-0');
@@ -448,7 +448,7 @@ function openConfirmModal() {
     });
 }
 
-window.closeConfirmModal = function () {
+globalThis.closeConfirmModal = function () {
     const modal = document.getElementById('confirmModal');
     if (modal) {
         modal.classList.add('opacity-0');
@@ -472,9 +472,7 @@ function toggleAdminEditor() {
         editor.style.display = 'block';
         btn.innerHTML = '<i class="fas fa-eye"></i> Ver Vista Previa';
         // Refresh editor layout if needed
-        if (window.adminEditorInstance && window.adminEditorInstance.refresh) {
-            window.adminEditorInstance.refresh();
-        }
+        globalThis.adminEditorInstance?.refresh();
     } else {
         preview.style.display = 'block';
         editor.style.display = 'none';
@@ -531,16 +529,26 @@ function sanitizeHtml(html) {
 }
 
 function showToast(message, type = 'info') {
-    if (window.ToastSystem) {
-        window.ToastSystem.show({ message, type });
-    } else if (window.ToastManager) {
-        window.ToastManager.show(message, type);
+    if (globalThis.ToastSystem) {
+        globalThis.ToastSystem.show({ message, type });
+    } else if (globalThis.ToastManager) {
+        globalThis.ToastManager.show(message, type);
     } else {
         // Tailwind toast fallback
         const div = document.createElement('div');
-        const colors = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-emerald-500' : 'bg-slate-800';
+        let colors, icon;
+        if (type === 'error') {
+            colors = 'bg-red-500';
+            icon = 'fa-exclamation-circle';
+        } else if (type === 'success') {
+            colors = 'bg-emerald-500';
+            icon = 'fa-check-circle';
+        } else {
+            colors = 'bg-slate-800';
+            icon = 'fa-info-circle';
+        }
         div.className = `fixed bottom-5 right-5 ${colors} text-white px-6 py-3 rounded-xl shadow-lg z-[100] flex items-center gap-3 animate-fade-in-up`;
-        div.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${message}`;
+        div.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
         document.body.appendChild(div);
         setTimeout(() => {
             div.style.transition = 'opacity 0.5s';

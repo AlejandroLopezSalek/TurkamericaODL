@@ -5,7 +5,8 @@
 
 class AnalyticsSystem {
     constructor() {
-        this.sessionId = this.sessionId || `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // Use crypto.randomUUID() for secure random ID generation (fixes SonarCloud security hotspot)
+        this.sessionId = this.sessionId || `${Date.now()}_${crypto.randomUUID().substring(0, 9)}`;
         this.init();
     }
 
@@ -19,17 +20,13 @@ class AnalyticsSystem {
         const pageData = {
             type: 'pageview',
             timestamp: Date.now(),
-            url: window.location.href,
-            path: window.location.pathname,
+            url: globalThis.location.href,
+            path: globalThis.location.pathname,
             title: document.title,
             sessionId: this.sessionId
         };
 
         this.send(pageData);
-
-        if (window.APP_CONFIG?.isDevelopment()) {
-            // console.log('📊 Page View:', pageData.path);
-        }
     }
 
     // Track custom event
@@ -47,7 +44,7 @@ class AnalyticsSystem {
 
     // Setup essential error tracking
     setupErrorTracking() {
-        window.addEventListener('error', (e) => {
+        globalThis.addEventListener('error', (e) => {
             this.track('error', {
                 message: e.message,
                 filename: e.filename,
@@ -58,20 +55,15 @@ class AnalyticsSystem {
 
     // Send data to backend - DISABLED per user request (keeping data local/console only)
     send(data) {
-        // const endpoint = '/api/analytics'; 
-        // Logic removed to prevent database clutter. 
+        // Tracking disabled to prevent database clutter
         // "Smart Capi" tracking is handled separately in progress-tracker.js
-        if (window.APP_CONFIG?.isDevelopment()) {
-            // console.log('📊 Analytics Event (Not sent to server):', data);
-        }
     }
 }
 
 // Initialize
-window.AnalyticsSystem = new AnalyticsSystem();
+globalThis.AnalyticsSystem = new AnalyticsSystem();
 
 // Simple global API
-window.analytics = {
-    track: (name, props) => window.AnalyticsSystem.track(name, props)
+globalThis.analytics = {
+    track: (name, props) => globalThis.AnalyticsSystem.track(name, props)
 };
-

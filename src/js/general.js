@@ -317,7 +317,7 @@ globalThis.AppUtils.Accessibility = {
 // ========================================
 globalThis.AppUtils.Notifications = {
     async init() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        if (!('serviceWorker' in navigator) || !('PushManager' in globalThis)) {
             console.log('Push messaging isn\'t supported.');
             return;
         }
