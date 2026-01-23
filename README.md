@@ -101,10 +101,10 @@ graph TD
     Dev -->|Push Commit| Git
     Git -->|Webhook / Manual Trigger| Server
     
-    subgraph "Production Environment"
-    Server -->|Git Pull & Reset| Git
-    Server -->|"NPM CI (Prod Dependencies)"| Build
-    Build -->|Eleventy Build| StaticFiles[Static Assets (_site)]
+    subgraph Production Environment
+    Server -->|Git Pull and Reset| Git
+    Server -->|NPM CI Prod Dependencies| Build
+    Build -->|Eleventy Build| StaticFiles[Static Assets]
     Build -->|Tailwind Minify| CSS[Optimized CSS]
     StaticFiles --> PM2
     CSS --> PM2
