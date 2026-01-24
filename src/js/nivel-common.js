@@ -5,8 +5,9 @@
 
 // 1. Level Detection
 function getCurrentLevel() {
-    const path = window.location.pathname;
-    const match = path.match(/Nivel([ABC][12])/i);
+    const path = globalThis.location.pathname;
+    const regex = /Nivel([ABC][12])/i;
+    const match = regex.exec(path);
     return match ? match[1].toUpperCase() : 'A1';
 }
 
@@ -26,9 +27,9 @@ async function getExplanations() {
         let data = response.ok ? await response.json() : {};
 
         // Fetch Dynamic Data (if service exists)
-        if (window.ContributionService) {
+        if (globalThis.ContributionService) {
             try {
-                const dynamicLessons = await window.ContributionService.getPublishedLessons();
+                const dynamicLessons = await globalThis.ContributionService.getPublishedLessons();
                 if (Array.isArray(dynamicLessons)) {
                     // Filter: Match Level + Exclude Community Source
                     const levelLessons = dynamicLessons.filter(l => {
@@ -65,7 +66,7 @@ async function getExplanations() {
 }
 
 // 3. Modal Logic (Simplified & Robust)
-window.closeUniversalModal = function () {
+globalThis.closeUniversalModal = function () {
     const modal = document.getElementById('universalLessonModal');
     if (!modal) return;
 
@@ -107,95 +108,16 @@ async function openExplanation(topic) {
 
     const item = explanations ? explanations[topic] : null;
 
-    if (!item) {
-        titleEl.textContent = 'Tema no encontrado';
-        contentEl.innerHTML = '<p class="text-center text-gray-500 my-4">No se encontró contenido para este tema.</p>';
-    } else {
+    if (item) {
         titleEl.textContent = item.title;
         contentEl.innerHTML = item.content;
 
-        // Simple Edit Button Logic
-        if (actionsEl) {
-            actionsEl.innerHTML = '';
-            // Show for nivel-edit OR if it has an ID (covers both cases)
-            // Determine if it's a DB lesson (has ID) or Static (topic only)
-            const dbId = item.id || item._id;
-
-            if (dbId || topic) {
-                const btn = document.createElement('button');
-                btn.className = 'bg-white/20 hover:bg-white/30 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors';
-                btn.innerHTML = '<i class="fas fa-edit"></i>';
-                btn.title = "Editar Lección";
-
-                btn.onclick = () => {
-                    if (dbId) {
-                        globalThis.location.href = `/Contribute/?editLesson=${dbId}`;
-                    } else {
-                        // Static lesson: passed as topic + level to fetch from JSON
-                        globalThis.location.href = `/Contribute/?topic=${topic}&level=${CURRENT_LEVEL}`;
-                    }
-                };
-                actionsEl.appendChild(btn);
-            }
-        }
-
-        // ADMIN DELETE BUTTON - Position it below the modal, not in header
-        const modalContent = modal.querySelector('.explanation-content');
-        if (modalContent && dbId && globalThis.ContributionService?.isAdmin()) {
-            // Create delete button container at bottom
-            const deleteContainer = document.createElement('div');
-            deleteContainer.className = 'mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end';
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md';
-            deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
-
-            deleteBtn.onclick = async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (confirm('¿Estás seguro de que deseas eliminar esta lección? Esta acción no se puede deshacer.')) {
-                    try {
-                        deleteBtn.disabled = true;
-                        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
-
-                        await globalThis.ContributionService.deleteLesson(dbId);
-
-                        // Show success and close modal
-                        if (globalThis.toastSuccess) {
-                            globalThis.toastSuccess('Lección eliminada correctamente');
-                        }
-
-                        // Close modal and reload
-                        modal.classList.add('hidden');
-                        setTimeout(() => globalThis.location.reload(), 800);
-                    } catch (error) {
-                        console.error('Error deleting lesson:', error);
-                        deleteBtn.disabled = false;
-                        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
-
-                        if (globalThis.toastError) {
-                            globalThis.toastError('Error al eliminar la lección');
-                        } else {
-                            alert('Error al eliminar la lección');
-                        }
-                    }
-                }
-            };
-
-            deleteContainer.appendChild(deleteBtn);
-            modalContent.appendChild(deleteContainer);
-        }
-
-        // Pronunciation Injection (Safe Check)
-        if (window.PronunciationSystem && typeof window.PronunciationSystem.scanAndInject === 'function') {
-            setTimeout(() => {
-                window.PronunciationSystem.scanAndInject(contentEl);
-            }, 50);
-        } else if (window.PronunciationSystem && typeof window.PronunciationSystem.inject === 'function') {
-            // Fallback to old name just in case
-            setTimeout(() => window.PronunciationSystem.inject(contentEl), 50);
-        }
+        setupModalActions(actionsEl, item, topic);
+        setupDeleteButton(modal, item);
+        injectPronunciation(contentEl);
+    } else {
+        titleEl.textContent = 'Tema no encontrado';
+        contentEl.innerHTML = '<p class="text-center text-gray-500 my-4">No se encontró contenido para este tema.</p>';
     }
 
     // SHOW MODAL - Force it
@@ -203,6 +125,85 @@ async function openExplanation(topic) {
     modal.classList.remove('hidden');
     modal.style.display = 'flex'; // Explicit override
     document.body.style.overflow = 'hidden'; // Lock scroll
+}
+
+function setupModalActions(actionsEl, item, topic) {
+    if (!actionsEl) return;
+    actionsEl.innerHTML = '';
+
+    const dbId = item.id || item._id;
+
+    if (dbId || topic) {
+        const btn = document.createElement('button');
+        btn.className = 'bg-white/20 hover:bg-white/30 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors';
+        btn.innerHTML = '<i class="fas fa-edit"></i>';
+        btn.title = "Editar Lección";
+
+        btn.onclick = () => {
+            if (dbId) {
+                globalThis.location.href = `/Contribute/?editLesson=${dbId}`;
+            } else {
+                globalThis.location.href = `/Contribute/?topic=${topic}&level=${CURRENT_LEVEL}`;
+            }
+        };
+        actionsEl.appendChild(btn);
+    }
+}
+
+function setupDeleteButton(modal, item) {
+    const dbId = item.id || item._id;
+    const modalContent = modal.querySelector('.explanation-content');
+
+    if (modalContent && dbId && globalThis.ContributionService?.isAdmin()) {
+        const deleteContainer = document.createElement('div');
+        deleteContainer.className = 'mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
+
+        deleteBtn.onclick = async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (confirm('¿Estás seguro de que deseas eliminar esta lección? Esta acción no se puede deshacer.')) {
+                await handleDelete(dbId, modal, deleteBtn);
+            }
+        };
+
+        deleteContainer.appendChild(deleteBtn);
+        modalContent.appendChild(deleteContainer);
+    }
+}
+
+async function handleDelete(dbId, modal, deleteBtn) {
+    try {
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+
+        await globalThis.ContributionService.deleteLesson(dbId);
+
+        if (globalThis.toastSuccess) globalThis.toastSuccess('Lección eliminada correctamente');
+
+        modal.classList.add('hidden');
+        setTimeout(() => globalThis.location.reload(), 800);
+    } catch (error) {
+        console.error('Error deleting lesson:', error);
+        deleteBtn.disabled = false;
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
+
+        if (globalThis.toastError) globalThis.toastError('Error al eliminar la lección');
+        else alert('Error al eliminar la lección');
+    }
+}
+
+function injectPronunciation(contentEl) {
+    if (globalThis.PronunciationSystem?.scanAndInject) {
+        setTimeout(() => {
+            globalThis.PronunciationSystem.scanAndInject(contentEl);
+        }, 50);
+    } else if (globalThis.PronunciationSystem?.inject) {
+        setTimeout(() => globalThis.PronunciationSystem.inject(contentEl), 50);
+    }
 }
 
 // 4. Render Dynamic Cards Function
@@ -219,7 +220,7 @@ function renderDynamicCards(lessons) {
         const card = document.createElement('div');
         // Match existing card styles (based on components.njk grammarCard)
         card.className = 'grammar-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative group';
-        card.setAttribute('data-topic', id);
+        card.dataset.topic = id;
 
         // Badge configuration with colors
         const badgeConfig = {
@@ -277,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Better to just add. If double click issues, we can optimize.
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            const topic = btn.getAttribute('data-topic');
+            const topic = btn.dataset.topic;
             if (topic) openExplanation(topic);
         });
     });
@@ -288,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            window.closeUniversalModal();
+            globalThis.closeUniversalModal();
         });
     }
 
@@ -305,14 +306,14 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (e) => {
             // Check if specifically clicking the backdrop (id match)
             if (e.target.id === 'universalLessonModal') {
-                window.closeUniversalModal();
+                globalThis.closeUniversalModal();
             }
         });
     }
 
     // Initialize Inline Editor (if available)
     if (typeof LessonEditor !== 'undefined') {
-        window.inlineLessonEditor = new LessonEditor('inlineLessonContentEditor');
+        globalThis.inlineLessonEditor = new LessonEditor('inlineLessonContentEditor');
     }
 
     // Handle Inline Form Submit (Legacy Support)
@@ -328,13 +329,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // 5. Legacy Inline Submit Logic (Kept for compatibility)
 async function handleInlineSubmit(e) {
     e.preventDefault();
-    if (!window.ContributionService) {
+    if (!globalThis.ContributionService) {
         alert('Servicio de contribución no disponible');
         return;
     }
 
-    const content = window.inlineLessonEditor ? window.inlineLessonEditor.getContent() : '';
-    if (!content || !content.trim()) {
+    const content = globalThis.inlineLessonEditor?.getContent() || '';
+    if (!content?.trim()) {
         alert('Por favor añade contenido');
         return;
     }
@@ -349,8 +350,8 @@ async function handleInlineSubmit(e) {
     };
 
     try {
-        await window.ContributionService.submitLessonEdit(lessonData);
-        if (window.ToastSystem) window.ToastSystem.success('¡Propuesta enviada!', 'Éxito');
+        await globalThis.ContributionService.submitLessonEdit(lessonData);
+        if (globalThis.ToastSystem) globalThis.ToastSystem.success('¡Propuesta enviada!', 'Éxito');
         else alert('¡Propuesta enviada!');
 
         // Close inline editor panels if they exist (simplified)

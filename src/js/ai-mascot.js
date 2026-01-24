@@ -361,6 +361,31 @@ function toggleChat() {
     }
 }
 
+async function gatherContext() {
+    // --- CONTEXT GATHERING ---
+    const contextData = {
+        page: globalThis.location.pathname,
+        title: document.title
+    };
+
+    // Check for Community Lesson Modal
+    const lessonModal = document.getElementById('lessonModal');
+    if (lessonModal && !lessonModal.classList.contains('hidden')) {
+        const lessonTitle = document.getElementById('lessonTitle')?.innerText;
+        const lessonBody = document.getElementById('lessonBody')?.innerText;
+        if (lessonTitle) {
+            // Limit body length to avoid huge payload
+            const truncatedBody = lessonBody ? lessonBody.substring(0, 1500) + '...' : '';
+            contextData.activeLesson = {
+                type: 'community',
+                title: lessonTitle,
+                content: truncatedBody
+            };
+        }
+    }
+    return contextData;
+}
+
 async function handleSend(e) {
     if (e) e.preventDefault();
     const input = document.getElementById('chat-input');
@@ -374,7 +399,6 @@ async function handleSend(e) {
     saveChatHistory('user', message);
 
     input.value = '';
-
     btn.disabled = true;
 
     // Add loading indicator
@@ -385,36 +409,12 @@ async function handleSend(e) {
         const savedHistory = JSON.parse(sessionStorage.getItem('capi_chat_history') || '[]');
         const history = savedHistory.map(h => ({ role: h.role, content: h.text }));
 
-        const token = localStorage.getItem('authToken'); // Fixed: Match auth.js key
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        const token = localStorage.getItem('authToken');
+        const headers = { 'Content-Type': 'application/json' };
 
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        // --- CONTEXT GATHERING ---
-        const contextData = {
-            page: globalThis.location.pathname,
-            title: document.title
-        };
-
-        // Check for Community Lesson Modal
-        const lessonModal = document.getElementById('lessonModal');
-        if (lessonModal && !lessonModal.classList.contains('hidden')) {
-            const lessonTitle = document.getElementById('lessonTitle')?.innerText;
-            const lessonBody = document.getElementById('lessonBody')?.innerText;
-            if (lessonTitle) {
-                // Limit body length to avoid huge payload
-                const truncatedBody = lessonBody ? lessonBody.substring(0, 1500) + '...' : '';
-                contextData.activeLesson = {
-                    type: 'community',
-                    title: lessonTitle,
-                    content: truncatedBody
-                };
-            }
-        }
+        const contextData = await gatherContext();
 
         const API_URL = `${globalThis.API_BASE_URL}/chat`;
         const response = await fetch(API_URL, {
@@ -428,40 +428,13 @@ async function handleSend(e) {
         });
 
         const data = await response.json();
-
         removeMessage(loadingId);
 
         if (response.ok) {
-            // Check for Navigation Tag or normal response
-            // Pattern: [[NAVIGATE:/url]] - Case insensitive, flexible spaces and newlines
-            const reply = data.reply;
-            const navRegex = /\[\[NAVIGATE\s*:\s*([^\]]+)\]\]/i;
-            const navMatch = reply.match(navRegex);
-
-            if (navMatch) {
-                const url = navMatch[1].trim();
-                // Remove the tag from the message shown to user
-                const cleanReply = reply.replace(navRegex, '').trim();
-
-                if (cleanReply) {
-                    addMessage('assistant', cleanReply);
-                    saveChatHistory('assistant', cleanReply);
-                }
-
-                // Execute navigation after short delay
-                // Use globalThis.location.assign to handle history better
-                setTimeout(() => {
-                    globalThis.location.assign(url);
-                }, 1500);
-            } else {
-                addMessage('assistant', reply);
-                saveChatHistory('assistant', reply);
-            }
-
+            handleAssistantResponse(data.reply);
         } else {
             const errMsg = '😅 Ups, Capi se mareó un poco. ¿Podrías preguntarme de nuevo?';
             addMessage('assistant', errMsg);
-            // Don't save transient errors to history
         }
 
     } catch (error) {
@@ -470,9 +443,34 @@ async function handleSend(e) {
         addMessage('assistant', netError);
         console.error(error);
     } finally {
-
         btn.disabled = false;
         input.focus();
+    }
+}
+
+function handleAssistantResponse(reply) {
+    // Check for Navigation Tag or normal response
+    // Pattern: [[NAVIGATE:/url]] - Case insensitive, flexible spaces and newlines
+    const navRegex = /\[\[NAVIGATE\s*:\s*([^\]]+)\]\]/i;
+    const navMatch = reply.match(navRegex);
+
+    if (navMatch) {
+        const url = navMatch[1].trim();
+        // Remove the tag from the message shown to user
+        const cleanReply = reply.replace(navRegex, '').trim();
+
+        if (cleanReply) {
+            addMessage('assistant', cleanReply);
+            saveChatHistory('assistant', cleanReply);
+        }
+
+        // Execute navigation after short delay
+        setTimeout(() => {
+            globalThis.location.assign(url);
+        }, 1500);
+    } else {
+        addMessage('assistant', reply);
+        saveChatHistory('assistant', reply);
     }
 }
 
@@ -495,6 +493,20 @@ function addMessage(role, text, animate = true) {
         : 'prose prose-sm prose-indigo dark:prose-invert max-w-none leading-relaxed [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4';
 
     // Note: Added custom overrides for prose spacing to fit chat bubble better
+
+    let contentHtml;
+    if (role === 'assistant' && typeof marked !== 'undefined') {
+        contentHtml = marked.parse(text);
+    } else {
+        // Escape HTML for user input to prevent XSS
+        contentHtml = text
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll("\"", "&quot;")
+            .replaceAll("'", "&#039;")
+            .replaceAll("\n", '<br>');
+    }
 
     div.innerHTML = `
         <div class="max-w-[85%] rounded-2xl px-4 py-2 shadow-sm ${bubbleClass} overflow-x-auto">
