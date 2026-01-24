@@ -136,30 +136,55 @@ async function openExplanation(topic) {
                     }
                 };
                 actionsEl.appendChild(btn);
-
-                // Admin Delete Button (only for dynamic lessons with dbId)
-                if (dbId && globalThis.ContributionService?.isAdmin()) {
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'bg-red-500/20 hover:bg-red-500/30 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors ml-2';
-                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                    deleteBtn.title = "Eliminar Lección";
-
-                    deleteBtn.onclick = async () => {
-                        if (confirm('¿Estás seguro de que deseas eliminar esta lección? Esta acción no se puede deshacer.')) {
-                            try {
-                                await globalThis.ContributionService.deleteLesson(dbId);
-                                globalThis.toastSuccess?.('Lección eliminada correctamente');
-                                // Reload lessons
-                                setTimeout(() => globalThis.location.reload(), 1000);
-                            } catch (error) {
-                                console.error('Error deleting lesson:', error);
-                                globalThis.toastError?.('Error al eliminar la lección');
-                            }
-                        }
-                    };
-                    actionsEl.appendChild(deleteBtn);
-                }
             }
+        }
+
+        // ADMIN DELETE BUTTON - Position it below the modal, not in header
+        const modalContent = modal.querySelector('.explanation-content');
+        if (modalContent && dbId && globalThis.ContributionService?.isAdmin()) {
+            // Create delete button container at bottom
+            const deleteContainer = document.createElement('div');
+            deleteContainer.className = 'mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
+
+            deleteBtn.onclick = async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (confirm('¿Estás seguro de que deseas eliminar esta lección? Esta acción no se puede deshacer.')) {
+                    try {
+                        deleteBtn.disabled = true;
+                        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+
+                        await globalThis.ContributionService.deleteLesson(dbId);
+
+                        // Show success and close modal
+                        if (globalThis.toastSuccess) {
+                            globalThis.toastSuccess('Lección eliminada correctamente');
+                        }
+
+                        // Close modal and reload
+                        modal.classList.add('hidden');
+                        setTimeout(() => globalThis.location.reload(), 800);
+                    } catch (error) {
+                        console.error('Error deleting lesson:', error);
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
+
+                        if (globalThis.toastError) {
+                            globalThis.toastError('Error al eliminar la lección');
+                        } else {
+                            alert('Error al eliminar la lección');
+                        }
+                    }
+                }
+            };
+
+            deleteContainer.appendChild(deleteBtn);
+            modalContent.appendChild(deleteContainer);
         }
 
         // Pronunciation Injection (Safe Check)
