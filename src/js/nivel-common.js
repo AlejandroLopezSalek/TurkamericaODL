@@ -129,13 +129,36 @@ async function openExplanation(topic) {
 
                 btn.onclick = () => {
                     if (dbId) {
-                        window.location.href = `/Contribute/?editLesson=${dbId}`;
+                        globalThis.location.href = `/Contribute/?editLesson=${dbId}`;
                     } else {
                         // Static lesson: passed as topic + level to fetch from JSON
-                        window.location.href = `/Contribute/?topic=${topic}&level=${CURRENT_LEVEL}`;
+                        globalThis.location.href = `/Contribute/?topic=${topic}&level=${CURRENT_LEVEL}`;
                     }
                 };
                 actionsEl.appendChild(btn);
+
+                // Admin Delete Button (only for dynamic lessons with dbId)
+                if (dbId && globalThis.ContributionService?.isAdmin()) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'bg-red-500/20 hover:bg-red-500/30 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors ml-2';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.title = "Eliminar Lección";
+
+                    deleteBtn.onclick = async () => {
+                        if (confirm('¿Estás seguro de que deseas eliminar esta lección? Esta acción no se puede deshacer.')) {
+                            try {
+                                await globalThis.ContributionService.deleteLesson(dbId);
+                                globalThis.toastSuccess?.('Lección eliminada correctamente');
+                                // Reload lessons
+                                setTimeout(() => globalThis.location.reload(), 1000);
+                            } catch (error) {
+                                console.error('Error deleting lesson:', error);
+                                globalThis.toastError?.('Error al eliminar la lección');
+                            }
+                        }
+                    };
+                    actionsEl.appendChild(deleteBtn);
+                }
             }
         }
 
@@ -173,11 +196,21 @@ function renderDynamicCards(lessons) {
         card.className = 'grammar-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative group';
         card.setAttribute('data-topic', id);
 
+        // Badge configuration with colors
+        const badgeConfig = {
+            'Básico': { bg: 'bg-green-50 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-400' },
+            'Intermedio': { bg: 'bg-yellow-50 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-400' },
+            'Avanzado': { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400' },
+            'Nuevo': { bg: 'bg-indigo-50 dark:bg-indigo-900/30', text: 'text-indigo-700 dark:text-indigo-400' }
+        };
+        const badgeType = lesson.badge || 'Nuevo';
+        const badgeStyle = badgeConfig[badgeType] || badgeConfig['Nuevo'];
+
         card.innerHTML = `
-            <div class="absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                Nuevo
+            <div class="absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded ${badgeStyle.bg} ${badgeStyle.text}">
+                ${badgeType}
             </div>
-            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 transition-colors">
                 ${lesson.title}
             </h3>
             <div class="flex items-center gap-2 mb-4">

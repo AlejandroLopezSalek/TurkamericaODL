@@ -213,6 +213,7 @@ async function handleLessonSubmit(e) {
     const lessonData = {
         lessonTitle: document.getElementById('lessonTitle').value,
         level: document.getElementById('lessonLevel').value,
+        badge: document.getElementById('lessonBadge').value,
         description: document.getElementById('lessonDescription').value,
         newContent: lessonContent,
         lessonId: editingLessonId || null, // If editing, include original lesson ID

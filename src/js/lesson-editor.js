@@ -240,10 +240,28 @@ class LessonEditor {
     }
 
     wrapWithPronunciation() {
-        const selection = window.getSelection();
+        const selection = globalThis.getSelection();
         if (!selection.rangeCount) return;
 
         const range = selection.getRangeAt(0);
+
+        // Check if selection contains or is within a pronunciation span
+        const container = range.commonAncestorContainer;
+        const parentElement = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+        const pronounceSpan = parentElement.closest('strong.pro nounce-me');
+
+        if (pronounceSpan) {
+            // REMOVE pronunciation: unwrap the span
+            const text = pronounceSpan.textContent;
+            const textNode = document.createTextNode(text);
+            pronounceSpan.parentNode.replaceChild(textNode, pronounceSpan);
+
+            // Reset selection
+            selection.removeAllRanges();
+            return;
+        }
+
+        // ADD pronunciation: wrap text
         const text = range.toString();
 
         if (!text.trim()) {
