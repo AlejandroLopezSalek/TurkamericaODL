@@ -51,6 +51,23 @@ layout: niveles.njk
     "tiempo-intervalos") }}
   </div>
 
+  <section class="mt-16 mb-12">
+    <div class="flex items-center gap-3 mb-8">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Herramientas Recomendadas para A1</h2>
+      <div class="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
+    </div>
+
+    <div class="flex justify-center max-w-4xl mx-auto">
+      {{ components.affiliateCard(
+      title="italki",
+      description="No esperes a ser 'fluido'. Encuentra un profesor paciente y empieza a hablar hoy mismo.",
+      link="https://www.italki.com/affshare?ref=af30849267",
+      btnText="Encontrar Profesor",
+      icon="comments"
+      ) }}
+    </div>
+  </section>
+
 
   <div class="sr-only">
     {% for key, lesson in a1_lessons %}
