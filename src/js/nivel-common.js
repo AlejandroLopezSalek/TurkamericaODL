@@ -179,8 +179,10 @@ function setupDeleteButton(modal, item) {
         deleteContainer.className = 'admin-delete-container mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end';
 
         const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md';
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección (Admin)';
+        // Icon-only button style
+        deleteBtn.className = 'w-10 h-10 bg-red-100 hover:bg-red-200 text-red-600 rounded-full transition-colors flex items-center justify-center shadow-sm';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.title = "Eliminar Lección (Admin Only)";
 
         deleteBtn.onclick = async (e) => {
             e.preventDefault();
@@ -198,9 +200,10 @@ function setupDeleteButton(modal, item) {
 async function handleDelete(dbId, modal, deleteBtn) {
     try {
         deleteBtn.disabled = true;
-        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-        await globalThis.ContributionService.deleteLesson(dbId);
+        // FIX: Method name was wrong (deleteContribution exists in service, deleteLesson does not)
+        await globalThis.ContributionService.deleteContribution(dbId);
 
         if (globalThis.toastSuccess) globalThis.toastSuccess('Lección eliminada correctamente');
 
@@ -209,7 +212,7 @@ async function handleDelete(dbId, modal, deleteBtn) {
     } catch (error) {
         console.error('Error deleting lesson:', error);
         deleteBtn.disabled = false;
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
 
         if (globalThis.toastError) globalThis.toastError('Error al eliminar la lección');
         else alert('Error al eliminar la lección');
