@@ -160,6 +160,22 @@ async function loadRequests() {
 
     } catch (error) {
         console.error('Error loading requests:', error);
+
+        // Handle Session Expiry specifically
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+            container.innerHTML = `
+                <div class="col-span-full flex flex-col items-center justify-center p-12 text-center text-amber-600 bg-amber-50 rounded-2xl">
+                    <i class="fas fa-lock text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Sesión Expirada</h3>
+                    <p class="mb-4">Tu sesión de administrador ha caducado.</p>
+                    <a href="/login/" class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                        Iniciar Sesión
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
         container.innerHTML = `
             <div class="col-span-full flex flex-col items-center justify-center p-12 text-center text-red-500">
                 <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>

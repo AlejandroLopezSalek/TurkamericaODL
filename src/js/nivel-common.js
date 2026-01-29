@@ -140,6 +140,17 @@ function setupModalActions(actionsEl, item, topic) {
         btn.title = "Editar Lección";
 
         btn.onclick = () => {
+            // UPDATE: Check if logged in
+            if (!globalThis.AuthService?.isLoggedIn()) {
+                if (globalThis.ToastSystem) globalThis.ToastSystem.error('Debes iniciar sesión para editar', 'Acceso Restringido');
+                else alert('Debes iniciar sesión para editar');
+
+                // Open login modal if exists, or redirect
+                // Assuming standard auth-ui might allow triggering login, doing redirect for now to be safe
+                // globalThis.location.href = '/login/'; 
+                return;
+            }
+
             if (dbId) {
                 globalThis.location.href = `/Contribute/?editLesson=${dbId}`;
             } else {
@@ -151,27 +162,36 @@ function setupModalActions(actionsEl, item, topic) {
 }
 
 function setupDeleteButton(modal, item) {
-    const dbId = item.id || item._id;
-    const modalContent = modal.querySelector('.explanation-content');
+    const dbId = item.id || item._id; // Covers both formats
+    const modalContent = modal.querySelector('.explanation-content'); // This might be missing in universal modal structure?
+    const universalContent = modal.querySelector('#universalModalContent'); // Fallback
 
-    if (modalContent && dbId && globalThis.ContributionService?.isAdmin()) {
+    const targetContainer = modalContent || universalContent;
+
+    // Check strict Admin
+    const isAdmin = globalThis.ContributionService?.isAdmin();
+
+    if (targetContainer && dbId && isAdmin) {
+        // Prevent duplicates
+        if (targetContainer.querySelector('.admin-delete-container')) return;
+
         const deleteContainer = document.createElement('div');
-        deleteContainer.className = 'mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end';
+        deleteContainer.className = 'admin-delete-container mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end';
 
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md';
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Lección (Admin)';
 
         deleteBtn.onclick = async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (confirm('¿Estás seguro de que deseas eliminar esta lección? Esta acción no se puede deshacer.')) {
+            if (confirm('¿ADMIN: Estás seguro de que deseas eliminar esta lección permanentemente?')) {
                 await handleDelete(dbId, modal, deleteBtn);
             }
         };
 
         deleteContainer.appendChild(deleteBtn);
-        modalContent.appendChild(deleteContainer);
+        targetContainer.appendChild(deleteContainer);
     }
 }
 
