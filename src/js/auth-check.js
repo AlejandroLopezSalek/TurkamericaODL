@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAuthState() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const authButtons = document.querySelector('.auth-buttons');
-    const notice = document.querySelector('#noticeBar');
 
     if (token && user) {
         // User is logged in
@@ -59,8 +57,8 @@ function updateUIForLoggedOutUser() {
 }
 
 // Global logout function
-window.logout = function () {
+globalThis.logout = function () {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login/';
+    globalThis.location.href = '/login/';
 };

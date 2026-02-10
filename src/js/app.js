@@ -10,9 +10,10 @@
     // APP CLASS
     // ================================
     class TurkAmericaApp {
+        version = '1.0.0';
+        initialized = false;
+
         constructor() {
-            this.version = '1.0.0';
-            this.initialized = false;
             this.systems = {};
             this.startTime = Date.now();
         }
@@ -47,8 +48,8 @@
                 const initTime = Date.now() - this.startTime;
 
                 // Track initialization
-                if (window.analytics) {
-                    window.analytics.track('app_initialized', {
+                if (globalThis.analytics) {
+                    globalThis.analytics.track('app_initialized', {
                         version: this.version,
                         initTime: initTime
                     });
@@ -65,15 +66,15 @@
             // All systems are already initialized via their individual scripts
             // Just verify they're available
             this.systems = {
-                config: window.APP_CONFIG,
-                auth: window.AuthService,
-                loader: window.LoaderSystem,
-                toast: window.ToastSystem,
-                search: window.SearchSystem,
-                animation: window.AnimationSystem,
-                cache: window.CacheSystem,
-                analytics: window.AnalyticsSystem,
-                utils: window.AppUtils
+                config: globalThis.APP_CONFIG,
+                auth: globalThis.AuthService,
+                loader: globalThis.LoaderSystem,
+                toast: globalThis.ToastSystem,
+                search: globalThis.SearchSystem,
+                animation: globalThis.AnimationSystem,
+                cache: globalThis.CacheSystem,
+                analytics: globalThis.AnalyticsSystem,
+                utils: globalThis.AppUtils
             };
 
             // Verify critical systems
@@ -87,17 +88,17 @@
 
         setupErrorHandlers() {
             // Global error handler
-            window.addEventListener('error', (event) => {
+            globalThis.addEventListener('error', (event) => {
                 console.error('Global error:', event.error);
 
                 // Show user-friendly message for critical errors
-                if (event.error && event.error.message) {
+                if (event.error?.message) {
                     this.handleError(event.error);
                 }
             });
 
             // Unhandled promise rejection handler
-            window.addEventListener('unhandledrejection', (event) => {
+            globalThis.addEventListener('unhandledrejection', (event) => {
                 console.error('Unhandled promise rejection:', event.reason);
                 this.handleError(event.reason);
             });
@@ -108,8 +109,8 @@
             const minorErrors = ['Failed to fetch', 'NetworkError', 'Load failed'];
             const isMinor = minorErrors.some(msg => error.message?.includes(msg));
 
-            if (!isMinor && window.ToastSystem) {
-                window.ToastSystem.error(
+            if (!isMinor && globalThis.ToastSystem) {
+                globalThis.ToastSystem.error(
                     'Ha ocurrido un error. Por favor, intenta de nuevo.',
                     'Error'
                 );
@@ -136,7 +137,7 @@
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             // New service worker available - Auto refresh
-                            window.location.reload();
+                            globalThis.location.reload();
                         }
                     });
                 });
@@ -148,48 +149,48 @@
 
         showUpdateAvailable() {
             // Auto-refresh implementation replaces this
-            window.location.reload();
+            globalThis.location.reload();
         }
 
         setupPWAInstall() {
-            window.addEventListener('beforeinstallprompt', (e) => {
+            globalThis.addEventListener('beforeinstallprompt', (e) => {
                 // Prevent Chrome 67 and earlier from automatically showing the prompt
                 e.preventDefault();
                 // Stash the event so it can be triggered later.
-                window.deferredPrompt = e;
+                globalThis.deferredPrompt = e;
 
                 // Update UI notify the user they can add to home screen
                 this.updateInstallButton();
             });
 
-            window.addEventListener('appinstalled', () => {
+            globalThis.addEventListener('appinstalled', () => {
                 console.log('✅ PWA installed');
-                window.deferredPrompt = null;
-                if (window.analytics) window.analytics.track('pwa_installed');
-                if (window.ToastSystem) window.ToastSystem.success('¡App instalada correctamente!');
+                globalThis.deferredPrompt = null;
+                if (globalThis.analytics) globalThis.analytics.track('pwa_installed');
+                if (globalThis.ToastSystem) globalThis.ToastSystem.success('¡App instalada correctamente!');
             });
         }
 
         updateInstallButton() {
             const installBtn = document.getElementById('installAppBtn');
-            if (installBtn && window.deferredPrompt) {
+            if (installBtn && globalThis.deferredPrompt) {
                 installBtn.style.display = 'inline-flex';
                 installBtn.onclick = async () => {
-                    const promptEvent = window.deferredPrompt;
+                    const promptEvent = globalThis.deferredPrompt;
                     if (!promptEvent) return;
 
                     promptEvent.prompt();
                     const { outcome } = await promptEvent.userChoice;
                     console.log(`User response to the install prompt: ${outcome}`);
 
-                    window.deferredPrompt = null;
+                    globalThis.deferredPrompt = null;
                     installBtn.style.display = 'none';
                 };
             }
         }
 
         initializePageFeatures() {
-            const path = window.location.pathname;
+            const path = globalThis.location.pathname;
 
             // Add animation classes to cards
             document.querySelectorAll('.level-card, .grammar-card, .channel-category').forEach((card, index) => {
@@ -227,7 +228,7 @@
             const searchContainer = document.createElement('div');
             cardsContainer.before(searchContainer);
 
-            window.SearchSystem.createSearchBar(searchContainer, {
+            globalThis.SearchSystem.createSearchBar(searchContainer, {
                 placeholder: 'Buscar temas de gramática...',
                 onSearch: (query) => {
                     const cards = document.querySelectorAll('.grammar-card');
@@ -259,8 +260,8 @@
                 activity.addEventListener('click', () => {
                     activity.classList.toggle('completed');
 
-                    if (window.analytics) {
-                        window.analytics.track('activity_toggled', {
+                    if (globalThis.analytics) {
+                        globalThis.analytics.track('activity_toggled', {
                             activity: activity.querySelector('h4')?.textContent,
                             completed: activity.classList.contains('completed')
                         });
@@ -294,7 +295,7 @@
                 <p style="color: #64748b; margin-bottom: 20px;">
                     No se pudo inicializar la aplicación. Por favor, recarga la página.
                 </p>
-                <button onclick="window.location.reload()" style="
+                <button onclick="globalThis.location.reload()" style="
                     padding: 12px 24px;
                     background: #667eea;
                     color: white;
@@ -338,8 +339,8 @@
     function initializeApp() {
         // Small delay to ensure all scripts are loaded
         setTimeout(() => {
-            window.TurkAmericaApp = new TurkAmericaApp();
-            window.TurkAmericaApp.init();
+            globalThis.TurkAmericaApp = new TurkAmericaApp();
+            globalThis.TurkAmericaApp.init();
         }, 100);
     }
 
@@ -347,9 +348,9 @@
     // PERFORMANCE MONITORING
     // ================================
 
-    window.addEventListener('load', () => {
+    globalThis.addEventListener('load', () => {
         // Log performance metrics
-        if (window.performance && window.APP_CONFIG?.isDevelopment()) {
+        if (globalThis.performance && globalThis.APP_CONFIG?.isDevelopment()) {
             const perfData = performance.getEntriesByType('navigation')[0];
 
             console.group('⚡ Performance Metrics');
@@ -364,16 +365,16 @@
     // DEVELOPMENT HELPERS
     // ================================
 
-    if (window.APP_CONFIG?.isDevelopment()) {
+    if (globalThis.APP_CONFIG?.isDevelopment()) {
         // Expose useful debugging functions
-        window.debug = {
-            clearCache: () => window.cache?.clear(),
+        globalThis.debug = {
+            clearCache: () => globalThis.cache?.clear(),
             clearStorage: () => localStorage.clear(),
-            getAnalytics: () => window.analytics?.summary(),
-            getCacheStats: () => window.cache?.stats(),
-            systems: () => window.TurkAmericaApp?.systems,
-            reload: () => window.location.reload(),
-            version: () => window.TurkAmericaApp?.version
+            getAnalytics: () => globalThis.analytics?.summary(),
+            getCacheStats: () => globalThis.cache?.stats(),
+            systems: () => globalThis.TurkAmericaApp?.systems,
+            reload: () => globalThis.location.reload(),
+            version: () => globalThis.TurkAmericaApp?.version
         };
 
         console.log('%c💡 Development Mode', 'color: #f59e0b; font-weight: bold;');

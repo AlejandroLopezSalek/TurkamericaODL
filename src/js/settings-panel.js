@@ -2,15 +2,50 @@
 // SETTINGS PANEL - Overlay and Controls
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    const settingsTab = document.getElementById('settingsTab');
-    const settingsOverlay = document.getElementById('settingsOverlay');
-    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+// Helper function to handle TurkBot enable
+function enableTurkBot() {
+    localStorage.setItem('turkbot_disabled', 'false');
+    if (globalThis.initTurkBot) {
+        globalThis.initTurkBot();
+    } else {
+        // If script loaded but function not globally avail yet, reload might be needed
+        location.reload();
+    }
 
+    // Show nice notification
+    if (globalThis.ToastSystem) {
+        globalThis.ToastSystem.success('¡TurkBot activado! Estoy aquí para ayudarte.', 'Asistente Integrado');
+    }
+}
+
+// Helper function to handle TurkBot disable
+function disableTurkBot() {
+    localStorage.setItem('turkbot_disabled', 'true');
+
+    // Clear chat history to prevent old messages from reappearing when re-enabled
+    sessionStorage.removeItem('capi_chat_history');
+    sessionStorage.removeItem('capi_chat_open');
+
+    if (globalThis.removeMascotUI) {
+        globalThis.removeMascotUI();
+    } else {
+        // Fallback to manual removal if function missing
+        const btn = document.getElementById('turkbot-btn');
+        const chat = document.getElementById('turkbot-chat');
+        if (btn) btn.remove();
+        if (chat) chat.remove();
+    }
+
+    if (globalThis.ToastSystem) {
+        globalThis.ToastSystem.info('TurkBot desactivado. Puedes reactivarlo aquí cuando quieras.', 'Asistente Pausado');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
     const notificationsToggle = document.getElementById('notificationsToggle');
     const languageSelect = document.querySelector('.setting-select');
-    const themeSelect = document.querySelector('.setting-select[name="theme"]');
 
     // --- Open/Close Logic ---
     // Handled by general.js (AppUtils.Settings)
@@ -27,41 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         turkbotToggle.addEventListener('change', () => {
             if (turkbotToggle.checked) {
-                // Enable
-                localStorage.setItem('turkbot_disabled', 'false');
-                if (window.initTurkBot) {
-                    window.initTurkBot();
-                } else {
-                    // If script loaded but function not globally avail yet, reload might be needed or event dispatch
-                    location.reload();
-                }
-
-                // Show nice notification
-                if (window.ToastSystem) {
-                    window.ToastSystem.success('¡TurkBot activado! Estoy aquí para ayudarte.', 'Asistente Integrado');
-                }
-
+                enableTurkBot();
             } else {
-                // Disable
-                localStorage.setItem('turkbot_disabled', 'true');
-
-                // Clear chat history to prevent old messages from reappearing when re-enabled
-                sessionStorage.removeItem('capi_chat_history');
-                sessionStorage.removeItem('capi_chat_open');
-
-                if (window.removeMascotUI) {
-                    window.removeMascotUI();
-                } else {
-                    // Fallback to manual removal if function missing
-                    const btn = document.getElementById('turkbot-btn');
-                    const chat = document.getElementById('turkbot-chat');
-                    if (btn) btn.remove();
-                    if (chat) chat.remove();
-                }
-
-                if (window.ToastSystem) {
-                    window.ToastSystem.info('TurkBot desactivado. Puedes reactivarlo aquí cuando quieras.', 'Asistente Pausado');
-                }
+                disableTurkBot();
             }
         });
     }
@@ -156,10 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🔄 Settings reset to default');
 
             // Optional: Show a success toast if available
-            if (window.showToast) {
-                window.showToast('Ajustes restaurados correctamente', 'success');
-            } else if (window.toastSuccess) {
-                window.toastSuccess('Ajustes restaurados correctamente');
+            if (globalThis.showToast) {
+                globalThis.showToast('Ajustes restaurados correctamente', 'success');
+            } else if (globalThis.toastSuccess) {
+                globalThis.toastSuccess('Ajustes restaurados correctamente');
             }
         });
     }
