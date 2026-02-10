@@ -44,6 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Disable
                 localStorage.setItem('turkbot_disabled', 'true');
+
+                // Clear chat history to prevent old messages from reappearing when re-enabled
+                sessionStorage.removeItem('capi_chat_history');
+                sessionStorage.removeItem('capi_chat_open');
+
                 if (window.removeMascotUI) {
                     window.removeMascotUI();
                 } else {

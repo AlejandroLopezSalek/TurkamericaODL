@@ -328,36 +328,6 @@ process.on('uncaughtException', (error) => {
 });
 
 // ================================
-// GRACEFUL SHUTDOWN
-// ================================
-
-const gracefulShutdown = (signal) => {
-  console.log(`\n Received ${signal}. Starting graceful shutdown...`);
-
-  // Close server first
-  const server = app.listen(PORT);
-  server.close(() => {
-    console.log(' HTTP server closed');
-
-    // Then close database
-    // Then close database
-    mongoose.connection.close().then(() => {
-      console.log(' MongoDB connection closed');
-      process.exit(0);
-    });
-  });
-
-  // Force close after 10 seconds
-  setTimeout(() => {
-    console.error('  Forced shutdown after timeout');
-    process.exit(1);
-  }, 10000);
-};
-
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
-// ================================
 // START SERVER
 // ================================
 
@@ -391,5 +361,41 @@ const startServer = async () => {
 };
 
 startServer();
+
+// ================================
+// GRACEFUL SHUTDOWN
+// ================================
+
+/**
+ * Handle graceful shutdown for nodemon restarts and process termination
+ * This prevents "Connection reset by peer" errors in MongoDB logs
+ */
+const gracefulShutdown = async (signal) => {
+  console.log(`\n${signal} received. Starting graceful shutdown...`);
+
+  try {
+    // Close database connection
+    const { closeDatabase } = require('./config/database');
+    await closeDatabase();
+
+    console.log('✅ Graceful shutdown completed');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+    process.exit(1);
+  }
+};
+
+// Handle nodemon restart (SIGUSR2)
+process.once('SIGUSR2', async () => {
+  await gracefulShutdown('SIGUSR2');
+  process.kill(process.pid, 'SIGUSR2');
+});
+
+// Handle Ctrl+C in terminal
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle termination signal
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 module.exports = app;

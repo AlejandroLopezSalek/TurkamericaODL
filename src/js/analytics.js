@@ -53,10 +53,19 @@ class AnalyticsSystem {
         });
     }
 
-    // Send data to backend - DISABLED per user request (keeping data local/console only)
+    // Send data to backend analytics endpoint
     send(data) {
-        // Tracking disabled to prevent database clutter
-        // "Smart Capi" tracking is handled separately in progress-tracker.js
+        // Send pageview and event data to backend for traffic analysis
+        const apiUrl = `${globalThis.API_BASE_URL || ''}/api/analytics`;
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).catch(() => {
+            // Silently fail - don't disrupt user experience with errors
+            // Analytics should never break the app
+        });
     }
 }
 
