@@ -27,16 +27,23 @@ router.post('/subscribe', async (req, res) => {
         const subscription = req.body;
 
 
-        if (!subscription?.endpoint) {
+        if (!subscription?.endpoint || typeof subscription.endpoint !== 'string') {
             return res.status(400).json({ error: 'Invalid subscription' });
         }
 
-        // Check if exists
-        const exists = await Subscription.findOne({ endpoint: { $eq: subscription.endpoint } });
+        // Validate endpoint is a valid URL
+        try {
+            new URL(subscription.endpoint);
+        } catch {
+            return res.status(400).json({ error: 'Invalid subscription endpoint URL' });
+        }
+
+        // Check if exists - use String() to prevent NoSQL injection
+        const exists = await Subscription.findOne({ endpoint: String(subscription.endpoint) });
         if (exists) {
             // Update userId if available
             if (req.body.userId && !exists.userId) {
-                exists.userId = req.body.userId;
+                exists.userId = String(req.body.userId);
                 await exists.save();
             }
             return res.status(200).json({ message: 'Subscription updated' });

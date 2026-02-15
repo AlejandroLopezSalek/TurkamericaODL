@@ -18,7 +18,13 @@ router.get('/', async (req, res) => {
 // GET single lesson by ID
 router.get('/:id', async (req, res) => {
     try {
-        const lesson = await Lesson.findOne({ id: req.params.id });
+        // Validate and sanitize ID to prevent NoSQL injection
+        const lessonId = String(req.params.id);
+        if (!lessonId || lessonId.length > 100) {
+            return res.status(400).json({ error: 'Invalid lesson ID' });
+        }
+
+        const lesson = await Lesson.findOne({ id: lessonId });
         if (!lesson) {
             return res.status(404).json({ error: 'Lesson not found' });
         }
@@ -32,7 +38,13 @@ router.get('/:id', async (req, res) => {
 // DELETE lesson (Admin only)
 router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const result = await Lesson.findOneAndDelete({ id: req.params.id });
+        // Validate and sanitize ID to prevent NoSQL injection
+        const lessonId = String(req.params.id);
+        if (!lessonId || lessonId.length > 100) {
+            return res.status(400).json({ error: 'Invalid lesson ID' });
+        }
+
+        const result = await Lesson.findOneAndDelete({ id: lessonId });
         if (!result) {
             return res.status(404).json({ error: 'Lesson not found' });
         }
@@ -46,7 +58,13 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 // GET lesson history (Admin only)
 router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const history = await LessonHistory.find({ lessonId: req.params.id })
+        // Validate and sanitize ID to prevent NoSQL injection
+        const lessonId = String(req.params.id);
+        if (!lessonId || lessonId.length > 100) {
+            return res.status(400).json({ error: 'Invalid lesson ID' });
+        }
+
+        const history = await LessonHistory.find({ lessonId })
             .sort({ version: -1 });
         res.json(history);
     } catch (error) {
@@ -58,12 +76,22 @@ router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => 
 // POST restore lesson version (Admin only)
 router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const { id, version } = req.params;
+        // Validate and sanitize inputs to prevent NoSQL injection
+        const lessonId = String(req.params.id);
+        const versionNum = Number.parseInt(req.params.version, 10);
+
+        if (!lessonId || lessonId.length > 100) {
+            return res.status(400).json({ error: 'Invalid lesson ID' });
+        }
+
+        if (!Number.isInteger(versionNum) || versionNum < 1) {
+            return res.status(400).json({ error: 'Invalid version number' });
+        }
 
         // Get historical version
         const history = await LessonHistory.findOne({
-            lessonId: id,
-            version: Number.parseInt(version, 10)
+            lessonId,
+            version: versionNum
         });
 
         if (!history) {
@@ -71,7 +99,7 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
         }
 
         // Get current lesson to save to history
-        const currentLesson = await Lesson.findOne({ id });
+        const currentLesson = await Lesson.findOne({ id: lessonId });
 
         if (!currentLesson) {
             return res.status(404).json({ error: 'Current lesson not found' });
@@ -92,7 +120,7 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
 
         // Restore old version
         await Lesson.findOneAndUpdate(
-            { id },
+            { id: lessonId },
             {
                 title: history.title,
                 content: history.content,
