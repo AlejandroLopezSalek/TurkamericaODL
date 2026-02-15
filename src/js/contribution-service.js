@@ -332,6 +332,33 @@
             );
         }
 
+        /**
+         * Get lesson version history (Admin only)
+         * @param {string} lessonId - The lesson ID
+         * @returns {Promise<Array>} Array of historical versions
+         */
+        async getLessonHistory(lessonId) {
+            return await this.authenticatedFetch(
+                `${this.LESSONS_API_URL}/${lessonId}/history`,
+                { method: 'GET' },
+                'fetch lesson history'
+            );
+        }
+
+        /**
+         * Restore a previous version of a lesson (Admin only)
+         * @param {string} lessonId - The lesson ID
+         * @param {number} version - The version number to restore
+         * @returns {Promise<Object>} Success response
+         */
+        async restoreLessonVersion(lessonId, version) {
+            return await this.authenticatedFetch(
+                `${this.LESSONS_API_URL}/${lessonId}/restore/${version}`,
+                { method: 'POST' },
+                'restore lesson version'
+            );
+        }
+
 
     }
 

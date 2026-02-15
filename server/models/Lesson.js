@@ -21,6 +21,11 @@ const lessonSchema = new mongoose.Schema({
     source: {
         type: String, // 'community', 'level', 'official', etc.
         default: 'community'
+    },
+    editedAt: Date,  // Track last edit time
+    version: {
+        type: Number,
+        default: 1
     }
 });
 

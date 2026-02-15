@@ -85,6 +85,7 @@ router.post('/send', authenticateToken, requireAdmin, async (req, res) => {
 
         await Promise.all(promises);
 
+        res.status(200).json({ message: 'Notifications sent successfully' });
     } catch (error) {
         console.error('Notification Error:', error);
         res.status(500).json({ error: 'Failed to send notifications' });

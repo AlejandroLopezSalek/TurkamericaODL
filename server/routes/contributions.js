@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Contribution = require('../models/Contribution');
 const Lesson = require('../models/Lesson');
+const LessonHistory = require('../models/LessonHistory');
 
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
@@ -84,28 +85,62 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
             return res.status(404).json({ error: 'Contribution not found' });
         }
 
-        // AUTO-PUBLISH LESSON IF APPROVED
-        if (status === 'approved' && contribution.type === 'lesson_edit') {
-            const lessonData = {
-                id: contribution.data.lessonId || 'lesson-' + Date.now(),
-                title: contribution.data.lessonTitle,
-                level: contribution.data.level,
-                author: contribution.submittedBy?.username ? contribution.submittedBy.username : 'Community',
-                description: contribution.data.description,
-                content: contribution.data.newContent,
-                status: 'published',
-                publishedAt: new Date(),
-                source: contribution.data.source || 'community'
-            };
+        // HANDLE APPROVED CONTRIBUTIONS
+        if (status === 'approved') {
+            // HANDLE LESSON EDITS
+            if (contribution.type === 'lesson_edit') {
+                const lessonId = contribution.data.lessonId;
+                const existingLesson = await Lesson.findOne({ id: lessonId });
 
-            // Check if lesson exists to update, or create new
-            // We use 'id' field for compatibility with frontend IDs, not _id
-            const existingLesson = await Lesson.findOne({ id: lessonData.id });
+                if (existingLesson) {
+                    // SAVE OLD VERSION TO HISTORY
+                    await new LessonHistory({
+                        lessonId: existingLesson.id,
+                        version: existingLesson.version || 1,
+                        title: existingLesson.title,
+                        content: existingLesson.content,
+                        description: existingLesson.description,
+                        level: existingLesson.level,
+                        author: existingLesson.author,
+                        editedBy: contribution.submittedBy?.username || 'Unknown',
+                        editedAt: existingLesson.editedAt || existingLesson.publishedAt
+                    }).save();
 
-            if (existingLesson) {
-                await Lesson.findOneAndUpdate({ id: lessonData.id }, lessonData);
-            } else {
-                await new Lesson(lessonData).save();
+                    // UPDATE EXISTING LESSON
+                    await Lesson.findOneAndUpdate(
+                        { id: lessonId },
+                        {
+                            title: contribution.data.lessonTitle,
+                            content: contribution.data.newContent,
+                            description: contribution.data.description,
+                            editedAt: new Date(),
+                            version: (existingLesson.version || 1) + 1
+                        }
+                    );
+                } else {
+                    // CREATE NEW LESSON
+                    await new Lesson({
+                        id: lessonId || 'lesson-' + Date.now(),
+                        title: contribution.data.lessonTitle,
+                        level: contribution.data.level,
+                        author: contribution.submittedBy?.username || 'Community',
+                        description: contribution.data.description,
+                        content: contribution.data.newContent,
+                        status: 'published',
+                        publishedAt: new Date(),
+                        source: contribution.data.source || 'community',
+                        version: 1
+                    }).save();
+                }
+            }
+
+            // HANDLE BOOK UPLOADS
+            if (contribution.type === 'book_upload') {
+                // Book uploads are marked as approved
+                // The PDF URL is stored in contribution.data.pdfUrl
+                // Users can view approved book uploads from the contributions page
+                console.log('Book upload approved:', contribution.title);
+                console.log('PDF URL:', contribution.data?.pdfUrl);
             }
         }
 
@@ -117,3 +152,4 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
+
