@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Reinicializar en resize
     let resizeTimer;
-    window.addEventListener('resize', function () {
+    globalThis.addEventListener('resize', function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function () {
             console.log('🔄 Re-inicializando carousels después de resize...');
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function initAllCarousels() {
     // Solo en móvil
-    if (window.innerWidth > 768) {
+    if (globalThis.innerWidth > 768) {
         console.log('💻 Modo desktop detectado - carousels desactivados');
         return;
     }

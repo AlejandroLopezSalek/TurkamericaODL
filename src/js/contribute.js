@@ -75,13 +75,13 @@ globalThis.selectContributionType = function (type) {
         const form = document.getElementById('lessonEditForm');
         if (form) {
             form.style.display = 'block';
-            setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+            setTimeout(() => globalThis.scrollTo({ top: 0, behavior: 'smooth' }), 100);
         }
     } else if (type === 'book') {
         const form = document.getElementById('bookUploadForm');
         if (form) {
             form.style.display = 'block';
-            setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+            setTimeout(() => globalThis.scrollTo({ top: 0, behavior: 'smooth' }), 100);
         }
     }
 };

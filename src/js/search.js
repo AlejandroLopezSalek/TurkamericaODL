@@ -532,7 +532,7 @@ class SearchSystem {
         }
 
         resultsContainer.innerHTML = results.map(item => `
-            <div class="search-result-item" onclick="window.location.href='${item.url}'">
+            <div class="search-result-item" onclick="globalThis.location.href='${item.url}'">
                 <div class="search-result-icon">
                     <i class="fas fa-${item.icon}"></i>
                 </div>
@@ -546,6 +546,6 @@ class SearchSystem {
 }
 
 // Initialize search system
-window.SearchSystem = new SearchSystem();
+globalThis.SearchSystem = new SearchSystem();
 
 console.log('✅ Search system initialized');

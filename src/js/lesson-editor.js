@@ -1,4 +1,4 @@
-﻿// ========================================
+// ========================================
 // LESSON EDITOR - Visual Editor for Creating Beautiful Lessons
 // ========================================
 
@@ -38,10 +38,10 @@ class LessonEditor {
 
             <!-- Headings -->
             <div class="flex gap-1 pr-4 border-r border-slate-200 dark:border-slate-700 shrink-0">
-                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-sm" data-command="h2" title="TÃ­tulo Grande">
+                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-sm" data-command="h2" title="Título Grande">
                     H2
                 </button>
-                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-xs" data-command="h3" title="TÃ­tulo Mediano">
+                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-xs" data-command="h3" title="Título Mediano">
                     H3
                 </button>
             </div>
@@ -58,7 +58,7 @@ class LessonEditor {
 
             <!-- Components -->
             <div class="flex gap-1 shrink-0">
-                <button type="button" class="p-2 px-3 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded transition-colors flex items-center gap-2 text-sm font-semibold" data-action="pronounce" title="Agregar Sonido (Pronunciación)">
+                <button type="button" class="p-2 px-3 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded transition-colors flex items-center gap-2 text-sm font-semibold" data-action="pronounce" title="Agregar Sonido (Pronunciaci�n)">
                     <i class="fas fa-volume-high"></i> <span class="hidden sm:inline">Sonido</span>
                 </button>
                 <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
@@ -135,8 +135,8 @@ class LessonEditor {
         });
 
         // Hide on scroll or resize
-        window.addEventListener('scroll', () => this.hideDeleteButton(), true);
-        window.addEventListener('resize', () => this.hideDeleteButton());
+        globalThis.addEventListener('scroll', () => this.hideDeleteButton(), true);
+        globalThis.addEventListener('resize', () => this.hideDeleteButton());
     }
 
     showDeleteButton(element) {
@@ -162,7 +162,7 @@ class LessonEditor {
     insertComponent(type) {
         this.editor.focus(); // Ensure editor has focus first
 
-        let selection = window.getSelection();
+        let selection = globalThis.getSelection();
         if (selection.rangeCount === 0) {
             // If still no range, create one at the end
             const range = document.createRange();
@@ -212,7 +212,7 @@ class LessonEditor {
         div.className = 'my-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 rounded-r-lg';
         div.innerHTML = `
             <strong class="block text-indigo-600 dark:text-indigo-400 mb-2">Punto Importante:</strong>
-            <p class="m-0">Escribe aqui­ el contenido destacado...</p>
+            <p class="m-0">Escribe aqui� el contenido destacado...</p>
         `;
         return div;
     }
@@ -361,7 +361,7 @@ class LessonEditor {
     showTableBuilder() {
         // Save current selection before opening modal
         this.editor.focus();
-        const selection = window.getSelection();
+        const selection = globalThis.getSelection();
         if (selection.rangeCount > 0) {
             this.savedRange = selection.getRangeAt(0).cloneRange();
         } else {
@@ -483,7 +483,7 @@ class LessonEditor {
 
         // Restore selection and insert
         this.editor.focus();
-        const selection = window.getSelection();
+        const selection = globalThis.getSelection();
         selection.removeAllRanges();
 
         if (this.savedRange) {
@@ -520,6 +520,6 @@ class LessonEditor {
 }
 
 // Make globally available
-window.LessonEditor = LessonEditor;
+globalThis.LessonEditor = LessonEditor;
 
-console.log('✅ Lesson Editor loaded (Tailwind Version)');
+console.log('? Lesson Editor loaded (Tailwind Version)');

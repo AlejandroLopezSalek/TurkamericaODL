@@ -3,8 +3,8 @@
 // ================================
 
 // Detectar entorno
-const isDevelopment = window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1';
+const isDevelopment = globalThis.location.hostname === 'localhost' ||
+  globalThis.location.hostname === '127.0.0.1';
 
 // Configuración de API
 const API_CONFIG = {
@@ -13,7 +13,7 @@ const API_CONFIG = {
     apiPath: '/api'
   },
   production: {
-    baseURL: window.location.origin,
+    baseURL: globalThis.location.origin,
     apiPath: '/api'
   }
 };
@@ -22,7 +22,7 @@ const API_CONFIG = {
 const currentConfig = isDevelopment ? API_CONFIG.development : API_CONFIG.production;
 
 // Configuración global de la aplicación
-window.APP_CONFIG = {
+globalThis.APP_CONFIG = {
   // API URLs
   API_BASE_URL: `${currentConfig.baseURL}${currentConfig.apiPath}`,
   BASE_URL: currentConfig.baseURL,
@@ -150,11 +150,11 @@ if (!isDevelopment) {
 } else {
   // Log de configuración SOLO en desarrollo
   console.log('🔧 TurkAmerica Configuration:', {
-    Environment: window.APP_CONFIG.APP.ENVIRONMENT,
-    API_URL: window.APP_CONFIG.API_BASE_URL,
-    Version: window.APP_CONFIG.APP.VERSION
+    Environment: globalThis.APP_CONFIG.APP.ENVIRONMENT,
+    API_URL: globalThis.APP_CONFIG.API_BASE_URL,
+    Version: globalThis.APP_CONFIG.APP.VERSION
   });
 }
 
 // Hacer disponible globalmente
-window.API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
+globalThis.API_BASE_URL = globalThis.APP_CONFIG.API_BASE_URL;

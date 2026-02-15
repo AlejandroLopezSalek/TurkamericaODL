@@ -335,7 +335,9 @@ async function networkFirstWithExpiry(request, cacheName, maxAge) {
                     <div class="icon">📡</div>
                     <h1>Sin Conexión</h1>
                     <p>No hay conexión a internet. Por favor, verifica tu conexión e intenta nuevamente.</p>
-                    <button onclick="window.location.reload()">Reintentar</button>
+                    <div style="text-align: center; margin-top: 30px;">
+                    <p style="color: #666; margin-bottom: 20px;">Verifica tu conexión a internet</p>
+                    <button onclick="globalThis.location.reload()">Reintentar</button>
                 </div>
             </body>
             </html>

@@ -13,7 +13,7 @@ function trackLessonView() {
 
     // Check if we are on a lesson page
     // Logic: Checks for specific path patterns or DOM elements unique to lessons
-    const path = window.location.pathname;
+    const path = globalThis.location.pathname;
     const isLessonPage = path.includes('/Nivel') || path.includes('/lessons/');
 
     if (!isLessonPage) return;
@@ -30,7 +30,7 @@ function trackLessonView() {
     const data = {
         lessonId: lessonId,
         title: title,
-        url: window.location.href
+        url: globalThis.location.href
     };
 
     // Send to backend

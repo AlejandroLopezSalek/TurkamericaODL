@@ -1,7 +1,7 @@
 // Clase para manejar la sesión del usuario en la interfaz
 class UserSession {
     constructor() {
-        this.authService = window.AuthService;
+        this.authService = globalThis.AuthService;
         this.init();
     }
 
@@ -17,7 +17,7 @@ class UserSession {
         if (this.authService && this.authService.isLoggedIn()) {
             // Usuario está logueado, verificar si el token sigue siendo válido
             try {
-                const response = await fetch(`${window.location.origin}/api/auth/verify`, {
+                const response = await fetch(`${globalThis.location.origin}/api/auth/verify`, {
                     headers: this.authService.getAuthHeaders()
                 });
 
@@ -131,7 +131,7 @@ class UserSession {
         if (loginBtn) {
             loginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location.href = '/login/';
+                globalThis.location.href = '/login/';
             });
         }
 
@@ -140,7 +140,7 @@ class UserSession {
         if (registerBtn) {
             registerBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location.href = './auth/register.html';
+                globalThis.location.href = './auth/register.html';
             });
         }
     }
@@ -157,7 +157,7 @@ class UserSession {
                 
                 // Redirigir a la página principal después de un momento
                 setTimeout(() => {
-                    window.location.href = '/';
+                    globalThis.location.href = '/';
                 }, 1500);
                 
             } catch (error) {
@@ -222,7 +222,7 @@ class UserSession {
         if (!this.authService || !this.authService.isLoggedIn()) {
             this.showMessage('Debes iniciar sesión para acceder a esta página', 'warning');
             setTimeout(() => {
-                window.location.href = '/login/';
+                globalThis.location.href = '/login/';
             }, 2000);
             return false;
         }
@@ -240,10 +240,10 @@ class UserSession {
 
 // Inicializar UserSession cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.userSession) {
-        window.userSession = new UserSession();
+    if (!globalThis.userSession) {
+        globalThis.userSession = new UserSession();
     }
 });
 
 // Hacer disponible globalmente
-window.UserSession = UserSession;
+globalThis.UserSession = UserSession;

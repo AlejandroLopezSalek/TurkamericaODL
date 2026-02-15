@@ -251,9 +251,9 @@ class LoaderSystem {
 
     // Setup fetch interceptor
     setupInterceptors() {
-        const originalFetch = window.fetch;
+        const originalFetch = globalThis.fetch;
 
-        window.fetch = async (...args) => {
+        globalThis.fetch = async (...args) => {
             // Check URL to determine if we should show loader
             const [resource] = args;
             // Handle both string URL and Request object
@@ -295,11 +295,11 @@ class LoaderSystem {
 }
 
 // Initialize loader system
-window.LoaderSystem = new LoaderSystem();
+globalThis.LoaderSystem = new LoaderSystem();
 
 // Helper functions
-window.showLoader = () => window.LoaderSystem.show();
-window.hideLoader = () => window.LoaderSystem.hide();
-window.setProgress = (percent) => window.LoaderSystem.setProgress(percent);
-window.buttonLoading = (button, loading) => window.LoaderSystem.buttonLoading(button, loading);
+globalThis.showLoader = () => globalThis.LoaderSystem.show();
+globalThis.hideLoader = () => globalThis.LoaderSystem.hide();
+globalThis.setProgress = (percent) => globalThis.LoaderSystem.setProgress(percent);
+globalThis.buttonLoading = (button, loading) => globalThis.LoaderSystem.buttonLoading(button, loading);
 

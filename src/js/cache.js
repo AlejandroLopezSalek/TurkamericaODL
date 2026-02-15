@@ -199,7 +199,7 @@ class CacheSystem {
 
     // Setup beforeunload handler
     setupBeforeUnload() {
-        window.addEventListener('beforeunload', () => {
+        globalThis.addEventListener('beforeunload', () => {
             // Save cache stats
             this.saveStats();
         });
@@ -232,7 +232,7 @@ class CacheSystem {
 
     // Save stats to console
     saveStats() {
-        if (window.APP_CONFIG?.isDevelopment()) {
+        if (globalThis.APP_CONFIG?.isDevelopment()) {
             console.log('Cache Stats:', this.getStats());
         }
     }
@@ -321,20 +321,20 @@ class RequestDeduplicator {
 }
 
 // Initialize systems
-window.CacheSystem = new CacheSystem();
-window.RequestDeduplicator = new RequestDeduplicator();
+globalThis.CacheSystem = new CacheSystem();
+globalThis.RequestDeduplicator = new RequestDeduplicator();
 
 // Helper functions
-window.cache = {
-    set: (key, value, ttl) => window.CacheSystem.set(key, value, ttl),
-    get: (key) => window.CacheSystem.get(key),
-    delete: (key) => window.CacheSystem.delete(key),
-    has: (key) => window.CacheSystem.has(key),
-    clear: () => window.CacheSystem.clear(),
-    stats: () => window.CacheSystem.getStats(),
-    fetch: (url, options, ttl) => window.CacheSystem.cachedFetch(url, options, ttl),
-    memoize: (fn, keyGen, ttl) => window.CacheSystem.memoize(fn, keyGen, ttl)
+globalThis.cache = {
+    set: (key, value, ttl) => globalThis.CacheSystem.set(key, value, ttl),
+    get: (key) => globalThis.CacheSystem.get(key),
+    delete: (key) => globalThis.CacheSystem.delete(key),
+    has: (key) => globalThis.CacheSystem.has(key),
+    clear: () => globalThis.CacheSystem.clear(),
+    stats: () => globalThis.CacheSystem.getStats(),
+    fetch: (url, options, ttl) => globalThis.CacheSystem.cachedFetch(url, options, ttl),
+    memoize: (fn, keyGen, ttl) => globalThis.CacheSystem.memoize(fn, keyGen, ttl)
 };
 
-window.dedupeRequest = (key, fn) => window.RequestDeduplicator.request(key, fn);
+globalThis.dedupeRequest = (key, fn) => globalThis.RequestDeduplicator.request(key, fn);
 

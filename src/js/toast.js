@@ -347,16 +347,16 @@ class ToastSystem {
 }
 
 // Initialize toast system
-window.ToastSystem = new ToastSystem();
+globalThis.ToastSystem = new ToastSystem();
 
 // Global shortcuts
-window.toast = (message, type = 'info', duration) => {
-    return window.ToastSystem.show({ type, message, duration });
+globalThis.toast = (message, type = 'info', duration) => {
+    return globalThis.ToastSystem.show({ type, message, duration });
 };
 
 
-window.toastSuccess = (message, title, duration) => window.ToastSystem.success(message, title, duration);
-window.toastError = (message, title, duration) => window.ToastSystem.error(message, title, duration);
-window.toastWarning = (message, title, duration) => window.ToastSystem.warning(message, title, duration);
-window.toastInfo = (message, title, duration) => window.ToastSystem.info(message, title, duration);
+globalThis.toastSuccess = (message, title, duration) => globalThis.ToastSystem.success(message, title, duration);
+globalThis.toastError = (message, title, duration) => globalThis.ToastSystem.error(message, title, duration);
+globalThis.toastWarning = (message, title, duration) => globalThis.ToastSystem.warning(message, title, duration);
+globalThis.toastInfo = (message, title, duration) => globalThis.ToastSystem.info(message, title, duration);
 

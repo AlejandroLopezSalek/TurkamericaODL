@@ -3,8 +3,8 @@ const ENABLE_MOCK = false;
 if (ENABLE_MOCK) {
     const mockUsers = JSON.parse(localStorage.getItem('mockUsers') || '[{"id":1,"username":"demo","email":"demo@test.com","password":"demo123"}]');
 
-    const originalFetch = window.fetch;
-    window.fetch = async function (url, options = {}) {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async function (url, options = {}) {
         if (url.includes('/register') || url.includes('/api/register')) {
             const body = JSON.parse(options.body);
             const exists = mockUsers.find(u => u.username === body.username || u.email === body.email);
@@ -72,8 +72,8 @@ if (ENABLE_MOCK) {
 // ================================
 class AuthService {
     constructor() {
-        this.token = localStorage.getItem(window.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken');
-        this.currentUser = JSON.parse(localStorage.getItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser') || 'null');
+        this.token = localStorage.getItem(globalThis.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken');
+        this.currentUser = JSON.parse(localStorage.getItem(globalThis.APP_CONFIG?.AUTH.USER_KEY || 'currentUser') || 'null');
     }
 
     isLoggedIn() {
@@ -86,9 +86,9 @@ class AuthService {
 
     async register(userData) {
         try {
-            const API_URL = window.APP_CONFIG
-                ? window.APP_CONFIG.getFullApiUrl(window.APP_CONFIG.ENDPOINTS.AUTH_REGISTER)
-                : `${window.location.origin}/api/register`;
+            const API_URL = globalThis.APP_CONFIG
+                ? globalThis.APP_CONFIG.getFullApiUrl(globalThis.APP_CONFIG.ENDPOINTS.AUTH_REGISTER)
+                : `${globalThis.location.origin}/api/register`;
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -109,8 +109,8 @@ class AuthService {
             this.token = data.token;
             this.currentUser = data.user;
 
-            localStorage.setItem(window.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
-            localStorage.setItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
 
             this.dispatchAuthEvent(true);
 
@@ -124,9 +124,9 @@ class AuthService {
 
     async login(identifier, password) {
         try {
-            const API_URL = window.APP_CONFIG
-                ? window.APP_CONFIG.getFullApiUrl(window.APP_CONFIG.ENDPOINTS.AUTH_LOGIN)
-                : `${window.location.origin}/api/login`;
+            const API_URL = globalThis.APP_CONFIG
+                ? globalThis.APP_CONFIG.getFullApiUrl(globalThis.APP_CONFIG.ENDPOINTS.AUTH_LOGIN)
+                : `${globalThis.location.origin}/api/login`;
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -143,8 +143,8 @@ class AuthService {
             this.token = data.token;
             this.currentUser = data.user;
 
-            localStorage.setItem(window.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
-            localStorage.setItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
 
             this.dispatchAuthEvent(true);
 
@@ -158,7 +158,7 @@ class AuthService {
 
     async loginWithGoogle(credential) {
         try {
-            const API_URL = `${window.location.origin}/api/auth/google`;
+            const API_URL = `${globalThis.location.origin}/api/auth/google`;
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -175,8 +175,8 @@ class AuthService {
             this.token = data.token;
             this.currentUser = data.user;
 
-            localStorage.setItem(window.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
-            localStorage.setItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken', this.token);
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
 
             this.dispatchAuthEvent(true);
 
@@ -191,9 +191,9 @@ class AuthService {
     async logout() {
         try {
             if (this.token && !ENABLE_MOCK) {
-                const API_URL = window.APP_CONFIG
-                    ? window.APP_CONFIG.getFullApiUrl(window.APP_CONFIG.ENDPOINTS.AUTH_LOGOUT)
-                    : `${window.location.origin}/api/auth/logout`;
+                const API_URL = globalThis.APP_CONFIG
+                    ? globalThis.APP_CONFIG.getFullApiUrl(globalThis.APP_CONFIG.ENDPOINTS.AUTH_LOGOUT)
+                    : `${globalThis.location.origin}/api/auth/logout`;
 
                 await fetch(API_URL, {
                     method: 'POST',
@@ -208,8 +208,8 @@ class AuthService {
         } finally {
             this.token = null;
             this.currentUser = null;
-            localStorage.removeItem(window.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken');
-            localStorage.removeItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser');
+            localStorage.removeItem(globalThis.APP_CONFIG?.AUTH.TOKEN_KEY || 'authToken');
+            localStorage.removeItem(globalThis.APP_CONFIG?.AUTH.USER_KEY || 'currentUser');
 
             this.dispatchAuthEvent(false);
         }
@@ -219,9 +219,9 @@ class AuthService {
         if (!this.token) return false;
 
         try {
-            const API_URL = window.APP_CONFIG
-                ? window.APP_CONFIG.getFullApiUrl(window.APP_CONFIG.ENDPOINTS.AUTH_VERIFY)
-                : `${window.location.origin}/api/auth/verify`;
+            const API_URL = globalThis.APP_CONFIG
+                ? globalThis.APP_CONFIG.getFullApiUrl(globalThis.APP_CONFIG.ENDPOINTS.AUTH_VERIFY)
+                : `${globalThis.location.origin}/api/auth/verify`;
 
             const response = await fetch(API_URL, {
                 headers: this.getAuthHeaders()
@@ -234,7 +234,7 @@ class AuthService {
 
             const data = await response.json();
             this.currentUser = data.user;
-            localStorage.setItem(window.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
+            localStorage.setItem(globalThis.APP_CONFIG?.AUTH.USER_KEY || 'currentUser', JSON.stringify(this.currentUser));
 
             return true;
         } catch (error) {
@@ -248,7 +248,7 @@ class AuthService {
         const event = new CustomEvent('authStateChanged', {
             detail: { isLoggedIn: isLoggedIn, user: this.currentUser }
         });
-        window.dispatchEvent(event);
+        globalThis.dispatchEvent(event);
     }
 
     getAuthHeaders() {
@@ -259,19 +259,19 @@ class AuthService {
     }
 }
 
-window.AuthService = new AuthService();
+globalThis.AuthService = new AuthService();
 
 // ================================
 // VALIDATION FUNCTIONS
 // ================================
 function validateEmail(email) {
-    const pattern = window.APP_CONFIG?.VALIDATION.EMAIL.PATTERN || /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const pattern = globalThis.APP_CONFIG?.VALIDATION.EMAIL.PATTERN || /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return pattern.test(email);
 }
 
 function validateUsername(username) {
     if (!username) return false;
-    const config = window.APP_CONFIG?.VALIDATION.USERNAME;
+    const config = globalThis.APP_CONFIG?.VALIDATION.USERNAME;
     if (!config) return username.length >= 3 && username.length <= 20;
 
     return username.length >= config.MIN_LENGTH &&
@@ -281,7 +281,7 @@ function validateUsername(username) {
 
 function validatePassword(password) {
     if (!password) return false;
-    const config = window.APP_CONFIG?.VALIDATION.PASSWORD;
+    const config = globalThis.APP_CONFIG?.VALIDATION.PASSWORD;
     if (!config) return password.length >= 6;
 
     return password.length >= config.MIN_LENGTH &&
@@ -378,13 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
 
-                const result = await window.AuthService.register({ name: username, email, password });
+                const result = await globalThis.AuthService.register({ name: username, email, password });
 
                 if (result.success) {
                     showSuccessMessage('¡Registro exitoso! Bienvenido/a');
                     const noticeBar = document.getElementById('noticeBar');
                     if (noticeBar) noticeBar.style.display = 'none';
-                    setTimeout(() => window.location.href = '/', 1500);
+                    setTimeout(() => globalThis.location.href = '/', 1500);
                 } else {
                     throw new Error(result.error);
                 }
@@ -427,13 +427,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
-                const result = await window.AuthService.login(username, password);
+                const result = await globalThis.AuthService.login(username, password);
 
                 if (result.success) {
                     showSuccessMessage('¡Login exitoso! Bienvenido/a de vuelta');
                     const noticeBar = document.getElementById('noticeBar');
                     if (noticeBar) noticeBar.style.display = 'none';
-                    setTimeout(() => window.location.href = '/', 1500);
+                    setTimeout(() => globalThis.location.href = '/', 1500);
                 } else {
                     throw new Error(result.error);
                 }
@@ -470,12 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Add logout handler
                 document.getElementById('logoutBtn')?.addEventListener('click', () => {
-                    window.AuthService.logout();
+                    globalThis.AuthService.logout();
                 });
 
                 // Show admin tab if user is admin (Check role directly or via service)
                 const isAdmin = (user.role === 'admin') ||
-                    (window.ContributionService && window.ContributionService.isAdmin());
+                    (globalThis.ContributionService && globalThis.ContributionService.isAdmin());
 
                 if (adminTab && isAdmin) {
                     adminTab.style.setProperty('display', 'inline-flex', 'important');
@@ -496,12 +496,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Listen for auth changes
-    window.addEventListener('authStateChanged', (e) => {
+    globalThis.addEventListener('authStateChanged', (e) => {
         updateAuthUI(e.detail.isLoggedIn, e.detail.user);
     });
 
     // Initial check
-    const currentUser = window.AuthService.getCurrentUser();
-    updateAuthUI(window.AuthService.isLoggedIn(), currentUser);
+    const currentUser = globalThis.AuthService.getCurrentUser();
+    updateAuthUI(globalThis.AuthService.isLoggedIn(), currentUser);
 });
 

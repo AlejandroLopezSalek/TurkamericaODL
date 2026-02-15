@@ -124,7 +124,7 @@
       // Listen for controller change (new SW activated)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         console.log('[Cache] Service worker updated, reloading...');
-        window.location.reload();
+        globalThis.location.reload();
       });
     }
 
@@ -140,8 +140,8 @@
 
     // Show update notification
     showUpdateNotification() {
-      if (window.ToastSystem) {
-        window.ToastSystem.info(
+      if (globalThis.ToastSystem) {
+        globalThis.ToastSystem.info(
           'La aplicación se ha actualizado con las últimas mejoras',
           'Actualización',
           3000
@@ -151,8 +151,8 @@
 
     // Show update available notification
     showUpdateAvailableNotification(registration) {
-      if (window.ToastSystem) {
-        const toast = window.ToastSystem.show({
+      if (globalThis.ToastSystem) {
+        const toast = globalThis.ToastSystem.show({
           type: 'info',
           title: 'Actualización disponible',
           message: 'Hay una nueva versión disponible. Recarga para actualizar.',
@@ -189,7 +189,7 @@
 
     // Force reload with cache bypass
     forceReload() {
-      window.location.reload(true);
+      globalThis.location.reload(true);
     }
 
     // Get current version
@@ -199,12 +199,12 @@
   }
 
   // Initialize cache manager
-  window.CacheManager = new CacheManager();
+  globalThis.CacheManager = new CacheManager();
 
   // Expose utility functions
-  window.clearAppCache = () => window.CacheManager.clearAllCaches();
-  window.checkAppVersion = () => window.CacheManager.checkForUpdates();
-  window.getAppVersion = () => window.CacheManager.getVersion();
+  globalThis.clearAppCache = () => globalThis.CacheManager.clearAllCaches();
+  globalThis.checkAppVersion = () => globalThis.CacheManager.checkForUpdates();
+  globalThis.getAppVersion = () => globalThis.CacheManager.getVersion();
 
   console.log('[Cache Manager] Initialized - Version:', APP_VERSION);
 

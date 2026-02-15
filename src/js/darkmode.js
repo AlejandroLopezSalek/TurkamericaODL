@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check saved preference
     const savedTheme = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
 
     if (savedTheme === 'enabled' || (!savedTheme && prefersDark)) {
         html.classList.add('dark-mode');

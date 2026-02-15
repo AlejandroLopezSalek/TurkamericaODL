@@ -187,10 +187,9 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * Logs chat interaction to database asynchronously
- * Fire-and-forget pattern - errors are logged but don't affect response
+ * Log chat interaction to database
  * @param {Object|null} user - User object or null for guests
- * @param {string} message - User's message
+ * @param {string} message - User message
  * @param {string} reply - AI's reply
  * @param {Object|string} context - Page context
  * @param {string} lessonContentContext - Lesson context if applicable
@@ -198,13 +197,19 @@ router.post('/', async (req, res) => {
  */
 async function logChatInteraction(user, message, reply, context, lessonContentContext, req) {
     try {
+        // Sanitize all inputs to prevent database injection
+        const sanitizedMessage = String(message || '').substring(0, 5000);
+        const sanitizedReply = String(reply || '').substring(0, 10000);
+        const sanitizedUsername = user?.username ? String(user.username).substring(0, 100) : 'Guest';
+        const sanitizedLessonContext = lessonContentContext ? String(lessonContentContext).substring(0, 100) + '...' : '';
+
         await ChatLog.create({
-            userId: user ? user._id : null,
-            username: user ? user.username : 'Guest',
-            userMessage: message,
-            aiResponse: reply,
-            context: typeof context === 'object' ? context : { raw: context },
-            lessonContext: lessonContentContext ? lessonContentContext.substring(0, 100) + '...' : '',
+            userId: user?._id || null,
+            username: sanitizedUsername,
+            userMessage: sanitizedMessage,
+            aiResponse: sanitizedReply,
+            context: typeof context === 'object' ? context : { raw: String(context || '') },
+            lessonContext: sanitizedLessonContext,
             metadata: {
                 ip: req.ip,
                 userAgent: req.get('User-Agent')
@@ -214,5 +219,6 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
         console.error('Failed to log chat interaction:', error.message);
     }
 }
+
 
 module.exports = router;
