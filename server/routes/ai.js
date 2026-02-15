@@ -171,23 +171,8 @@ router.post('/', async (req, res) => {
 
         res.json({ reply });
 
-        // LOG INTERACTION ASYNC
-        try {
-            await ChatLog.create({
-                userId: user ? user._id : null,
-                username: user ? user.username : 'Guest',
-                userMessage: message,
-                aiResponse: reply,
-                context: typeof context === 'object' ? context : { raw: context },
-                lessonContext: lessonContentContext ? lessonContentContext.substring(0, 100) + '...' : '', // Save snippet
-                metadata: {
-                    ip: req.ip,
-                    userAgent: req.get('User-Agent')
-                }
-            });
-        } catch (logStatsError) {
-            console.error('Failed to log chat:', logStatsError.message);
-        }
+        // Log interaction asynchronously (fire-and-forget)
+        logChatInteraction(user, message, reply, context, lessonContentContext, req);
 
     } catch (error) {
         console.error(' Groq API Error:', error);
@@ -200,5 +185,34 @@ router.post('/', async (req, res) => {
         });
     }
 });
+
+/**
+ * Logs chat interaction to database asynchronously
+ * Fire-and-forget pattern - errors are logged but don't affect response
+ * @param {Object|null} user - User object or null for guests
+ * @param {string} message - User's message
+ * @param {string} reply - AI's reply
+ * @param {Object|string} context - Page context
+ * @param {string} lessonContentContext - Lesson context if applicable
+ * @param {Object} req - Express request object
+ */
+async function logChatInteraction(user, message, reply, context, lessonContentContext, req) {
+    try {
+        await ChatLog.create({
+            userId: user ? user._id : null,
+            username: user ? user.username : 'Guest',
+            userMessage: message,
+            aiResponse: reply,
+            context: typeof context === 'object' ? context : { raw: context },
+            lessonContext: lessonContentContext ? lessonContentContext.substring(0, 100) + '...' : '',
+            metadata: {
+                ip: req.ip,
+                userAgent: req.get('User-Agent')
+            }
+        });
+    } catch (error) {
+        console.error('Failed to log chat interaction:', error.message);
+    }
+}
 
 module.exports = router;

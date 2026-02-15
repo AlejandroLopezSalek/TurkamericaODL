@@ -31,6 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initAdminDashboard() {
+    // Validate session before loading dashboard
+    if (!globalThis.ContributionService?.isTokenValid()) {
+        showToast('Tu sesión ha expirado. Redirigiendo al login...', 'error');
+        setTimeout(() => {
+            globalThis.location.href = '/login/?expired=true';
+        }, 1500);
+        return;
+    }
+
     // Load stats and requests
     loadStats();
     loadRequests();
@@ -46,6 +55,7 @@ function initAdminDashboard() {
     document.getElementById('approveBtn')?.addEventListener('click', () => handleApprove(currentRequestId));
     document.getElementById('rejectBtn')?.addEventListener('click', () => handleReject(currentRequestId));
 }
+
 
 function handleTabClick(target) {
     // Reset all tabs
@@ -161,25 +171,21 @@ async function loadRequests() {
     } catch (error) {
         console.error('Error loading requests:', error);
 
-        // Handle Session Expiry specifically
-        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-            container.innerHTML = `
-                <div class="col-span-full flex flex-col items-center justify-center p-12 text-center text-amber-600 bg-amber-50 rounded-2xl">
-                    <i class="fas fa-lock text-3xl mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Sesión Expirada</h3>
-                    <p class="mb-4">Tu sesión de administrador ha caducado.</p>
-                    <a href="/login/" class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
-                        Iniciar Sesión
-                    </a>
-                </div>
-            `;
+        // Handle authentication errors specifically
+        if (error.message.includes('Token expired') || error.message.includes('Unauthorized')) {
+            // The ContributionService will handle the redirect
             return;
         }
 
+        // Handle other errors
         container.innerHTML = `
             <div class="col-span-full flex flex-col items-center justify-center p-12 text-center text-red-500">
                 <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
-                <p>Error al cargar las solicitudes</p>
+                <h3 class="text-xl font-bold mb-2">Error al cargar las solicitudes</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Por favor, intenta recargar la página</p>
+                <button onclick="loadRequests()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>Reintentar
+                </button>
             </div>
         `;
     }
@@ -411,7 +417,13 @@ async function approveRequest() {
         loadRequests();
     } catch (error) {
         console.error('Error approving request:', error);
-        showToast('Error al aprobar la solicitud', 'error');
+
+        // Authentication errors are handled by ContributionService
+        if (error.message.includes('Token expired') || error.message.includes('Unauthorized')) {
+            return;
+        }
+
+        showToast('Error al aprobar la solicitud. Por favor, intenta nuevamente.', 'error');
     }
 }
 
@@ -426,7 +438,13 @@ async function rejectRequest() {
         loadRequests();
     } catch (error) {
         console.error('Error rejecting request:', error);
-        showToast('Error al rechazar la solicitud', 'error');
+
+        // Authentication errors are handled by ContributionService
+        if (error.message.includes('Token expired') || error.message.includes('Unauthorized')) {
+            return;
+        }
+
+        showToast('Error al rechazar la solicitud. Por favor, intenta nuevamente.', 'error');
     }
 }
 

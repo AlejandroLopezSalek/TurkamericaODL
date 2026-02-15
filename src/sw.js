@@ -43,7 +43,7 @@ self.addEventListener('install', (event) => {
                 return cache.addAll(STATIC_CACHE_URLS);
             })
             .then(() => {
-                return self.skipWaiting();
+                return globalThis.skipWaiting();
             })
             .catch((error) => {
                 console.error('[SW] Error caching static assets:', error);
@@ -75,7 +75,7 @@ self.addEventListener('activate', (event) => {
             })
             .then(() => {
 
-                return self.clients.claim();
+                return globalThis.clients.claim();
             })
     );
 });
@@ -155,7 +155,7 @@ async function staleWhileRevalidate(request, cacheName) {
 
     // Fetch new version in background
     const fetchPromise = fetch(request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse?.status === 200) {
             // Add timestamp for expiration tracking
             const responseToCache = networkResponse.clone();
             const headers = new Headers(responseToCache.headers);
@@ -195,10 +195,10 @@ async function cacheFirstWithExpiry(request, cacheName, maxAge) {
         if (cachedResponse) {
             // Check if cache is expired
             const cachedTime = cachedResponse.headers.get('sw-cached-time');
-            if (cachedTime && (Date.now() - parseInt(cachedTime)) < maxAge) {
+            if (cachedTime && (Date.now() - Number.parseInt(cachedTime, 10)) < maxAge) {
                 // Cache is still valid, update in background
                 fetch(request).then((networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
+                    if (networkResponse?.status === 200) {
                         const headers = new Headers(networkResponse.headers);
                         headers.append('sw-cached-time', Date.now().toString());
 
@@ -219,7 +219,7 @@ async function cacheFirstWithExpiry(request, cacheName, maxAge) {
         // Not in cache or expired, fetch from network
         const networkResponse = await fetch(request);
 
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse?.status === 200) {
             const responseToCache = networkResponse.clone();
             const headers = new Headers(responseToCache.headers);
             headers.append('sw-cached-time', Date.now().toString());
@@ -248,7 +248,7 @@ async function networkFirstWithExpiry(request, cacheName, maxAge) {
     try {
         const networkResponse = await fetch(request);
 
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse?.status === 200) {
             const cache = await caches.open(cacheName);
 
             // CLONE first to avoid body locking
@@ -267,7 +267,7 @@ async function networkFirstWithExpiry(request, cacheName, maxAge) {
 
         return networkResponse;
     } catch (error) {
-        console.log('[SW] Network failed, trying cache:', request.url);
+        console.warn('[SW] Network failed, trying cache:', request.url, error.message);
 
         const cache = await caches.open(cacheName);
         const cachedResponse = await cache.match(request);
@@ -275,7 +275,7 @@ async function networkFirstWithExpiry(request, cacheName, maxAge) {
         if (cachedResponse) {
             // Check expiry
             const cachedTime = cachedResponse.headers.get('sw-cached-time');
-            if (!cachedTime || (Date.now() - parseInt(cachedTime)) > maxAge * 2) {
+            if (!cachedTime || (Date.now() - Number.parseInt(cachedTime, 10)) > maxAge * 2) {
                 console.log('[SW] Cached version is old');
             }
             return cachedResponse;
@@ -352,10 +352,16 @@ async function networkFirstWithExpiry(request, cacheName, maxAge) {
 // ================================
 // MESSAGE HANDLING
 // ================================
-self.addEventListener('message', (event) => {
+globalThis.addEventListener('message', (event) => {
+    // Verify message origin for security
+    if (!event.origin || event.origin !== globalThis.location.origin) {
+        console.warn('[SW] Message from untrusted origin:', event.origin);
+        return;
+    }
+
     if (event.data === 'skipWaiting') {
         console.log('[SW] Skip waiting message received');
-        self.skipWaiting();
+        globalThis.skipWaiting();
     }
 
     if (event.data === 'clearCache') {
@@ -408,7 +414,7 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(title, options)
+        globalThis.registration.showNotification(title, options)
     );
 });
 
