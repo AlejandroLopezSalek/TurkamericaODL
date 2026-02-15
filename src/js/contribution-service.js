@@ -167,6 +167,65 @@
             globalThis.location.href = loginUrl;
         }
 
+        /**
+         * Makes an authenticated fetch request with automatic token validation and error handling
+         * @param {string} url - The URL to fetch
+         * @param {Object} options - Fetch options (method, body, etc.)
+         * @param {string} errorContext - Context for error messages (e.g., 'approve request')
+         * @returns {Promise<Object>} The response data
+         * @throws {Error} If authentication fails or request fails
+         */
+        async authenticatedFetch(url, options = {}, errorContext = 'perform action') {
+            // Validate token before making request
+            if (!this.isTokenValid()) {
+                this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+                throw new Error('Token expired or invalid');
+            }
+
+            const token = localStorage.getItem('authToken');
+            const headers = options.headers || {};
+
+            // Add authorization header
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            // Add content-type if body is present
+            if (options.body && !headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json';
+            }
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers
+                });
+
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+                    throw new Error('Unauthorized - Token expired or invalid');
+                }
+
+                // Handle other errors
+                if (!response.ok) {
+                    throw new Error(`Failed to ${errorContext}: ${response.status}`);
+                }
+
+                // Safe JSON parsing
+                const text = await response.text();
+                return text ? JSON.parse(text) : { success: true };
+            } catch (error) {
+                // Re-throw authentication errors
+                if (error.message.includes('Unauthorized') || error.message.includes('Token expired')) {
+                    throw error;
+                }
+
+                console.error(`Error ${errorContext}:`, error);
+                throw new Error(`Failed to ${errorContext}`);
+            }
+        }
+
 
         // ========================================
         // SUBMISSION METHODS
@@ -227,173 +286,52 @@
         // ========================================
 
         async approveRequest(requestId, finalContent = null) {
-            // Validate token before making request
-            if (!this.isTokenValid()) {
-                this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                throw new Error('Token expired or invalid');
-            }
-
-            const token = localStorage.getItem('authToken');
             const body = { status: 'approved' };
             if (finalContent) {
                 body.finalContent = finalContent;
             }
 
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            try {
-                const response = await fetch(`${this.API_URL}/${requestId}/status`, {
+            return await this.authenticatedFetch(
+                `${this.API_URL}/${requestId}/status`,
+                {
                     method: 'PUT',
-                    headers: headers,
                     body: JSON.stringify(body)
-                });
-
-                if (response.status === 401) {
-                    this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    throw new Error('Unauthorized - Token expired or invalid');
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Failed to approve request: ${response.status}`);
-                }
-
-                // Safe JSON parsing
-                const text = await response.text();
-                return text ? JSON.parse(text) : { success: true };
-            } catch (error) {
-                // Re-throw authentication errors
-                if (error.message.includes('Unauthorized') || error.message.includes('Token expired')) {
-                    throw error;
-                }
-
-                console.error('Error approving request:', error);
-                throw new Error('Failed to approve request');
-            }
+                },
+                'approve request'
+            );
         }
 
 
         async rejectRequest(requestId, reason) {
-            // Validate token before making request
-            if (!this.isTokenValid()) {
-                this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                throw new Error('Token expired or invalid');
-            }
-
-            const token = localStorage.getItem('authToken');
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            try {
-                const response = await fetch(`${this.API_URL}/${requestId}/status`, {
+            return await this.authenticatedFetch(
+                `${this.API_URL}/${requestId}/status`,
+                {
                     method: 'PUT',
-                    headers: headers,
                     body: JSON.stringify({ status: 'rejected', reason: reason })
-                });
-
-                if (response.status === 401) {
-                    this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    throw new Error('Unauthorized - Token expired or invalid');
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Failed to reject request: ${response.status}`);
-                }
-
-                const text = await response.text();
-                return text ? JSON.parse(text) : { success: true };
-            } catch (error) {
-                // Re-throw authentication errors
-                if (error.message.includes('Unauthorized') || error.message.includes('Token expired')) {
-                    throw error;
-                }
-
-                console.error('Error rejecting request:', error);
-                throw new Error('Failed to reject request');
-            }
+                },
+                'reject request'
+            );
         }
 
 
         async deleteRequest(requestId) {
-            // Validate token before making request
-            if (!this.isTokenValid()) {
-                this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                throw new Error('Token expired or invalid');
-            }
-
-            const token = localStorage.getItem('authToken');
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            try {
-                const response = await fetch(`${this.API_URL}/${requestId}`, {
-                    method: 'DELETE',
-                    headers: headers
-                });
-
-                if (response.status === 401) {
-                    this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    throw new Error('Unauthorized - Token expired or invalid');
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Failed to delete request: ${response.status}`);
-                }
-
-                const text = await response.text();
-                return text ? JSON.parse(text) : { success: true };
-            } catch (error) {
-                // Re-throw authentication errors
-                if (error.message.includes('Unauthorized') || error.message.includes('Token expired')) {
-                    throw error;
-                }
-
-                console.error('Error deleting request:', error);
-                throw new Error('Failed to delete request');
-            }
+            return await this.authenticatedFetch(
+                `${this.API_URL}/${requestId}`,
+                { method: 'DELETE' },
+                'delete request'
+            );
         }
 
 
         // Make deleteContribution available for community lessons
         async deleteContribution(id) {
-            // Validate token before making request
-            if (!this.isTokenValid()) {
-                this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                throw new Error('Token expired or invalid');
-            }
-
-            const token = localStorage.getItem('authToken');
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            try {
-                // Assuming the same endpoint works or there's a lessons endpoint
-                const response = await fetch(`${this.LESSONS_API_URL}/${id}`, {
-                    method: 'DELETE',
-                    headers: headers
-                });
-
-                if (response.status === 401) {
-                    this.handleAuthError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    throw new Error('Unauthorized - Token expired or invalid');
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Failed to delete lesson: ${response.status}`);
-                }
-
-                const text = await response.text();
-                return text ? JSON.parse(text) : { success: true };
-            } catch (error) {
-                // Re-throw authentication errors
-                if (error.message.includes('Unauthorized') || error.message.includes('Token expired')) {
-                    throw error;
-                }
-
-                console.error('Error deleting lesson:', error);
-                throw new Error('Failed to delete lesson');
-            }
+            return await this.authenticatedFetch(
+                `${this.LESSONS_API_URL}/${id}`,
+                { method: 'DELETE' },
+                'delete lesson'
+            );
         }
+
 
     }
 
