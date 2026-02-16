@@ -41,10 +41,14 @@ const loginValidation = [
 
 router.post('/register', registerValidation, async (req, res) => {
     try {
+        console.log('📝 Registration attempt:', { username: req.body.username, email: req.body.email });
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log('❌ Validation errors:', errors.array());
             return res.status(400).json({
-                message: errors.array()[0].msg
+                message: errors.array()[0].msg,
+                errors: errors.array()
             });
         }
 
@@ -59,6 +63,7 @@ router.post('/register', registerValidation, async (req, res) => {
         });
 
         if (existingUser) {
+            console.log('❌ User already exists:', existingUser.email === email.toLowerCase() ? 'email' : 'username');
             if (existingUser.email === email.toLowerCase()) {
                 return res.status(400).json({
                     message: 'El email ya está registrado'
@@ -78,6 +83,7 @@ router.post('/register', registerValidation, async (req, res) => {
         });
 
         await newUser.save();
+        console.log('✅ User registered successfully:', newUser.username);
 
         // Generate JWT
         const token = jwt.sign(
@@ -98,7 +104,7 @@ router.post('/register', registerValidation, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error en registro:', error);
+        console.error('❌ Error en registro:', error);
 
         if (error.code === 11000) {
             const field = Object.keys(error.keyPattern)[0];
@@ -107,7 +113,8 @@ router.post('/register', registerValidation, async (req, res) => {
         }
 
         res.status(500).json({
-            message: 'Error interno del servidor'
+            message: 'Error interno del servidor',
+            error: error.message
         });
     }
 });
@@ -115,10 +122,14 @@ router.post('/register', registerValidation, async (req, res) => {
 // POST /api/login - User login
 router.post('/login/', loginValidation, async (req, res) => {
     try {
+        console.log('🔐 Login attempt:', { identifier: req.body.identifier });
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log('❌ Validation errors:', errors.array());
             return res.status(400).json({
-                message: errors.array()[0].msg
+                message: errors.array()[0].msg,
+                errors: errors.array()
             });
         }
 
@@ -128,6 +139,7 @@ router.post('/login/', loginValidation, async (req, res) => {
         const user = await User.findByEmailOrUsername(identifier);
 
         if (!user) {
+            console.log('❌ User not found:', identifier);
             return res.status(401).json({
                 message: 'Credenciales inválidas'
             });
@@ -137,10 +149,13 @@ router.post('/login/', loginValidation, async (req, res) => {
         const isPasswordValid = await user.comparePassword(password);
 
         if (!isPasswordValid) {
+            console.log('❌ Invalid password for user:', user.username);
             return res.status(401).json({
                 message: 'Credenciales inválidas'
             });
         }
+
+        console.log('✅ Login successful:', user.username);
 
         // Update streak on login
         user.updateStreak();
@@ -166,9 +181,10 @@ router.post('/login/', loginValidation, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error en login:', error);
+        console.error('❌ Error en login:', error);
         res.status(500).json({
-            message: 'Error interno del servidor'
+            message: 'Error interno del servidor',
+            error: error.message
         });
     }
 });

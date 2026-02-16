@@ -122,7 +122,7 @@ function initStrengthMeter() {
         const confirm = confirmInput ? confirmInput.value : '';
 
         // Check password length
-        const hasValidLength = pass.length >= 8;
+        const hasValidLength = pass.length >= 6;
 
         // Check password match
         let passwordsMatch = true;
@@ -139,6 +139,9 @@ function initStrengthMeter() {
 
     passwordInput.addEventListener('input', updateStrength);
     if (confirmInput) confirmInput.addEventListener('input', validateForm);
+
+    // Initial validation check to enable button if fields are pre-filled
+    if (passwordInput.value.length > 0) validateForm();
 }
 
 // Google Sign-In Callback

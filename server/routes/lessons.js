@@ -137,4 +137,51 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
     }
 });
 
+// GET lesson history (Admin only)
+router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const history = await LessonHistory.find({ lessonId: req.params.id }).sort({ version: -1 });
+        res.json(history);
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// POST revert to version (Admin only)
+router.post('/:id/revert', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { version } = req.body;
+        const historyEntry = await LessonHistory.findOne({ lessonId: req.params.id, version: Number.parseInt(version, 10) });
+
+        if (!historyEntry) {
+            return res.status(404).json({ error: 'Version not found' });
+        }
+
+        // Get current lesson to save IT to history before reverting?
+        // Usually reversion is just a new update. 
+        // Let's just update the lesson content to match historyEntry.
+
+        await Lesson.findOneAndUpdate(
+            { id: req.params.id },
+            {
+                title: historyEntry.title,
+                content: historyEntry.content,
+                description: historyEntry.description,
+                level: historyEntry.level,
+                editedAt: new Date(),
+                // We increment version or keep it? modifying typically increments.
+                // But we are reverting. Let's increment validation to current + 1
+                $inc: { version: 1 }
+            }
+        );
+
+        res.json({ success: true, message: `Reverted to version ${version}` });
+
+    } catch (error) {
+        console.error('Error reverting lesson:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 module.exports = router;

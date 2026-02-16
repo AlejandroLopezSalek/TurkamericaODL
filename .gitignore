@@ -70,3 +70,7 @@ pdfs/
 # Permitir la colección (requests) pero ignorar los entornos con secretos
 !bruno/
 bruno/environments/*.bru
+debug-contributions.js
+fix-contributions.js
+check-contributions.js
+check-users.js

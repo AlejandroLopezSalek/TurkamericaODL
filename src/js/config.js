@@ -3,23 +3,29 @@
 // ================================
 
 // Detectar entorno
-const isDevelopment = globalThis.location.hostname === 'localhost' ||
+// Detectar entorno
+const isLocalhost = globalThis.location.hostname === 'localhost' ||
   globalThis.location.hostname === '127.0.0.1';
+
+// Mantener compatibilidad con código existente
+const isDevelopment = isLocalhost;
 
 // Configuración de API
 const API_CONFIG = {
   development: {
     baseURL: 'http://localhost:3000',
-    apiPath: '/api'
+    apiPath: ''
   },
   production: {
-    baseURL: globalThis.location.origin,
+    baseURL: 'https://turkamerica-backend-production.up.railway.app', // URL explícita de producción o location.origin si están en el mismo dominio
     apiPath: '/api'
   }
 };
 
 // Seleccionar configuración según entorno
-const currentConfig = isDevelopment ? API_CONFIG.development : API_CONFIG.production;
+// Si estamos en localhost, asumimos desarrollo y usamos el puerto 3000
+// Si no, estamos en producción
+const currentConfig = isLocalhost ? API_CONFIG.development : API_CONFIG.production;
 
 // Configuración global de la aplicación
 globalThis.APP_CONFIG = {
@@ -73,13 +79,14 @@ globalThis.APP_CONFIG = {
   // Endpoints de API
   ENDPOINTS: {
     // Auth
-    AUTH_REGISTER: '/register',
-    AUTH_LOGIN: '/login',
-    AUTH_LOGOUT: '/logout',
-    AUTH_VERIFY: '/verify',
-    AUTH_PROFILE: '/profile',
-    AUTH_STREAK: '/streak',
-    AUTH_UPDATE_STREAK: '/update-streak',
+    // Auth
+    AUTH_REGISTER: '/auth/register',
+    AUTH_LOGIN: '/auth/login',
+    AUTH_LOGOUT: '/auth/logout',
+    AUTH_VERIFY: '/auth/verify',
+    AUTH_PROFILE: '/auth/profile',
+    AUTH_STREAK: '/auth/streak',
+    AUTH_UPDATE_STREAK: '/auth/update-streak',
 
     // Health
     HEALTH: '/health'

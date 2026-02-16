@@ -7,13 +7,15 @@ let currentRequestId = null;
 let confirmAction = null;
 
 // Tailwind Classes Configuration
-const TAB_ACTIVE_CLASSES = ['bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-500/20'];
+const TAB_ACTIVE_CLASSES = ['bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-500/20'];
 const TAB_INACTIVE_CLASSES = ['text-slate-600', 'hover:bg-slate-100', 'dark:text-slate-400', 'dark:hover:bg-slate-800'];
 const BADGE_ACTIVE_CLASSES = ['bg-white/20', 'text-white'];
 const BADGE_INACTIVE_CLASSES = ['bg-slate-100', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300'];
 
+// New Global for Lessons Cache
+let allPublishedLessons = [];
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Only run on admin dashboard
     // Only run on admin dashboard
     const adminPage = document.getElementById('admin-dashboard-page');
     if (!adminPage) return;
@@ -44,6 +46,14 @@ function initAdminDashboard() {
     loadStats();
     loadRequests();
 
+    // Search Listener for Lessons
+    const searchInput = document.getElementById('lessonSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            filterLessonsTable(e.target.value);
+        });
+    }
+
     // Filter tabs
     document.querySelectorAll('.filter-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
@@ -56,6 +66,37 @@ function initAdminDashboard() {
     document.getElementById('rejectBtn')?.addEventListener('click', () => handleReject(currentRequestId));
 }
 
+// New Tab Switcher logic
+globalThis.switchMainTab = function (tabName) {
+    const requestsSection = document.getElementById('requestsSection');
+    const lessonsSection = document.getElementById('lessonsSection');
+    const tabRequests = document.getElementById('tabRequests');
+    const tabLessons = document.getElementById('tabLessons');
+
+    const activeClasses = 'px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400';
+    const inactiveClasses = 'px-6 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50';
+
+    if (tabName === 'requests') {
+        requestsSection.classList.remove('hidden');
+        lessonsSection.classList.add('hidden');
+
+        // Update styling
+        tabRequests.className = activeClasses;
+        tabLessons.className = inactiveClasses;
+    } else {
+        requestsSection.classList.add('hidden');
+        lessonsSection.classList.remove('hidden');
+
+        // Update styling
+        tabLessons.className = activeClasses;
+        tabRequests.className = inactiveClasses;
+
+        // Load lessons if empty
+        if (allPublishedLessons.length === 0) {
+            loadPublishedLessons();
+        }
+    }
+}
 
 function handleTabClick(target) {
     // Reset all tabs
@@ -134,7 +175,7 @@ async function loadRequests() {
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden" data-id="${request.id}">
                 <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100 dark:border-slate-700/50">
                     <div class="flex items-center gap-3">
-                         <div class="w-10 h-10 rounded-xl flex items-center justify-center ${request.type === 'lesson_edit' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' : 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'}">
+                         <div class="w-10 h-10 rounded-xl flex items-center justify-center ${request.type === 'lesson_edit' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'}">
                              <i class="fas ${request.type === 'lesson_edit' ? 'fa-book-open' : 'fa-file-pdf'}"></i>
                          </div>
                          <span class="font-semibold text-slate-700 dark:text-slate-200 text-sm">
@@ -150,7 +191,7 @@ async function loadRequests() {
                 <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2 leading-relaxed">${truncate(request.description, 150)}</p>
 
                 <div class="flex items-center gap-4 mb-6 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                     <span class="flex items-center gap-2"><i class="fas fa-user text-indigo-500"></i> ${request.submittedBy?.username || 'Usuario Desconocido'}</span>
+                     <span class="flex items-center gap-2"><i class="fas fa-user text-blue-500"></i> ${request.submittedBy?.username || 'Usuario Desconocido'}</span>
                      ${request.data.level ? `<span class="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4"><i class="fas fa-layer-group text-purple-500"></i> ${request.data.level}</span>` : ''}
                 </div>
 
@@ -226,7 +267,7 @@ async function viewRequest(id) {
             <div class="space-y-6">
                 <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold pb-2 border-b border-slate-200 dark:border-slate-700">
-                        <i class="fas fa-info-circle text-indigo-500"></i> Información General
+                        <i class="fas fa-info-circle text-blue-500"></i> Información General
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div class="flex flex-col gap-1">
@@ -250,7 +291,7 @@ async function viewRequest(id) {
                 
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold">
-                        <i class="fas fa-align-left text-indigo-500"></i> Descripción
+                        <i class="fas fa-align-left text-blue-500"></i> Descripción
                     </h3>
                     <p class="text-slate-600 dark:text-slate-300 leading-relaxed">${request.description}</p>
                 </div>
@@ -258,9 +299,9 @@ async function viewRequest(id) {
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="flex items-center gap-2 text-slate-800 dark:text-white font-bold">
-                            <i class="fas fa-file-alt text-indigo-500"></i> Contenido
+                            <i class="fas fa-file-alt text-blue-500"></i> Contenido
                         </h3>
-                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center gap-2" id="toggleEditBtn" onclick="toggleAdminEditor()">
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all flex items-center gap-2" id="toggleEditBtn" onclick="toggleAdminEditor()">
                             <i class="fas fa-edit"></i> Editar Contenido
                         </button>
                     </div>
@@ -292,7 +333,7 @@ async function viewRequest(id) {
             <div class="space-y-6">
                 <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold pb-2 border-b border-slate-200 dark:border-slate-700">
-                        <i class="fas fa-info-circle text-indigo-500"></i> Información del Libro
+                        <i class="fas fa-info-circle text-blue-500"></i> Información del Libro
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div class="flex flex-col gap-1">
@@ -324,16 +365,16 @@ async function viewRequest(id) {
                 
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold">
-                        <i class="fas fa-align-left text-indigo-500"></i> Descripción
+                        <i class="fas fa-align-left text-blue-500"></i> Descripción
                     </h3>
                     <p class="text-slate-600 dark:text-slate-300 leading-relaxed">${request.description}</p>
                 </div>
                 
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-800">
-                    <h3 class="flex items-center gap-2 mb-3 text-indigo-800 dark:text-indigo-300 font-bold">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
+                    <h3 class="flex items-center gap-2 mb-3 text-blue-800 dark:text-blue-300 font-bold">
                         <i class="fas fa-link"></i> Enlace al Archivo
                     </h3>
-                    <a href="${request.data.fileUrl}" target="_blank" class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 underline break-all">
+                    <a href="${request.data.fileUrl}" target="_blank" class="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 underline break-all">
                         <i class="fas fa-external-link-alt"></i> ${request.data.fileUrl}
                     </a>
                 </div>
@@ -591,5 +632,193 @@ function showToast(message, type = 'info') {
         }, 3000);
     }
 }
+
+
+// ========================================
+// LESSONS MANAGEMENT
+// ========================================
+
+globalThis.loadPublishedLessons = async function () {
+    const tableBody = document.getElementById('lessonsTableBody');
+    const loading = document.getElementById('lessonsLoading');
+
+    tableBody.innerHTML = '';
+    loading.classList.remove('hidden');
+
+    try {
+        const lessons = await globalThis.ContributionService.getPublishedLessons();
+        allPublishedLessons = lessons; // Cache
+        renderLessonsTable(lessons);
+    } catch (error) {
+        console.error('Error loading lessons:', error);
+        tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar lecciones</td></tr>';
+    } finally {
+        loading.classList.add('hidden');
+    }
+};
+
+function renderLessonsTable(lessons) {
+    const tableBody = document.getElementById('lessonsTableBody');
+
+    if (lessons.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No hay lecciones publicadas.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = lessons.map(lesson => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0">
+            <td class="p-4">
+                <div class="font-bold text-slate-800 dark:text-white">${lesson.title}</div>
+                <div class="text-xs text-slate-500 font-mono mt-1 opacity-75">${lesson.id}</div>
+            </td>
+            <td class="p-4">
+                <span class="px-2 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                    ${lesson.level}
+                </span>
+            </td>
+            <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
+                ${lesson.author || 'Sistema'}
+            </td>
+            <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
+                ${formatDate(lesson.publishedAt || lesson.updatedAt)}
+            </td>
+            <td class="p-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                    <a href="/Contribute/?editLesson=${lesson.id}" target="_blank"
+                        class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button onclick="showHistoryAdmin('${lesson.id}', '${lesson.title.replace(/'/g, "\\'")}')"
+                        class="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors" title="Historial y Versiones">
+                        <i class="fas fa-history"></i>
+                    </button>
+                    <button onclick="deletePublishedLesson('${lesson.id}')"
+                        class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function filterLessonsTable(query) {
+    if (!query) {
+        renderLessonsTable(allPublishedLessons);
+        return;
+    }
+
+    query = query.toLowerCase();
+    const filtered = allPublishedLessons.filter(l =>
+        l.title.toLowerCase().includes(query) ||
+        l.level.toLowerCase().includes(query) ||
+        (l.author && l.author.toLowerCase().includes(query)) ||
+        l.id.toLowerCase().includes(query)
+    );
+    renderLessonsTable(filtered);
+}
+
+// ========================================
+// HISTORY & REVERT (ADMIN)
+// ========================================
+
+globalThis.showHistoryAdmin = async function (id, title) {
+    // Reuse the Request Modal for History to verify it's working
+    const modalBody = document.getElementById('modalBody');
+    const modalTitle = document.getElementById('modalTitle');
+    const modal = document.getElementById('requestModal');
+
+    // Hide standard actions, show only close
+    document.getElementById('approveBtn').style.display = 'none';
+    document.getElementById('rejectBtn').style.display = 'none';
+
+    modalTitle.innerHTML = `<i class="fas fa-history text-amber-500 mr-2"></i> Historial: ${title}`;
+    modalBody.innerHTML = '<div class="text-center p-8"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-2">Cargando historial...</p></div>';
+
+    modal.classList.remove('hidden');
+    modal.classList.remove('opacity-0');
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`/api/lessons/${id}/history`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Error fetching history');
+        const history = await response.json();
+
+        if (history.length === 0) {
+            modalBody.innerHTML = `
+                <div class="text-center p-12 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                    <i class="fas fa-history text-4xl text-slate-300 mb-4"></i>
+                    <p class="text-slate-500">No hay versiones anteriores de esta lección.</p>
+                </div>
+            `;
+            return;
+        }
+
+        modalBody.innerHTML = `
+            <div class="space-y-4">
+                ${history.map(v => `
+                    <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:shadow-md transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300">
+                                v${v.version}
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-800 dark:text-white">Modificado por: ${v.editedBy || 'Desconocido'}</div>
+                                <div class="text-sm text-slate-500">${formatDate(v.editedAt)}</div>
+                            </div>
+                        </div>
+                        <button onclick="revertLessonAdmin('${id}', ${v.version})" 
+                            class="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-400 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+                            <i class="fas fa-undo"></i> Restaurar
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+    } catch (e) {
+        modalBody.innerHTML = `<p class="text-red-500 text-center">Error al cargar historial: ${e.message}</p>`;
+    }
+};
+
+globalThis.revertLessonAdmin = async function (id, version) {
+    if (!confirm(`¿Estás seguro de que deseas restaurar la versión ${version}? Esto creará una nueva versión con el contenido de ese momento.`)) return;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`/api/lessons/${id}/revert`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ version })
+        });
+
+        if (!response.ok) throw new Error('Failed to revert');
+
+        showToast(`Versión ${version} restaurada con éxito`, 'success');
+        closeModal();
+        loadPublishedLessons(); // Refresh list
+
+    } catch (e) {
+        showToast('Error al restaurar: ' + e.message, 'error');
+    }
+};
+
+globalThis.deletePublishedLesson = async function (id) {
+    if (!confirm('¿ATENCIÓN: Estás seguro de eliminar esta lección PUBLICADA? Esta acción no se puede deshacer.')) return;
+
+    try {
+        await globalThis.ContributionService.deleteContribution(id);
+        showToast('Lección eliminada correctamente', 'success');
+        loadPublishedLessons(); // Refresh
+    } catch (e) {
+        showToast('Error al eliminar: ' + e.message, 'error');
+    }
+};
 
 console.log('✅ Admin Contributions loaded (Tailwind Version)');

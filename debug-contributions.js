@@ -4,26 +4,21 @@ require('dotenv').config();
 
 const Contribution = require('./server/models/Contribution');
 
-async function checkContributions() {
+// Main execution
+async function runScript() { // Wrap in an async function to use await at top level
     try {
+        console.log('🔍 Checking contributions...');
         await mongoose.connect(process.env.MONGODB_URI);
-        console.log('✅ Connected to MongoDB');
+        console.log('✅ Connected to DB');
 
-        const allContributions = await Contribution.find().sort({ submittedAt: -1 });
+        const contributions = await Contribution.find({});
+        console.log(`Found ${contributions.length} contributions:`);
 
-        console.log(`\n📊 Total contributions: ${allContributions.length}\n`);
-
-        allContributions.forEach((contrib, index) => {
-            console.log(`\n--- Contribution ${index + 1} ---`);
-            console.log(`ID: ${contrib._id}`);
-            console.log(`Type: ${contrib.type}`);
-            console.log(`Title: ${contrib.title}`);
-            console.log(`Status: ${contrib.status}`);
-            console.log(`Submitted By:`, contrib.submittedBy);
-            console.log(`Submitted At: ${contrib.submittedAt}`);
-            if (contrib.type === 'book_upload') {
-                console.log(`Book Data:`, contrib.data);
-            }
+        contributions.forEach(c => {
+            console.log(`\nTitle: ${c.title}`);
+            console.log(`Type: ${c.type}`);
+            console.log(`SubmittedBy:`, c.submittedBy);
+            console.log(`Data:`, c.data ? c.data.level : 'No data');
         });
 
         await mongoose.disconnect();

@@ -71,6 +71,14 @@ module.exports = function eleventyConfigSetup(eleventyConfig) {
 
         // --- Templates permitidos ---
         templateFormats: ["html", "njk", "md"],
-        pathPrefix: "/"
+        pathPrefix: "/",
+
+        // --- BrowserSync configuration ---
+        browserSyncConfig: {
+            open: true,  // Automatically open browser
+            port: 8000,  // Use port 8000
+            ui: false,   // Disable BrowserSync UI
+            notify: false // Disable BrowserSync notifications
+        }
     };
 };

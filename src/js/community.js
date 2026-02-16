@@ -133,7 +133,7 @@ function filterContent(searchTerm = '') {
     loadLessons(searchTerm);
 }
 
-function loadBooks(searchTerm = '') {
+async function loadBooks(searchTerm = '') {
     const booksSection = document.getElementById('booksSection');
     const booksGrid = document.getElementById('booksGrid');
 
@@ -143,7 +143,31 @@ function loadBooks(searchTerm = '') {
         return;
     }
 
-    let levelBooks = booksData[currentLevel] || [];
+    let levelBooks = [...(booksData[currentLevel] || [])];
+
+    // FETCH DYNAMIC BOOKS
+    try {
+        if (globalThis.ContributionService) {
+            const allRequests = await globalThis.ContributionService.getAllRequests();
+            const dynamicBooks = allRequests.filter(req =>
+                req.type === 'book_upload' &&
+                req.status === 'approved' &&
+                req.data?.level === currentLevel
+            ).map(req => ({
+                title: req.title,
+                url: req.data.fileUrl || req.data.url, // Handle different field names
+                size: req.data.fileSize || 'PDF',
+                pages: 'PDF', // Dynamic books might not have page count
+                description: req.description,
+                isCommunity: true, // Flag to identify community contributions
+                author: req.submittedBy?.username || 'Comunidad'
+            }));
+
+            levelBooks = [...levelBooks, ...dynamicBooks];
+        }
+    } catch (e) {
+        console.error('Error fetching dynamic books:', e);
+    }
 
     // Filter by search term
     if (searchTerm) {
@@ -164,7 +188,14 @@ function loadBooks(searchTerm = '') {
     levelBooks.forEach(book => {
         const card = document.createElement('div');
         // Tailwind: bg-white p-6 rounded-xl shadow border, hover effects
-        card.className = 'group bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col items-center text-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-300 dark:hover:border-slate-600 h-full';
+        card.className = 'group bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col items-center text-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-300 dark:hover:border-slate-600 h-full relative';
+
+        if (book.isCommunity) {
+            const badge = document.createElement('span');
+            badge.className = 'absolute top-3 right-3 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 text-xs px-2 py-1 rounded-full font-bold';
+            badge.innerText = 'Comunidad';
+            card.appendChild(badge);
+        }
 
         const icon = document.createElement('div');
         // Tailwind icon container
@@ -181,16 +212,31 @@ function loadBooks(searchTerm = '') {
 
         const meta = document.createElement('div');
         meta.className = 'flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wide mt-2';
-        meta.innerHTML = `
-            <span class="flex items-center gap-1"><i class="fas fa-file-alt"></i> ${book.pages} pág.</span>
+
+        let metaHtml = `
             <span class="flex items-center gap-1"><i class="fas fa-hdd"></i> ${book.size}</span>
         `;
+
+        if (book.pages && book.pages !== 'PDF') {
+            metaHtml = `<span class="flex items-center gap-1"><i class="fas fa-file-alt"></i> ${book.pages} pág.</span>` + metaHtml;
+        }
+
+        if (book.author) {
+            metaHtml += `<span class="flex items-center gap-1 ml-2"><i class="fas fa-user"></i> ${book.author}</span>`;
+        }
+
+        meta.innerHTML = metaHtml;
 
         const actions = document.createElement('div');
         actions.className = 'flex gap-3 w-full mt-4';
 
         const viewBtn = document.createElement('a');
-        viewBtn.href = book.url;
+        // Use Google Docs Viewer for documents to allow preview instead of download
+        if (book.url.match(/\.(pdf|pptx|ppt|doc|docx)$/i)) {
+            viewBtn.href = `https://docs.google.com/viewer?url=${encodeURIComponent(book.url)}&embedded=false`;
+        } else {
+            viewBtn.href = book.url;
+        }
         viewBtn.target = '_blank';
         viewBtn.className = 'flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-colors bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600';
         viewBtn.innerHTML = '<i class="fas fa-eye"></i> Ver';
@@ -415,7 +461,7 @@ async function viewLesson(id) {
                 </div>
             `;
 
-            // Inject Edit Button
+            // Inject Edit and History Buttons (Admin only for history)
             if (actions) {
                 actions.innerHTML = '';
                 // Only show edit if it has an ID
@@ -425,6 +471,14 @@ async function viewLesson(id) {
                     editBtn.innerHTML = '<i class="fas fa-edit"></i> <span class="hidden sm:inline">Sugerir Edición</span>';
                     editBtn.onclick = () => editPublishedLesson(lesson.id || lesson._id);
                     actions.appendChild(editBtn);
+
+                    if (globalThis.ContributionService?.isAdmin()) {
+                        const historyBtn = document.createElement('button');
+                        historyBtn.className = 'bg-amber-500/80 hover:bg-amber-600 text-white px-3 py-1 rounded-lg text-sm transition-colors flex items-center gap-2';
+                        historyBtn.innerHTML = '<i class="fas fa-history"></i> <span class="hidden sm:inline">Historial</span>';
+                        historyBtn.onclick = () => showLessonHistory(lesson.id || lesson._id);
+                        actions.appendChild(historyBtn);
+                    }
                 }
             }
 
@@ -441,6 +495,78 @@ async function viewLesson(id) {
         console.error('Error viewing lesson:', e);
     }
 }
+
+async function showLessonHistory(id) {
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`/api/lessons/${id}/history`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch history');
+        const history = await response.json();
+
+        if (history.length === 0) {
+            alert('No hay historial de versiones para esta lección.');
+            return;
+        }
+
+        // Simple history display (could be improved to a real modal)
+        let historyHtml = history.map(v => `
+            <div class="border-b border-slate-200 dark:border-slate-700 py-3 flex justify-between items-center">
+                <div>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">v${v.version}</span>
+                    <span class="text-xs text-slate-500 ml-2">${new Date(v.editedAt).toLocaleString()}</span>
+                    <div class="text-xs text-slate-500">Editor: ${v.editedBy || 'Desconocido'}</div>
+                </div>
+                <button onclick="revertLesson('${id}', ${v.version})" class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200">
+                    Restaurar
+                </button>
+            </div>
+        `).join('');
+
+        const content = document.getElementById('universalModalContent');
+        if (content) {
+            content.innerHTML = `
+                <div class="mb-4">
+                    <button onclick="viewLesson('${id}')" class="text-sm text-blue-500 hover:underline mb-2"><i class="fas fa-arrow-left"></i> Volver a la lección</button>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Historial de Versiones</h3>
+                    <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 max-h-96 overflow-y-auto">
+                        ${historyHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+    } catch (e) {
+        console.error(e);
+        alert('Error al cargar historial: ' + e.message);
+    }
+}
+
+globalThis.revertLesson = async function (id, version) {
+    if (!confirm(`¿Estás seguro de restablecer a la versión ${version}?`)) return;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`/api/lessons/${id}/revert`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ version })
+        });
+
+        if (!response.ok) throw new Error('Failed to revert');
+
+        alert('Lección restaurada correctamente.');
+        viewLesson(id); // Reload lesson
+
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+};
 
 function closeLessonModal() {
     const modal = document.getElementById('universalLessonModal');
@@ -542,7 +668,7 @@ function updateContributeButton() {
         contributeBtn.href = '/Contribute/';
     } else {
         // Pass the selected level as a parameter
-        contributeBtn.href = `/ Contribute /? level = ${currentLevel} `;
+        contributeBtn.href = `/Contribute/?level=${currentLevel}`;
     }
 }
 

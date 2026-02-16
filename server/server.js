@@ -45,10 +45,12 @@ const getAllowedOrigins = () => {
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:8000',
+    'http://localhost:8080',
     'http://localhost:5500',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
     'http://127.0.0.1:8000',
+    'http://127.0.0.1:8080',
     'http://127.0.0.1:5500'
   ];
 
@@ -347,8 +349,9 @@ const startServer = async () => {
       console.log('\n╔═══════════════════════════════════════╗');
       console.log('║   TurkAmerica MVP Server Started   ║');
       console.log('╚═══════════════════════════════════════╝');
-      console.log(` Server: http://localhost:${PORT}`);
-      console.log(` Health: http://localhost:${PORT}/health`);
+      console.log(` Server (API): http://localhost:${PORT}`);
+      console.log(` Web App:      http://localhost:${PORT}`);
+      console.log(` Health:       http://localhost:${PORT}/health`);
       console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(` MongoDB: ${mongoose.connection.name}`);
       console.log(` CORS: ${getAllowedOrigins().length} origins allowed`);

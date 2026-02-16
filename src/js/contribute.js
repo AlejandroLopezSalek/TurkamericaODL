@@ -115,27 +115,7 @@ async function fetchExistingLesson(topic, level) {
         const lesson = data[topic];
 
         if (lesson) {
-            // Scroll to form if element exists
-            const typesSection = document.querySelector('.contribution-types');
-            if (typesSection) {
-                typesSection.scrollIntoView({ behavior: 'smooth' });
-            }
-
-            // Switch to lesson form
-            const lessonTypeBtn = document.getElementById('lessonTypeBtn');
-            if (lessonTypeBtn) lessonTypeBtn.click();
-
-            // Fill form with lesson data
-            document.getElementById('lessonTitle').value = `Edición: ${lesson.title}`;
-            document.getElementById('lessonLevel').value = level;
-            document.getElementById('lessonDescription').value = `Propuesta de edición para: ${lesson.title}`;
-
-            // Load lesson content into editor
-            if (lessonEditor) {
-                lessonEditor.setContent(lesson.content || '');
-            }
-
-            showToast(`Editando lección: ${lesson.title}`, 'info');
+            updateUIForLessonEdit(lesson, level, topic);
         } else {
             showToast('Lección no encontrada', 'error');
         }
@@ -143,6 +123,85 @@ async function fetchExistingLesson(topic, level) {
         console.error('Error fetching lesson:', error);
         showToast('Error al cargar la lección original', 'error');
     }
+}
+
+function updateUIForLessonEdit(lesson, level, topic) {
+    // Scroll to form if element exists
+    const typesSection = document.querySelector('.contribution-types');
+    if (typesSection) {
+        typesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Switch to lesson form
+    if (globalThis.selectContributionType) {
+        globalThis.selectContributionType('lesson');
+    }
+
+    // Hide metadata fields completely for static edits
+    const titleInput = document.getElementById('lessonTitle');
+    const descInput = document.getElementById('lessonDescription');
+
+    if (titleInput) {
+        // Set values just in case validation needs them
+        titleInput.value = lesson.title || 'Sin Título';
+        titleInput.removeAttribute('required'); // Prevent "invalid form control is not focusable" error
+
+        const levelInput = document.getElementById('lessonLevel');
+        if (levelInput) {
+            levelInput.value = level || 'A1';
+            levelInput.removeAttribute('required');
+        }
+
+        const badgeInput = document.getElementById('lessonBadge');
+        if (badgeInput) {
+            badgeInput.value = lesson.badge || 'Básico'; // Default to valid option
+            badgeInput.removeAttribute('required');
+        }
+
+        // Hide the grid containing Title, Level, Badge
+        const metadataGrid = titleInput.closest('.grid');
+        if (metadataGrid) metadataGrid.style.display = 'none';
+    }
+
+    if (descInput) {
+        descInput.value = lesson.description || 'Actualización de lección';
+        descInput.removeAttribute('required');
+
+        // Hide description container
+        const descContainer = descInput.closest('.space-y-2');
+        if (descContainer) descContainer.style.display = 'none';
+    }
+
+    // Add a visual indicator of what is being edited
+    const editorContainer = document.querySelector('.lesson-editor');
+    if (editorContainer) {
+        // Check if banner already exists to avoid duplicates
+        const existingBanner = document.getElementById('editInfoBanner');
+        if (existingBanner) existingBanner.remove();
+
+        const banner = document.createElement('div');
+        banner.id = 'editInfoBanner';
+        banner.className = 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-4 rounded-xl mb-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2';
+        banner.innerHTML = `
+            <i class="fas fa-edit text-xl"></i>
+            <div>
+                <strong class="block font-bold text-lg">Editando: ${lesson.title}</strong>
+                <span class="text-sm opacity-80">Solo estás modificando el contenido educativo. Título y nivel se mantienen del original.</span>
+            </div>
+        `;
+        editorContainer.parentElement.insertBefore(banner, editorContainer);
+    }
+
+    // Load lesson content into editor
+    if (lessonEditor) {
+        lessonEditor.setContent(lesson.content || '');
+    }
+
+    // Set editing ID to the topic key for static lessons
+    const form = document.getElementById('lessonEditForm');
+    if (form) form.dataset.editingLessonId = topic;
+
+    showToast(`Editando lección: ${lesson.title}`, 'info');
 }
 
 function initContributionPage() {
@@ -253,6 +312,10 @@ async function handleLessonSubmit(e) {
 // EDIT EXISTING LESSON
 // ========================================
 
+// ========================================
+// EDIT EXISTING LESSON
+// ========================================
+
 async function editLesson(lessonId) {
     let lesson = await globalThis.ContributionService.getLessonById(lessonId);
 
@@ -279,10 +342,35 @@ async function editLesson(lessonId) {
     const lessonBtn = document.getElementById('lessonTypeBtn');
     if (lessonBtn) lessonBtn.click();
 
-    // Fill form with lesson data
-    document.getElementById('lessonTitle').value = `Edición: ${lesson.title}`;
-    document.getElementById('lessonLevel').value = lesson.level;
-    document.getElementById('lessonDescription').value = `Propuesta de edición para: ${lesson.description}`;
+    // LOCK FIELDS for editing
+    const titleInput = document.getElementById('lessonTitle');
+    const levelInput = document.getElementById('lessonLevel');
+    const descInput = document.getElementById('lessonDescription');
+    // We assume badge input might be effectively the description or handled elsewhere, 
+    // but based on user request we should lock identifying info.
+
+    if (titleInput) {
+        titleInput.value = lesson.title; // No prefix
+        titleInput.disabled = true;
+        titleInput.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-75');
+    }
+    if (levelInput) {
+        levelInput.value = lesson.level;
+        levelInput.disabled = true;
+        levelInput.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-75');
+    }
+    if (descInput) {
+        descInput.value = lesson.description; // No prefix
+        // Description might be editable? User said "solo se edite la leccion... no te de opcion de ponerle badge o nombre". 
+        // Usually description is editable, but let's follow strict "content only" if implied. 
+        // User specifically mentioned "badge" and "nombre". Let's leave description editable for now but locked if it's a strict ID match?
+        // Actually for static edits, metadata usually shouldn't change. Let's lock description too to be safe, or leave it.
+        // User said "solo se edite la leccion" (content).
+        // Let's lock description to prevent drift for now.
+        // descInput.disabled = true; 
+        // descInput.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-75');
+        // Actually, let's keep description editable as it explains the lesson, but title/level are structural.
+    }
 
     // Load lesson content into editor
     if (lessonEditor) {
@@ -293,10 +381,9 @@ async function editLesson(lessonId) {
     const form = document.getElementById('lessonEditForm');
     form.dataset.editingLessonId = lesson.id || lesson._id;
 
-    showToast('Edita la lección y envía tu propuesta', 'info');
+    showToast('Modo Edición: Solo puedes modificar el contenido.', 'info');
 }
 
-// Make globally available
 globalThis.editLesson = editLesson;
 
 // ========================================

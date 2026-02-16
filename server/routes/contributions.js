@@ -30,9 +30,19 @@ router.get('/pending', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // POST new request
-router.post('/', async (req, res) => {
+// POST new request
+router.post('/', authenticateToken, async (req, res) => {
     try {
-        const newContribution = new Contribution(req.body);
+        const contributionData = req.body;
+
+        // Force submittedBy to be the authenticated user
+        contributionData.submittedBy = {
+            id: req.user.id || req.user._id,
+            username: req.user.username,
+            email: req.user.email
+        };
+
+        const newContribution = new Contribution(contributionData);
         const savedContribution = await newContribution.save();
         res.status(201).json(savedContribution);
     } catch (error) {

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/server.js",
     "start:prod": "pm2 start ecosystem.config.js --env production",
-    "dev": "concurrently \"npm run watch:11ty\" \"nodemon server/server.js\"",
+    "dev": "concurrently \"npm run watch:11ty\" \"npm run watch:css\" \"nodemon server/server.js\"",
     "test": "jest",
     "build:css": "tailwindcss -i ./src/css/tailwind.css -o ./src/css/tailwind-output.css --minify",
     "watch:css": "tailwindcss -i ./src/css/tailwind.css -o ./src/css/tailwind-output.css --watch",
