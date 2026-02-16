@@ -140,7 +140,8 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
 // GET lesson history (Admin only)
 router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const history = await LessonHistory.find({ lessonId: req.params.id }).sort({ version: -1 });
+        const lessonId = String(req.params.id);
+        const history = await LessonHistory.find({ lessonId }).sort({ version: -1 });
         res.json(history);
     } catch (error) {
         console.error('Error fetching history:', error);
@@ -152,7 +153,8 @@ router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => 
 router.post('/:id/revert', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { version } = req.body;
-        const historyEntry = await LessonHistory.findOne({ lessonId: req.params.id, version: Number.parseInt(version, 10) });
+        const lessonId = String(req.params.id);
+        const historyEntry = await LessonHistory.findOne({ lessonId, version: Number.parseInt(version, 10) });
 
         if (!historyEntry) {
             return res.status(404).json({ error: 'Version not found' });
@@ -163,7 +165,7 @@ router.post('/:id/revert', authenticateToken, requireAdmin, async (req, res) => 
         // Let's just update the lesson content to match historyEntry.
 
         await Lesson.findOneAndUpdate(
-            { id: req.params.id },
+            { id: lessonId },
             {
                 title: historyEntry.title,
                 content: historyEntry.content,

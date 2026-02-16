@@ -208,7 +208,9 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
             username: sanitizedUsername,
             userMessage: sanitizedMessage,
             aiResponse: sanitizedReply,
-            context: typeof context === 'object' ? context : { raw: String(context || '') },
+            context: (typeof context === 'object' && context !== null)
+                ? { page: String(context.page || '') }
+                : { raw: String(context || '') },
             lessonContext: sanitizedLessonContext,
             metadata: {
                 ip: req.ip,
