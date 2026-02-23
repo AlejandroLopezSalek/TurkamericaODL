@@ -3,7 +3,7 @@
 // Add this script BEFORE app.js
 // ================================
 
-(function() {
+(function () {
   'use strict';
 
   const APP_VERSION = '1.0.6'; // ⚡ INCREMENTA ESTO CADA VEZ QUE DESPLIEGUES
@@ -39,7 +39,7 @@
       }
 
       // Check periodically
-      if (!lastCheck || (now - parseInt(lastCheck)) > CHECK_INTERVAL) {
+      if (!lastCheck || (now - Number.parseInt(lastCheck, 10)) > CHECK_INTERVAL) {
         console.log('[Cache] Periodic check for updates...');
         this.checkServerVersion();
         localStorage.setItem(LAST_CHECK_KEY, now.toString());
@@ -53,10 +53,9 @@
         const response = await fetch(`/manifest.json?t=${Date.now()}`, {
           cache: 'no-store'
         });
-        
+
         if (response.ok) {
-          const data = await response.json();
-          // You can add version to manifest.json or check if content changed
+          await response.json(); // Validate JSON can be parsed
           console.log('[Cache] Server check complete');
         }
       } catch (error) {
@@ -68,7 +67,7 @@
     async clearAllCaches() {
       try {
         // Clear browser cache storage
-        if ('caches' in window) {
+        if ('caches' in globalThis) {
           const cacheNames = await caches.keys();
           await Promise.all(
             cacheNames.map(cacheName => {
@@ -89,7 +88,7 @@
         keysToRemove.forEach(key => localStorage.removeItem(key));
 
         console.log('[Cache] All caches cleared');
-        
+
         // Show notification to user
         this.showUpdateNotification();
       } catch (error) {
@@ -109,16 +108,17 @@
         }, CHECK_INTERVAL);
 
         // Listen for update found
-        registration.addEventListener('updatefound', () => {
+        const onUpdateFound = () => {
           const newWorker = registration.installing;
-          
-          newWorker.addEventListener('statechange', () => {
+          const onStateChange = () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
               console.log('[Cache] New service worker available');
               this.showUpdateAvailableNotification(registration);
             }
-          });
-        });
+          };
+          newWorker.addEventListener('statechange', onStateChange);
+        };
+        registration.addEventListener('updatefound', onUpdateFound);
       });
 
       // Listen for controller change (new SW activated)
@@ -179,7 +179,7 @@
             registration.waiting.postMessage('skipWaiting');
           }
         };
-        
+
         const toastContent = toast.querySelector('.toast-content');
         if (toastContent) {
           toastContent.appendChild(updateBtn);

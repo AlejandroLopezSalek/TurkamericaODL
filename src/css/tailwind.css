@@ -48,6 +48,15 @@
         @apply bg-gradient-to-br from-purple-600 to-purple-800 text-white border-transparent shadow-lg shadow-purple-500/30;
     }
 
+    /* Type Filter Tabs (Todos / Libros / Lecciones) */
+    .type-tab {
+        @apply px-5 py-2 border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg cursor-pointer font-semibold text-sm flex items-center gap-1 shadow-sm hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200;
+    }
+
+    .type-tab.active {
+        @apply bg-gradient-to-br from-blue-600 to-blue-700 text-white border-transparent shadow-md shadow-blue-500/30;
+    }
+
     /* Modal Styles Removed to prevent conflicts with Universal Modal Component */
     /* Books Grid - Mobile Static (Stacked) */
     .books-grid {

@@ -5,7 +5,7 @@ const User = require('../models/User');
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader?.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
       return res.status(401).json({ error: 'Access denied. No token provided.' });
@@ -43,15 +43,15 @@ const requireAdmin = (req, res, next) => {
 const checkOwnership = (resourceUserIdField = 'userId') => {
   return (req, res, next) => {
     const resourceUserId = req.body[resourceUserIdField] || req.params[resourceUserIdField];
-    
+
     if (req.user.role === 'admin') {
       return next(); // Admins can access all resources
     }
-    
+
     if (resourceUserId && resourceUserId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ error: 'Access denied. You can only access your own resources.' });
     }
-    
+
     next();
   };
 };
@@ -60,21 +60,24 @@ const checkOwnership = (resourceUserIdField = 'userId') => {
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = authHeader?.split(' ')[1];
 
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.userId).select('-password');
-      
+
       if (user && user.isActive) {
         req.user = user;
       }
     }
-    
+
     next();
   } catch (error) {
-    // If token is invalid, continue without user
-    next();
+    // Skip authentication for JWT errors (invalid/expired tokens are expected)
+    const isJwtError = error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError';
+    if (isJwtError) return next();
+    // Unexpected errors should surface
+    next(error);
   }
 };
 

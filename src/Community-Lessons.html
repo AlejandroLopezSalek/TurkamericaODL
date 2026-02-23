@@ -22,8 +22,20 @@ scripts:
                           focus:ring-4 focus:ring-blue-500/10 transition-all">
         </div>
 
+        {# Type Filter Tabs — Libros / Lecciones #}
+        <div id="typeFilterTabs" class="flex gap-3 justify-center mb-4">
+            <button class="type-tab active" data-type="all">Todos</button>
+            <button class="type-tab" data-type="books">
+                <i class="fas fa-book mr-1"></i>Libros
+            </button>
+            <button class="type-tab" data-type="lessons">
+                <i class="fas fa-chalkboard-teacher mr-1"></i>Lecciones
+            </button>
+        </div>
+
+        {# Level Filter Tabs #}
         <div
-            class="filter-tabs flex gap-4 flex-nowrap justify-start md:justify-center overflow-x-auto py-6 scrollbar-hide px-4">
+            class="filter-tabs flex gap-4 flex-nowrap justify-start md:justify-center overflow-x-auto py-2 scrollbar-hide px-4">
             {{ components.levelFilterTab('all', 'Todas') }}
             {{ components.levelFilterTab('A1', 'A1') }}
             {{ components.levelFilterTab('A2', 'A2') }}
@@ -47,19 +59,24 @@ scripts:
 
     {# Books Section (Dynamic) #}
     <div id="booksSection" class="books-section my-10 hidden animate-fadeIn">
-
-        <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             {# Populated by JS #}
         </div>
+        {# Books Pagination #}
+        <div id="booksPagination" class="flex flex-wrap gap-2 justify-center mt-4"></div>
     </div>
 
-    {# Separator Line (Simple) #}
+    {# Separator Line #}
     <div id="lessonsSeparator" class="w-full h-px bg-slate-200 dark:bg-slate-700 my-12 hidden"></div>
 
     {# Lessons List #}
     <div id="lessonsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {# Will be populated by JavaScript #}
     </div>
+
+    {# Lessons Pagination #}
+    <div id="lessonsPagination" class="flex flex-wrap gap-2 justify-center mt-8"></div>
+
 </div>
 
 {# Lesson Detail Modal #}

@@ -7,8 +7,8 @@ const LessonHistory = require('../models/LessonHistory');
 
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
-// GET all requests
-router.get('/', async (req, res) => {
+// GET all requests (Admin only)
+router.get('/', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const contributions = await Contribution.find().sort({ submittedAt: -1 });
         res.json(contributions);

@@ -187,12 +187,12 @@ async function loadRequests() {
                     </span>
                 </div>
 
-                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">${request.title}</h3>
-                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2 leading-relaxed">${truncate(request.description, 150)}</p>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">${escHtml(request.title)}</h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2 leading-relaxed">${escHtml(truncate(request.description, 150))}</p>
 
                 <div class="flex items-center gap-4 mb-6 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                     <span class="flex items-center gap-2"><i class="fas fa-user text-blue-500"></i> ${request.submittedBy?.username || 'Usuario Desconocido'}</span>
-                     ${request.data.level ? `<span class="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4"><i class="fas fa-layer-group text-purple-500"></i> ${request.data.level}</span>` : ''}
+                     <span class="flex items-center gap-2"><i class="fas fa-user text-blue-500"></i> ${escHtml(request.submittedBy?.username || 'Usuario Desconocido')}</span>
+                     ${request.data.level ? `<span class="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4"><i class="fas fa-layer-group text-purple-500"></i> ${escHtml(request.data.level)}</span>` : ''}
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-2">
@@ -559,6 +559,20 @@ function toggleAdminEditor() {
 // UTILITY FUNCTIONS
 // ========================================
 
+/**
+ * Escape HTML special characters to prevent XSS in innerHTML template literals.
+ * @param {*} str
+ * @returns {string}
+ */
+function escHtml(str) {
+    return String(str ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleDateString('es-ES', {
@@ -688,7 +702,7 @@ function renderLessonsTable(lessons) {
                         class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Editar">
                         <i class="fas fa-edit"></i>
                     </a>
-                    <button onclick="showHistoryAdmin('${lesson.id}', '${lesson.title.replace(/'/g, "\\'")}')"
+                    <button data-id="${escHtml(lesson.id)}" data-title="${escHtml(lesson.title)}" onclick="showHistoryAdmin(this.dataset.id, this.dataset.title)"
                         class="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors" title="Historial y Versiones">
                         <i class="fas fa-history"></i>
                     </button>
@@ -712,7 +726,7 @@ function filterLessonsTable(query) {
     const filtered = allPublishedLessons.filter(l =>
         l.title.toLowerCase().includes(query) ||
         l.level.toLowerCase().includes(query) ||
-        (l.author && l.author.toLowerCase().includes(query)) ||
+        l.author?.toLowerCase().includes(query) ||
         l.id.toLowerCase().includes(query)
     );
     renderLessonsTable(filtered);
@@ -732,11 +746,10 @@ globalThis.showHistoryAdmin = async function (id, title) {
     document.getElementById('approveBtn').style.display = 'none';
     document.getElementById('rejectBtn').style.display = 'none';
 
-    modalTitle.innerHTML = `<i class="fas fa-history text-amber-500 mr-2"></i> Historial: ${title}`;
+    modalTitle.innerHTML = `<i class="fas fa-history text-amber-500 mr-2"></i> Historial: ${escHtml(title)}`;
     modalBody.innerHTML = '<div class="text-center p-8"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-2">Cargando historial...</p></div>';
 
-    modal.classList.remove('hidden');
-    modal.classList.remove('opacity-0');
+    modal.classList.remove('hidden', 'opacity-0');
 
     try {
         const token = localStorage.getItem('authToken');
@@ -766,7 +779,7 @@ globalThis.showHistoryAdmin = async function (id, title) {
                                 v${v.version}
                             </div>
                             <div>
-                                <div class="font-bold text-slate-800 dark:text-white">Modificado por: ${v.editedBy || 'Desconocido'}</div>
+                                <div class="font-bold text-slate-800 dark:text-white">Modificado por: ${escHtml(v.editedBy || 'Desconocido')}</div>
                                 <div class="text-sm text-slate-500">${formatDate(v.editedAt)}</div>
                             </div>
                         </div>
@@ -780,7 +793,7 @@ globalThis.showHistoryAdmin = async function (id, title) {
         `;
 
     } catch (e) {
-        modalBody.innerHTML = `<p class="text-red-500 text-center">Error al cargar historial: ${e.message}</p>`;
+        modalBody.innerHTML = `<p class="text-red-500 text-center">Error al cargar historial: ${escHtml(e.message)}</p>`;
     }
 };
 

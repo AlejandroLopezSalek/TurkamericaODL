@@ -42,7 +42,7 @@ const getUserFromRequest = async (req) => {
     if (!token) return null;
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         return await User.findById(String(decoded.userId));
     } catch (err) {
         // Token invalid or expired
@@ -222,5 +222,84 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
     }
 }
 
+
+// ========================================
+// WORD OF THE DAY
+// ========================================
+
+/**
+ * In-memory cache: one entry per calendar day (UTC date string).
+ * Format: { date: 'YYYY-MM-DD', data: { word, translation, ... } }
+ */
+let wordOfDayCache = null;
+
+const WORD_OF_DAY_PROMPT = `You are a Turkish language teacher for Spanish speakers.
+Generate a "Turkish Word of the Day" for language learners.
+Choose a word appropriate for any level (A1–C1). Vary difficulty each day.
+Respond ONLY with a valid JSON object — no markdown, no extra text:
+{
+  "word": "<Turkish word or short phrase>",
+  "translation": "<Spanish translation>",
+  "pronunciation": "<phonetic guide in Spanish e.g. 'mer-AB-a'>",
+  "example": "<short Turkish example sentence using the word>",
+  "exampleTranslation": "<Spanish translation of the example>",
+  "level": "<A1|A2|B1|B2|C1>",
+  "tip": "<one short learning tip in Spanish about this word>"
+}`;
+
+router.get('/word-of-day', async (req, res) => {
+    const todayUtc = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+
+    // Return cached result if still today
+    if (wordOfDayCache && wordOfDayCache.date === todayUtc) {
+        return res.json(wordOfDayCache.data);
+    }
+
+    if (!process.env.GROQ_API_KEY) {
+        return res.status(503).json({ error: 'AI service not configured.' });
+    }
+
+    try {
+        const completion = await groq.chat.completions.create({
+            messages: [
+                { role: 'system', content: 'You are a JSON-only API. Never add markdown or extra text.' },
+                { role: 'user', content: WORD_OF_DAY_PROMPT }
+            ],
+            model: 'llama-3.3-70b-versatile',
+            temperature: 0.9,
+            max_tokens: 400,
+        });
+
+        const raw = completion.choices[0]?.message?.content || '{}';
+
+        // Strip any accidental markdown fences
+        const cleaned = raw.replace(/```json|```/g, '').trim();
+        const data = JSON.parse(cleaned);
+
+        // Validate required fields
+        const required = ['word', 'translation', 'pronunciation', 'example', 'exampleTranslation', 'level', 'tip'];
+        for (const field of required) {
+            if (!data[field]) throw new Error(`Missing field: ${field}`);
+        }
+
+        wordOfDayCache = { date: todayUtc, data };
+        return res.json(data);
+
+    } catch (err) {
+        console.error('Word of Day generation error:', err.message);
+        // Fallback to a hardcoded word so the widget never breaks
+        const fallback = {
+            word: 'Merhaba',
+            translation: 'Hola',
+            pronunciation: 'mer-HA-ba',
+            example: 'Merhaba, nasılsın?',
+            exampleTranslation: '¡Hola, cómo estás?',
+            level: 'A1',
+            tip: 'Merhaba es el saludo más común en turco. Úsalo en cualquier situación.'
+        };
+        wordOfDayCache = { date: todayUtc, data: fallback };
+        return res.json(fallback);
+    }
+});
 
 module.exports = router;

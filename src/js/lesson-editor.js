@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // LESSON EDITOR - Visual Editor for Creating Beautiful Lessons
 // ========================================
 
@@ -38,10 +38,10 @@ class LessonEditor {
 
             <!-- Headings -->
             <div class="flex gap-1 pr-4 border-r border-slate-200 dark:border-slate-700 shrink-0">
-                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-sm" data-command="h2" title="Título Grande">
+                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-sm" data-command="h2" title="TÃ­tulo Grande">
                     H2
                 </button>
-                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-xs" data-command="h3" title="Título Mediano">
+                <button type="button" class="p-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors font-bold text-xs" data-command="h3" title="TÃ­tulo Mediano">
                     H3
                 </button>
             </div>
@@ -58,7 +58,7 @@ class LessonEditor {
 
             <!-- Components -->
             <div class="flex gap-1 shrink-0">
-                <button type="button" class="p-2 px-3 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded transition-colors flex items-center gap-2 text-sm font-semibold" data-action="pronounce" title="Agregar Sonido (Pronunciaci�n)">
+                <button type="button" class="p-2 px-3 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded transition-colors flex items-center gap-2 text-sm font-semibold" data-action="pronounce" title="Agregar Sonido (Pronunciación)">
                     <i class="fas fa-volume-high"></i> <span class="hidden sm:inline">Sonido</span>
                 </button>
                 <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
@@ -212,7 +212,7 @@ class LessonEditor {
         div.className = 'my-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 rounded-r-lg';
         div.innerHTML = `
             <strong class="block text-indigo-600 dark:text-indigo-400 mb-2">Punto Importante:</strong>
-            <p class="m-0">Escribe aqui� el contenido destacado...</p>
+            <p class="m-0">Escribe aqui­ el contenido destacado...</p>
         `;
         return div;
     }
@@ -248,7 +248,7 @@ class LessonEditor {
         // Check if selection contains or is within a pronunciation span
         const container = range.commonAncestorContainer;
         const parentElement = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
-        const pronounceSpan = parentElement.closest('strong.pro nounce-me');
+        const pronounceSpan = parentElement.closest('.pronounce-me');
 
         if (pronounceSpan) {
             // REMOVE pronunciation: unwrap the span
@@ -270,7 +270,7 @@ class LessonEditor {
         }
 
         const span = document.createElement('strong');
-        span.className = 'pronounce-me text-indigo-600 dark:text-indigo-400 font-bold';
+        span.className = 'pronounce-me font-bold text-white bg-white/10 rounded px-0.5';
         span.textContent = text;
 
         range.deleteContents();
@@ -320,8 +320,8 @@ class LessonEditor {
         const preview = modal.querySelector('#tablePreview');
 
         const updatePreview = () => {
-            let rows = parseInt(rowsInput.value) || 2;
-            let cols = parseInt(colsInput.value) || 2;
+            let rows = Number.parseInt(rowsInput.value, 10) || 2;
+            let cols = Number.parseInt(colsInput.value, 10) || 2;
 
             // Immediate visual feedback/clamping
             if (rows > 15) { rowsInput.value = 15; rows = 15; }
@@ -334,8 +334,8 @@ class LessonEditor {
         colsInput.addEventListener('input', updatePreview);
 
         modal.querySelector('#insertTableBtn').addEventListener('click', () => {
-            let rows = parseInt(rowsInput.value) || 2;
-            let cols = parseInt(colsInput.value) || 2;
+            let rows = Number.parseInt(rowsInput.value, 10) || 2;
+            let cols = Number.parseInt(colsInput.value, 10) || 2;
 
             // Enforce limits
             if (rows > 15) rows = 15;
@@ -404,8 +404,8 @@ class LessonEditor {
 
     generateTableHTML(rows, cols, editable = false) {
         // Validate inputs to prevent RangeError
-        rows = parseInt(rows) || 2;
-        cols = parseInt(cols) || 2;
+        rows = Number.parseInt(rows, 10) || 2;
+        cols = Number.parseInt(cols, 10) || 2;
         if (rows < 1) rows = 1;
         if (cols < 1) cols = 1;
         if (rows > 15) rows = 15; // Safety limit
@@ -496,14 +496,12 @@ class LessonEditor {
             selection.addRange(range);
         }
 
-        // Insert
-        if (!document.execCommand('insertHTML', false, html)) {
-            const range = selection.getRangeAt(0);
-            const fragment = range.createContextualFragment(html);
-            range.deleteContents();
-            range.insertNode(fragment);
-            range.collapse(false);
-        }
+        // Insert using modern DOM API (execCommand insertHTML is deprecated)
+        const range = selection.getRangeAt(0);
+        const fragment = range.createContextualFragment(html);
+        range.deleteContents();
+        range.insertNode(fragment);
+        range.collapse(false);
     }
 
     getContent() {
