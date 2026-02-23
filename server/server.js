@@ -52,10 +52,9 @@ const getAllowedOrigins = () => {
     'http://127.0.0.1:8000',
     'http://127.0.0.1:8080',
     'http://127.0.0.1:5500',
-    // Production domains
+    // Production domains (HTTPS only)
     'https://odl-turquia.club',
-    'https://www.odl-turquia.club',
-    'http://odl-turquia.club'
+    'https://www.odl-turquia.club'
   ];
 
   // Add production origins from environment
