@@ -51,7 +51,11 @@ const getAllowedOrigins = () => {
     'http://127.0.0.1:3001',
     'http://127.0.0.1:8000',
     'http://127.0.0.1:8080',
-    'http://127.0.0.1:5500'
+    'http://127.0.0.1:5500',
+    // Production domains
+    'https://odl-turquia.club',
+    'https://www.odl-turquia.club',
+    'http://odl-turquia.club'
   ];
 
   // Add production origins from environment
@@ -73,7 +77,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
-      console.log('⚠️  Blocked origin:', origin);
+      console.log('⚠️  Blocked CORS request from unlisted origin.');
       callback(new Error('Not allowed by CORS'));
     }
   },

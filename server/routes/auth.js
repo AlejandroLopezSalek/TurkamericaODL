@@ -41,7 +41,7 @@ const loginValidation = [
 
 router.post('/register', registerValidation, async (req, res) => {
     try {
-        console.log('📝 Registration attempt:', { username: req.body.username, email: req.body.email });
+        console.log('📝 Registration attempt received.');
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -63,7 +63,7 @@ router.post('/register', registerValidation, async (req, res) => {
         });
 
         if (existingUser) {
-            console.log('❌ User already exists:', existingUser.email === email.toLowerCase() ? 'email' : 'username');
+            console.log('❌ User already exists (duplicate field).');
             if (existingUser.email === email.toLowerCase()) {
                 return res.status(400).json({
                     message: 'El email ya está registrado'
@@ -113,8 +113,7 @@ router.post('/register', registerValidation, async (req, res) => {
         }
 
         res.status(500).json({
-            message: 'Error interno del servidor',
-            error: error.message
+            message: 'Error interno del servidor'
         });
     }
 });
@@ -122,7 +121,7 @@ router.post('/register', registerValidation, async (req, res) => {
 // POST /api/login - User login
 router.post('/login/', loginValidation, async (req, res) => {
     try {
-        console.log('🔐 Login attempt:', { identifier: req.body.identifier });
+        console.log('🔐 Login attempt received.');
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -139,7 +138,7 @@ router.post('/login/', loginValidation, async (req, res) => {
         const user = await User.findByEmailOrUsername(identifier);
 
         if (!user) {
-            console.log('❌ User not found:', identifier);
+            console.log('❌ User not found during login.');
             return res.status(401).json({
                 message: 'Credenciales inválidas'
             });

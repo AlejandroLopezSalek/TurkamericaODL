@@ -56,7 +56,9 @@ class AnalyticsSystem {
     // Send data to backend analytics endpoint
     send(data) {
         // Send pageview and event data to backend for traffic analysis
-        const apiUrl = `${globalThis.API_BASE_URL || ''}/api/analytics`;
+        // Strip any trailing /api from API_BASE_URL to avoid double /api/api paths
+        const base = (globalThis.API_BASE_URL || '').replace(/\/api\/?$/, '');
+        const apiUrl = `${base}/api/analytics`;
 
         fetch(apiUrl, {
             method: 'POST',
