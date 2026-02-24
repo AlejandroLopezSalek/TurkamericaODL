@@ -17,7 +17,8 @@ const API_CONFIG = {
     apiPath: ''
   },
   production: {
-    baseURL: 'https://turkamerica-backend-production.up.railway.app', // URL explícita de producción o location.origin si están en el mismo dominio
+    // Same Oracle VM as the frontend — use location.origin for same-origin requests (no CORS)
+    baseURL: globalThis.location.origin,
     apiPath: '/api'
   }
 };
