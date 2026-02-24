@@ -122,22 +122,33 @@ NAVIGATION:
 - Example: "Llevame a perfil" -> "Vamos al perfil. [[NAVIGATE:/Perfil/]]"`;
 };
 
-// Daily cache — refreshes once per day
+// Daily cache - in-memory fast layer
 let wodCache = { date: null, data: null };
 
 // GET /word-of-day (Mounted at /api/chat/word-of-day)
+const DailyWord = require('../models/DailyWord');
+
 router.get('/word-of-day', async (req, res) => {
     try {
         if (!process.env.GROQ_API_KEY) {
             return res.status(503).json({ error: 'AI service not configured' });
         }
 
-        // Serve cached word if it was generated today
         const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+        // 1. Check in-memory first (fastest)
         if (wodCache.date === today && wodCache.data) {
             return res.json(wodCache.data);
         }
 
+        // 2. Check MongoDB (for consistency across processes)
+        const existing = await DailyWord.findOne({ date: today });
+        if (existing) {
+            wodCache = { date: today, data: existing.data };
+            return res.json(existing.data);
+        }
+
+        // 3. Generate new word via AI
         const completion = await groq.chat.completions.create({
             model: 'llama-3.1-8b-instant',
             messages: [
@@ -168,8 +179,6 @@ Provide variety across different levels (A1 to C1).`
         });
 
         const raw = completion.choices[0]?.message?.content?.trim() || '';
-
-        // Strip markdown fences if model added them despite instructions
         const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
         const wordData = JSON.parse(jsonStr);
 
@@ -178,6 +187,13 @@ Provide variety across different levels (A1 to C1).`
         for (const field of required) {
             if (!wordData[field]) throw new Error(`Missing field: ${field}`);
         }
+
+        // 4. Save to MongoDB & memory (upsert to handle rare races)
+        await DailyWord.findOneAndUpdate(
+            { date: today },
+            { data: wordData },
+            { upsert: true, new: true }
+        );
 
         wodCache = { date: today, data: wordData };
         res.json(wordData);

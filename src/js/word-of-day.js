@@ -133,7 +133,11 @@
         `;
 
         // Check if user is logged in (using global auth state if available)
-        const isUserLoggedIn = !!(window.currentUser || localStorage.getItem('token'));
+        const isUserLoggedIn = !!(
+            localStorage.getItem('token') ||
+            localStorage.getItem('authToken') ||
+            (globalThis.AuthService && globalThis.AuthService.isLoggedIn())
+        );
         const storageKey = getStorageKey();
         const localAnswered = localStorage.getItem(storageKey) === data.word;
 
