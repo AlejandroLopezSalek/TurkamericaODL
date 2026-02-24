@@ -280,14 +280,13 @@ function gatherStaticBooks() {
 }
 
 async function appendDynamicBooks(existingBooks) {
-    if (!globalThis.ContributionService) return existingBooks;
     try {
-        const allRequests = await globalThis.ContributionService.getAllRequests();
+        const response = await fetch('/api/contributions/approved-books');
+        if (!response.ok) return existingBooks;
+        const allRequests = await response.json();
         const dynamicBooks = allRequests
             .filter(req =>
-                req.type === 'book_upload' &&
-                req.status === 'approved' &&
-                (currentLevel === 'all' || req.data?.level === currentLevel)
+                currentLevel === 'all' || req.data?.level === currentLevel
             )
             .map(req => ({
                 title: req.title,
@@ -305,6 +304,7 @@ async function appendDynamicBooks(existingBooks) {
         return existingBooks;
     }
 }
+
 
 function buildBookCard(book) {
     const card = document.createElement('div');

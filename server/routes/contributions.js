@@ -7,6 +7,20 @@ const LessonHistory = require('../models/LessonHistory');
 
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
+// GET approved book uploads (Public — only exposes approved books for community display)
+router.get('/approved-books', async (req, res) => {
+    try {
+        const books = await Contribution.find(
+            { type: 'book_upload', status: 'approved' },
+            { title: 1, description: 1, data: 1, submittedBy: 1, processedAt: 1 }
+        ).sort({ processedAt: -1 });
+        res.json(books);
+    } catch (error) {
+        console.error('Error fetching approved books:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // GET all requests (Admin only)
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
     try {
