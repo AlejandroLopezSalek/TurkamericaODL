@@ -16,6 +16,7 @@ const { connectDB } = require('./config/database'); // <- CORRECCIÓN APLICADA A
 const authRoutes = require('./routes/auth');
 
 const app = express();
+app.set('trust proxy', 1); // Trust Nginx reverse proxy — needed for X-Forwarded-For (rate limiting, IP detection)
 const PORT = process.env.PORT || 3000;
 
 // ================================
