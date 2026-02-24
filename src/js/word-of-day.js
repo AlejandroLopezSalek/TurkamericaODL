@@ -192,7 +192,7 @@
         if (answerZone) answerZone.classList.add('hidden');
 
         // Save to analytics
-        saveWodAnalytics(data.word, userAnswer, isCorrect, data.level);
+        saveWodAnalytics(wodData.word, userAnswer, isCorrect, wodData.level);
 
         if (isCorrect) {
             feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-green-400/20 border border-green-400/40 text-green-100';
