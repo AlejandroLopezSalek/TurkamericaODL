@@ -19,27 +19,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ================================
-// SECURITY MIDDLEWARE
+// CORS — must be first, before Helmet
 // ================================
 
-// Security headers with optimized CSP
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://pagead2.googlesyndication.com", "https://tpc.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://accounts.google.com"],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
-      frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://tpc.googlesyndication.com", "https://www.google.com", "https://accounts.google.com"],
-    },
-  },
-  crossOriginEmbedderPolicy: false
-}));
-
-// CORS configuration - More secure for production
 const getAllowedOrigins = () => {
   const baseOrigins = [
     'http://localhost:3000',
@@ -57,7 +39,6 @@ const getAllowedOrigins = () => {
     'https://www.odl-turquia.club'
   ];
 
-  // Add production origins from environment
   if (process.env.ALLOWED_ORIGINS) {
     const prodOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
     return [...baseOrigins, ...prodOrigins];
@@ -68,11 +49,8 @@ const getAllowedOrigins = () => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
-
     const allowedOrigins = getAllowedOrigins();
-
     if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
@@ -86,7 +64,32 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
+// Handle preflight OPTIONS for ALL routes — must be before Helmet
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
+
+// ================================
+// SECURITY MIDDLEWARE
+// ================================
+
+// Security headers (after CORS so preflight isn't intercepted)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://pagead2.googlesyndication.com", "https://tpc.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://accounts.google.com"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
+      frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://tpc.googlesyndication.com", "https://www.google.com", "https://accounts.google.com"],
+    },
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+
 
 // Rate limiting - General API
 const apiLimiter = rateLimit({
