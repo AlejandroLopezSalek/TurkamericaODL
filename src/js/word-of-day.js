@@ -149,10 +149,17 @@
 
         // Reveal translation
         getEl('wodRevealBtn')?.addEventListener('click', () => {
+            if (answered) return;
             const div = getEl('wodTranslation');
             const exTr = getEl('wodExampleTranslation');
-            if (div) { div.classList.toggle('hidden'); }
+            if (div) { div.classList.remove('hidden'); }
             if (exTr) exTr.classList.remove('hidden');
+
+            const answerZone = getEl('wodAnswerZone');
+            if (answerZone) answerZone.classList.add('hidden');
+
+            saveWodAnalytics(wodData.word, null, false, wodData.level);
+            answered = true;
         });
 
         // Show tip
