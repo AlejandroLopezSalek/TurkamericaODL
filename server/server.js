@@ -337,36 +337,36 @@ process.on('uncaughtException', (error) => {
 // ================================
 
 const startServer = async () => {
-  try {
-    // Wait for database connection before starting server
-    await new Promise((resolve, reject) => {
-      if (mongoose.connection.readyState === 1) {
-        resolve();
-      } else {
-        mongoose.connection.once('connected', resolve);
-        mongoose.connection.once('error', reject);
-      }
-    });
+  // Start listening immediately so Railway health checks pass
+  // even if MongoDB is slow to connect on cold start
+  app.listen(PORT, () => {
+    console.log('\n╔═══════════════════════════════════════╗');
+    console.log('║   TurkAmerica MVP Server Started   ║');
+    console.log('╚═══════════════════════════════════════╝');
+    console.log(` Server (API): http://localhost:${PORT}`);
+    console.log(` Health:       http://localhost:${PORT}/health`);
+    console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(` CORS: ${getAllowedOrigins().length} origins allowed`);
+    console.log('\n Ready to accept connections!\n');
+  });
 
-    app.listen(PORT, () => {
-      console.log('\n╔═══════════════════════════════════════╗');
-      console.log('║   TurkAmerica MVP Server Started   ║');
-      console.log('╚═══════════════════════════════════════╝');
-      console.log(` Server (API): http://localhost:${PORT}`);
-      console.log(` Web App:      http://localhost:${PORT}`);
-      console.log(` Health:       http://localhost:${PORT}/health`);
-      console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(` MongoDB: ${mongoose.connection.name}`);
-      console.log(` CORS: ${getAllowedOrigins().length} origins allowed`);
-      console.log('\n Ready to accept connections!\n');
+  // Connect to DB in background — server is already listening
+  try {
+    await new Promise((resolve, reject) => {
+      if (mongoose.connection.readyState === 1) return resolve();
+      const timeout = setTimeout(() => reject(new Error('MongoDB connect timeout')), 10000);
+      mongoose.connection.once('connected', () => { clearTimeout(timeout); resolve(); });
+      mongoose.connection.once('error', (err) => { clearTimeout(timeout); reject(err); });
     });
+    console.log(` MongoDB: ${mongoose.connection.name}`);
   } catch (error) {
-    console.error(' Failed to start server:', error);
-    process.exit(1);
+    // Log but don't crash — mongoose will keep retrying in background
+    console.error(' MongoDB initial connect failed (will retry):', error.message);
   }
 };
 
 startServer();
+
 
 // ================================
 // GRACEFUL SHUTDOWN
