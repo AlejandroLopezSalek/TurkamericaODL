@@ -158,7 +158,9 @@ Return ONLY a JSON object with these exact fields (no markdown, no code block):
   "level": "<one of: A1, A2, B1, B2, C1>",
   "tip": "<Short memory tip in Spanish to remember this>"
 }
-Pick a useful, everyday term. It can be a single word or a common short phrase. Vary the level (not always A1).`
+Pick a useful, everyday term. It can be a single word or a common short phrase. 
+IMPORTANT: DO NOT use extremely basic greetings like "merhaba", "selam", "nasılsın", "günaydın", or "iyi akşamlar" (unless it is for a specific level like C1 in a complex idiom). 
+Provide variety across different levels (A1 to C1).`
                 }
             ],
             temperature: 0.9,

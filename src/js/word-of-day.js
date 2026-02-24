@@ -17,7 +17,10 @@
     let wodData = null;
     let answered = false;
 
-    function getEl(id) { return document.getElementById(id); }
+    const getEl = (id) => document.getElementById(id);
+
+    // Local storage key helper
+    const getStorageKey = () => 'wod_answered_' + new Date().toISOString().slice(0, 10);
 
     // ---- Fetch word of the day ----
     async function loadWordOfDay() {
@@ -58,6 +61,8 @@
         answered = false;
 
         const lvl = LEVEL_COLORS[data.level] || LEVEL_COLORS['A1'];
+        // const storageKey = getStorageKey(); // Moved below
+        // const hasAnswered = localStorage.getItem(storageKey) === data.word; // Moved below
 
         inner.innerHTML = `
             <!-- Header row -->
@@ -97,9 +102,9 @@
                         <i class="fas fa-check sm:hidden"></i>
                     </button>
                 </div>
-                <!-- Feedback area -->
-                <div id="wodFeedback" class="mt-3 hidden rounded-lg px-4 py-3 text-sm font-medium transition-all"></div>
             </div>
+            <!-- Feedback area (outside zone so it stays visible) -->
+            <div id="wodFeedback" class="mt-3 hidden rounded-lg px-4 py-3 text-sm font-medium transition-all"></div>
 
             <!-- Reveal translation button -->
             <div class="flex gap-3 mt-2">
@@ -126,6 +131,39 @@
                 <i class="fas fa-lightbulb text-yellow-300 mr-2"></i>${escHtml(data.tip)}
             </div>
         `;
+
+        // Check if user is logged in (using global auth state if available)
+        const isUserLoggedIn = !!(window.currentUser || localStorage.getItem('token'));
+        const storageKey = getStorageKey();
+        const localAnswered = localStorage.getItem(storageKey) === data.word;
+
+        if (!isUserLoggedIn) {
+            const az = getEl('wodAnswerZone');
+            if (az) {
+                az.innerHTML = `
+                    <div class="bg-blue-900/40 border border-blue-400/30 rounded-xl p-4 text-center mt-4">
+                        <p class="text-white text-sm mb-3 font-medium">Regístrate para participar en el desafío diario y ver tu progreso.</p>
+                        <a href="/Registro/" class="inline-block bg-white text-blue-700 px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition-all shadow-lg active:scale-95">Registrarme gratis</a>
+                    </div>
+                `;
+            }
+        } else if (localAnswered) {
+            // Already answered today
+            answered = true;
+            const az = getEl('wodAnswerZone');
+            if (az) az.classList.add('hidden');
+
+            // Show translation and persistent message
+            getEl('wodTranslation')?.classList.remove('hidden');
+            getEl('wodExampleTranslation')?.classList.remove('hidden');
+
+            const feedback = getEl('wodFeedback');
+            if (feedback) {
+                feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium bg-blue-400/20 border border-blue-400/40 text-blue-100';
+                feedback.innerHTML = '<i class="fas fa-check-circle mr-2 text-blue-300"></i>¡Ya has completado el desafío de hoy!';
+                feedback.classList.remove('hidden');
+            }
+        }
 
         bindEvents();
     }
@@ -160,6 +198,7 @@
 
             saveWodAnalytics(wodData.word, null, false, wodData.level);
             answered = true;
+            localStorage.setItem(getStorageKey(), wodData.word); // Persist locally
         });
 
         // Show tip
@@ -217,6 +256,9 @@
 
         feedback.classList.remove('hidden');
         answered = true;
+
+        // Persist locally for the user
+        localStorage.setItem(getStorageKey(), wodData.word);
     }
 
     // ---- Analytics helper ----
