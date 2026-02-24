@@ -107,9 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
 function initTypeFilterTabs() {
     document.querySelectorAll('.type-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
+            const clicked = e.currentTarget;
+            const wasActive = clicked.classList.contains('active');
+            // Deselect all
             document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            currentType = e.currentTarget.dataset.type;
+            if (wasActive) {
+                // Toggle off → show all
+                currentType = 'all';
+            } else {
+                clicked.classList.add('active');
+                currentType = clicked.dataset.type;
+            }
             currentBooksPage = 1;
             currentLessonsPage = 1;
             filterContent(getSearchValue());
@@ -120,9 +128,17 @@ function initTypeFilterTabs() {
 function initLevelFilterTabs() {
     document.querySelectorAll('.filter-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
+            const clicked = e.currentTarget;
+            const wasActive = clicked.classList.contains('active');
+            // Deselect all
             document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            currentLevel = e.currentTarget.dataset.level;
+            if (wasActive) {
+                // Toggle off → show all levels
+                currentLevel = 'all';
+            } else {
+                clicked.classList.add('active');
+                currentLevel = clicked.dataset.level;
+            }
             currentBooksPage = 1;
             currentLessonsPage = 1;
 

@@ -122,8 +122,81 @@ NAVIGATION:
 - Example: "Llevame a perfil" -> "Vamos al perfil. [[NAVIGATE:/Perfil/]]"`;
 };
 
+// Daily cache — refreshes once per day
+let wodCache = { date: null, data: null };
+
+// GET /word-of-day (Mounted at /api/chat/word-of-day)
+router.get('/word-of-day', async (req, res) => {
+    try {
+        if (!process.env.GROQ_API_KEY) {
+            return res.status(503).json({ error: 'AI service not configured' });
+        }
+
+        // Serve cached word if it was generated today
+        const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        if (wodCache.date === today && wodCache.data) {
+            return res.json(wodCache.data);
+        }
+
+        const completion = await groq.chat.completions.create({
+            model: 'llama3-8b-8192',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a Turkish language teacher for Spanish speakers. Respond ONLY with valid JSON, no markdown, no extra text.'
+                },
+                {
+                    role: 'user',
+                    content: `Generate a Turkish word of the day for Spanish speakers learning Turkish.
+Return ONLY a JSON object with these exact fields (no markdown, no code block):
+{
+  "word": "<Turkish word>",
+  "pronunciation": "<phonetic pronunciation for Spanish speakers, e.g. mehr-ah-bah>",
+  "translation": "<Spanish translation>",
+  "example": "<Short example sentence in Turkish>",
+  "exampleTranslation": "<Spanish translation of the example>",
+  "level": "<one of: A1, A2, B1, B2, C1>",
+  "tip": "<Short memory tip in Spanish to remember this word>"
+}
+Pick a useful, everyday word. Vary the level (not always A1).`
+                }
+            ],
+            temperature: 0.9,
+            max_tokens: 300
+        });
+
+        const raw = completion.choices[0]?.message?.content?.trim() || '';
+
+        // Strip markdown fences if model added them despite instructions
+        const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+        const wordData = JSON.parse(jsonStr);
+
+        // Validate required fields
+        const required = ['word', 'pronunciation', 'translation', 'example', 'exampleTranslation', 'level', 'tip'];
+        for (const field of required) {
+            if (!wordData[field]) throw new Error(`Missing field: ${field}`);
+        }
+
+        wodCache = { date: today, data: wordData };
+        res.json(wordData);
+    } catch (err) {
+        console.error('[word-of-day] Error:', err.message);
+        // Fallback word so the widget never shows an error on AI failure
+        res.json({
+            word: 'merhaba',
+            pronunciation: 'mehr-ah-bah',
+            translation: 'hola',
+            example: 'Merhaba, nasılsınız?',
+            exampleTranslation: '¿Hola, cómo están?',
+            level: 'A1',
+            tip: 'Suena como "mer-aba" — el saludo más básico en turco.'
+        });
+    }
+});
+
 // POST / (Mounted at /api/chat)
 router.post('/', async (req, res) => {
+
     try {
         const { message, context, history } = req.body;
         const user = await getUserFromRequest(req);

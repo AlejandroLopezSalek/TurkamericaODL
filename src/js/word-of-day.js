@@ -61,17 +61,17 @@
 
         inner.innerHTML = `
             <!-- Header row -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2 text-white/70 text-sm font-semibold uppercase tracking-wider">
-                    <i class="fas fa-star text-yellow-300"></i> Palabra del Día
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div class="flex items-center gap-2 text-white/70 text-xs sm:text-sm font-semibold uppercase tracking-wider">
+                    <i class="fas fa-star text-yellow-300"></i> <span class="hidden xs:inline">Palabra del</span> Día
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-bold text-white ${lvl.bg} shadow">${lvl.text}</span>
+                <span class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-bold text-white ${lvl.bg} shadow whitespace-nowrap">${lvl.text}</span>
             </div>
 
             <!-- Turkish word (big) -->
             <div class="text-center mb-2">
-                <div id="wodWord" class="text-4xl sm:text-5xl font-black text-white tracking-tight mb-1">${escHtml(data.word)}</div>
-                <div class="text-white/60 text-sm"><i class="fas fa-volume-low mr-1"></i>${escHtml(data.pronunciation)}</div>
+                <div id="wodWord" class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-1">${escHtml(data.word)}</div>
+                <div class="text-white/60 text-xs sm:text-sm"><i class="fas fa-volume-low mr-1"></i>${escHtml(data.pronunciation)}</div>
             </div>
 
             <!-- Example sentence -->
@@ -88,12 +88,13 @@
                 <div class="flex gap-2">
                     <input id="wodAnswerInput"
                         type="text"
-                        placeholder="Escribe la traducción al español..."
-                        class="flex-1 px-4 py-2.5 rounded-lg bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all"
+                        placeholder="Traducción al español..."
+                        class="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all"
                     />
                     <button id="wodCheckBtn"
-                        class="px-4 py-2.5 bg-white text-blue-700 font-bold rounded-lg text-sm hover:bg-white/90 transition-all shadow hover:shadow-lg active:scale-95">
-                        Verificar
+                        class="shrink-0 px-3 sm:px-4 py-2.5 bg-white text-blue-700 font-bold rounded-lg text-sm hover:bg-white/90 transition-all shadow hover:shadow-lg active:scale-95">
+                        <span class="hidden sm:inline">Verificar</span>
+                        <i class="fas fa-check sm:hidden"></i>
                     </button>
                 </div>
                 <!-- Feedback area -->
