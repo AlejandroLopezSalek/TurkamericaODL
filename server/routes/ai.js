@@ -147,18 +147,18 @@ router.get('/word-of-day', async (req, res) => {
                 },
                 {
                     role: 'user',
-                    content: `Generate a Turkish word of the day for Spanish speakers learning Turkish.
+                    content: `Generate a Turkish "Word or Phrase of the Day" for Spanish speakers learning Turkish.
 Return ONLY a JSON object with these exact fields (no markdown, no code block):
 {
-  "word": "<Turkish word>",
-  "pronunciation": "<phonetic pronunciation for Spanish speakers, e.g. mehr-ah-bah>",
+  "word": "<Turkish word or short useful phrase>",
+  "pronunciation": "<phonetic pronunciation for Spanish speakers>",
   "translation": "<Spanish translation>",
-  "example": "<Short example sentence in Turkish>",
+  "example": "<Short example sentence in Turkish using the word/phrase>",
   "exampleTranslation": "<Spanish translation of the example>",
   "level": "<one of: A1, A2, B1, B2, C1>",
-  "tip": "<Short memory tip in Spanish to remember this word>"
+  "tip": "<Short memory tip in Spanish to remember this>"
 }
-Pick a useful, everyday word. Vary the level (not always A1).`
+Pick a useful, everyday term. It can be a single word or a common short phrase. Vary the level (not always A1).`
                 }
             ],
             temperature: 0.9,

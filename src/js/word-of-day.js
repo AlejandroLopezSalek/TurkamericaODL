@@ -180,6 +180,13 @@
             normCorrect.includes(normUser) ||
             normUser.includes(normCorrect);
 
+        // Hide answer zone after submitting
+        const answerZone = getEl('wodAnswerZone');
+        if (answerZone) answerZone.classList.add('hidden');
+
+        // Save to analytics
+        saveWodAnalytics(data.word, userAnswer, isCorrect, data.level);
+
         if (isCorrect) {
             feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-green-400/20 border border-green-400/40 text-green-100';
             feedback.innerHTML = '<i class="fas fa-circle-check mr-2 text-green-300"></i>¡Correcto! 🎉 Bien hecho.';
@@ -203,6 +210,27 @@
 
         feedback.classList.remove('hidden');
         answered = true;
+    }
+
+    // ---- Analytics helper ----
+    async function saveWodAnalytics(word, guess, isCorrect, level) {
+        try {
+            await fetch('/api/analytics', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'word_of_day_attempt',
+                    word: word,
+                    guess: guess,
+                    isCorrect: isCorrect,
+                    level: level,
+                    url: window.location.pathname,
+                    timestamp: new Date().toISOString()
+                })
+            });
+        } catch (err) {
+            console.warn('[wod-analytics] Failed to save attempt:', err.message);
+        }
     }
 
     // ---- Error state ----
