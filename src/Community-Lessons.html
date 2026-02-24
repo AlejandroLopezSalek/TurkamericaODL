@@ -42,10 +42,10 @@ scripts:
             </div>
 
             {# Level Filter #}
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 <span
                     class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-10 shrink-0">Nivel</span>
-                <div class="filter-tabs flex flex-wrap gap-2">
+                <div class="filter-tabs flex flex-nowrap overflow-x-auto gap-2 py-1 scrollbar-hide">
                     {{ components.levelFilterTab('A1', 'A1') }}
                     {{ components.levelFilterTab('A2', 'A2') }}
                     {{ components.levelFilterTab('B1', 'B1') }}
@@ -53,6 +53,7 @@ scripts:
                     {{ components.levelFilterTab('C1', 'C1') }}
                 </div>
             </div>
+
 
         </div>
     </div>

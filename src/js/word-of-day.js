@@ -63,14 +63,14 @@
             <!-- Header row -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <div class="flex items-center gap-2 text-white/70 text-xs sm:text-sm font-semibold uppercase tracking-wider">
-                    <i class="fas fa-star text-yellow-300"></i> <span class="hidden xs:inline">Palabra del</span> Día
+                    <i class="fas fa-star text-yellow-300"></i> Palabra del Día
                 </div>
                 <span class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-bold text-white ${lvl.bg} shadow whitespace-nowrap">${lvl.text}</span>
             </div>
 
             <!-- Turkish word (big) -->
             <div class="text-center mb-2">
-                <div id="wodWord" class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-1">${escHtml(data.word)}</div>
+                <div id="wodWord" class="text-2xl sm:text-4xl font-black text-white tracking-tight mb-1">${escHtml(data.word)}</div>
                 <div class="text-white/60 text-xs sm:text-sm"><i class="fas fa-volume-low mr-1"></i>${escHtml(data.pronunciation)}</div>
             </div>
 
