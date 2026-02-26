@@ -188,6 +188,44 @@ router.post('/login/', loginValidation, async (req, res) => {
     }
 });
 
+// Helper to process Google user data and reduce cognitive complexity
+async function handleGoogleUser(payload) {
+    const { sub: googleId, email, name, picture } = payload;
+
+    // Check if user exists by googleId
+    let user = await User.findOne({ googleId });
+    if (user) return user;
+
+    // Check if email exists (link account)
+    user = await User.findOne({ email });
+    if (user) {
+        user.googleId = googleId; // Link account
+        if (!user.profile.avatar) user.profile.avatar = picture;
+        await user.save();
+        return user;
+    }
+
+    // Create new user
+    const randomPassword = crypto.randomBytes(16).toString('hex');
+    const firstName = name ? name.split(' ')[0] : 'User';
+    const lastName = name?.includes(' ') ? name.split(' ').slice(1).join(' ') : '';
+    const sanitizedBase = email.split('@')[0].replaceAll(/\W/g, '');
+
+    user = new User({
+        username: sanitizedBase + Math.floor(Math.random() * 10000), // Ensure unique username without invalid chars
+        email,
+        password: randomPassword, // Fallback password
+        googleId,
+        profile: {
+            firstName: firstName,
+            lastName: lastName,
+            avatar: picture
+        }
+    });
+    await user.save();
+    return user;
+}
+
 // POST /api/auth/google - Google Login
 router.post('/google', async (req, res) => {
     try {
@@ -199,39 +237,9 @@ router.post('/google', async (req, res) => {
             audience: process.env.GOOGLE_CLIENT_ID
         });
         const payload = ticket.getPayload();
-        const { sub: googleId, email, name, picture } = payload;
 
         // 2. Find or Create User
-        let user = await User.findOne({ googleId });
-
-        if (!user) {
-            // Check if email exists (link account)
-            user = await User.findOne({ email });
-
-            if (user) {
-                user.googleId = googleId; // Link account
-                if (!user.profile.avatar) user.profile.avatar = picture;
-                await user.save();
-            } else {
-                // Create new user
-                const randomPassword = crypto.randomBytes(16).toString('hex');
-                const firstName = name ? name.split(' ')[0] : 'User';
-                const lastName = name?.includes(' ') ? name.split(' ').slice(1).join(' ') : '';
-
-                user = new User({
-                    username: email.split('@')[0] + Math.floor(Math.random() * 1000), // Ensure unique username
-                    email,
-                    password: randomPassword, // Fallback password
-                    googleId,
-                    profile: {
-                        firstName: firstName,
-                        lastName: lastName,
-                        avatar: picture
-                    }
-                });
-                await user.save();
-            }
-        }
+        const user = await handleGoogleUser(payload);
 
         // 3. Update Streak & Generate JWT
         user.updateStreak();
@@ -259,8 +267,9 @@ router.post('/google', async (req, res) => {
 
     } catch (error) {
         console.error('Error en Google login:', error);
-        res.status(401).json({
-            message: 'Token de Google inválido'
+        res.status(error.name === 'ValidationError' ? 400 : 401).json({
+            message: error.name === 'ValidationError' ? 'Error al crear la cuenta con Google: ' + error.message : 'Token de Google inválido',
+            error: process.env.NODE_ENV === 'production' ? undefined : error.message
         });
     }
 });
