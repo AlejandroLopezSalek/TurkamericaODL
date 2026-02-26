@@ -802,13 +802,12 @@ globalThis.revertLessonAdmin = async function (id, version) {
 
     try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`/api/lessons/${id}/revert`, {
+        const response = await fetch(`/api/lessons/${id}/restore/${version}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ version })
+            }
         });
 
         if (!response.ok) throw new Error('Failed to revert');

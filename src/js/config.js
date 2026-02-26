@@ -17,7 +17,6 @@ const API_CONFIG = {
     apiPath: ''
   },
   production: {
-    // Same Oracle VM as the frontend — use location.origin for same-origin requests (no CORS)
     baseURL: globalThis.location.origin,
     apiPath: '/api'
   }

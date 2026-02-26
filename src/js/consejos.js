@@ -85,13 +85,12 @@
         updateItemState(item, isCompleted);
 
         // Unified Interaction: Click anywhere on the card
-        // We ensure that clicking children (like the icon) bubbles up to this handler,
-        // unless the child has its own stopPropagation (which we shouldn't do if we want unified behavior).
         item.onclick = (e) => {
-            // If the click originated from the icon, let it bubble (or handle it here).
-            // Since we want the WHOLE card to do the same thing, we just handle it here.
-            // We don't need stopPropagation unless this card is inside another clickable thing.
-            e.preventDefault(); // Prevent default if it's a link (unlikely but safe)
+            // Check if click was on a toggle link to avoid multiple triggers
+            if (e.target.closest('a') && e.target.closest('a').href) {
+                return; // Let links handle themselves
+            }
+            e.preventDefault();
             handleToggle(item);
         };
 
