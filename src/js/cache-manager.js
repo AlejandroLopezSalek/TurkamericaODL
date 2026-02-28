@@ -100,32 +100,35 @@
     setupServiceWorkerUpdates() {
       if (!('serviceWorker' in navigator)) return;
 
-      navigator.serviceWorker.ready.then(registration => {
-        // Check for updates every hour
-        setInterval(() => {
-          console.log('[Cache] Checking for service worker updates...');
-          registration.update();
-        }, CHECK_INTERVAL);
-
-        // Listen for update found
-        const onUpdateFound = () => {
-          const newWorker = registration.installing;
-          const onStateChange = () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('[Cache] New service worker available');
-              this.showUpdateAvailableNotification(registration);
-            }
-          };
-          newWorker.addEventListener('statechange', onStateChange);
-        };
-        registration.addEventListener('updatefound', onUpdateFound);
-      });
+      navigator.serviceWorker.ready.then(this.handleServiceWorkerReady.bind(this));
 
       // Listen for controller change (new SW activated)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         console.log('[Cache] Service worker updated, reloading...');
         globalThis.location.reload();
       });
+    }
+
+    handleServiceWorkerReady(registration) {
+      // Check for updates every hour
+      setInterval(() => {
+        console.log('[Cache] Checking for service worker updates...');
+        registration.update();
+      }, CHECK_INTERVAL);
+
+      const onUpdateFound = () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => this.handleWorkerStateChange(newWorker, registration));
+      };
+
+      registration.addEventListener('updatefound', onUpdateFound);
+    }
+
+    handleWorkerStateChange(worker, registration) {
+      if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+        console.log('[Cache] New service worker available');
+        this.showUpdateAvailableNotification(registration);
+      }
     }
 
     // Setup visibility change listener to check for updates

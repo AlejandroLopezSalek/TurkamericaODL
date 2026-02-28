@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     minlength: [3, 'Username must be at least 3 characters'],
     maxlength: [20, 'Username cannot exceed 20 characters'],
-    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
+    match: [/^\w+$/, 'Username can only contain letters, numbers, and underscores']
   },
   email: {
     type: String,
@@ -23,6 +23,15 @@ const userSchema = new mongoose.Schema({
     // Password is only required if googleId is NOT present
     required: function () { return !this.googleId; },
     minlength: [6, 'Password must be at least 6 characters']
+  },
+  country: {
+    type: String,
+    required: [true, 'Country is required'],
+    trim: true,
+    enum: {
+      values: ['AR', 'BO', 'CL', 'CO', 'CR', 'CU', 'DO', 'EC', 'SV', 'GQ', 'GT', 'HN', 'MX', 'NI', 'PA', 'PY', 'PE', 'PR', 'ES', 'UY', 'VE', 'US', 'OTHER'],
+      message: '{VALUE} is not a valid country code'
+    }
   },
   googleId: {
     type: String,
@@ -127,7 +136,7 @@ userSchema.methods.updateStreak = function () {
   const lastActivity = this.stats.lastActivity ? new Date(this.stats.lastActivity) : null;
 
   // Si ya hubo actividad hoy, no hacemos nada
-  if (lastActivity && lastActivity.toDateString() === now.toDateString()) {
+  if (lastActivity?.toDateString() === now.toDateString()) {
     return this.stats.streak;
   }
 
@@ -135,7 +144,7 @@ userSchema.methods.updateStreak = function () {
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  if (lastActivity && lastActivity.toDateString() === yesterday.toDateString()) {
+  if (lastActivity?.toDateString() === yesterday.toDateString()) {
     this.stats.streak = (this.stats.streak || 0) + 1;
   } else {
     // Si pasó más tiempo (se rompió la racha) o es el primer día

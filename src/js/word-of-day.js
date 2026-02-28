@@ -61,8 +61,6 @@
         answered = false;
 
         const lvl = LEVEL_COLORS[data.level] || LEVEL_COLORS['A1'];
-        // const storageKey = getStorageKey(); // Moved below
-        // const hasAnswered = localStorage.getItem(storageKey) === data.word; // Moved below
 
         inner.innerHTML = `
             <!-- Header row -->
@@ -106,12 +104,12 @@
             <!-- Feedback area (outside zone so it stays visible) -->
             <div id="wodFeedback" class="mt-3 hidden rounded-lg px-4 py-3 text-sm font-medium transition-all"></div>
 
-            <!-- Reveal translation button -->
+            <!-- View Glossary link -->
             <div class="flex gap-3 mt-2">
-                <button id="wodRevealBtn"
+                <a href="/Glosario/" id="wodRevealGlossary"
                     class="flex-1 py-2.5 px-4 rounded-lg border border-white/30 text-white/80 text-sm font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-eye"></i> Ver traducción
-                </button>
+                    <i class="fas fa-book"></i> Ver glosario de palabras anteriores
+                </a>
                 <button id="wodTipBtn"
                     class="py-2.5 px-4 rounded-lg border border-white/30 text-white/80 text-sm font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
                     <i class="fas fa-lightbulb"></i> Tip
@@ -136,7 +134,7 @@
         const isUserLoggedIn = !!(
             localStorage.getItem('token') ||
             localStorage.getItem('authToken') ||
-            (globalThis.AuthService && globalThis.AuthService.isLoggedIn())
+            globalThis.AuthService?.isLoggedIn()
         );
         const storageKey = getStorageKey();
         const localAnswered = localStorage.getItem(storageKey) === data.word;
@@ -230,44 +228,61 @@
             normCorrect.includes(normUser) ||
             normUser.includes(normCorrect);
 
-        // Hide answer zone after submitting
-        const answerZone = getEl('wodAnswerZone');
-        if (answerZone) answerZone.classList.add('hidden');
-
         // Save to analytics
         saveWodAnalytics(wodData.word, userAnswer, isCorrect, wodData.level);
 
         if (isCorrect) {
+            // Hide answer zone after submitting correctly
+            const answerZone = getEl('wodAnswerZone');
+            if (answerZone) answerZone.classList.add('hidden');
+
             feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-green-400/20 border border-green-400/40 text-green-100';
             feedback.innerHTML = '<i class="fas fa-circle-check mr-2 text-green-300"></i>¡Correcto! 🎉 Bien hecho.';
             if (input) {
                 input.classList.add('border-green-400/60', 'bg-green-400/10');
-                input.classList.remove('border-white/20');
+                input.classList.remove('border-white/20', 'border-red-400/60', 'bg-red-400/10');
             }
-        } else {
-            feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
-            feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>Casi. La respuesta correcta es: <strong class="text-white">${escHtml(wodData.translation)}</strong>`;
-            if (input) {
-                input.classList.add('border-red-400/60', 'bg-red-400/10');
-                input.classList.remove('border-white/20');
-            }
-            // Auto-reveal translation on wrong answer
+
             const div = getEl('wodTranslation');
             const exTr = getEl('wodExampleTranslation');
             if (div) div.classList.remove('hidden');
             if (exTr) exTr.classList.remove('hidden');
+
+            answered = true;
+            localStorage.setItem(getStorageKey(), wodData.word);
+        } else {
+            feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
+            feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>Incorrecto, ¡intenta de nuevo!`;
+            if (input) {
+                input.classList.add('border-red-400/60', 'bg-red-400/10');
+                input.classList.remove('border-white/20', 'border-green-400/60', 'bg-green-400/10');
+                input.value = '';
+                input.focus();
+            }
         }
 
         feedback.classList.remove('hidden');
-        answered = true;
-
-        // Persist locally for the user
-        localStorage.setItem(getStorageKey(), wodData.word);
     }
 
     // ---- Analytics helper ----
     async function saveWodAnalytics(word, guess, isCorrect, level) {
         try {
+            // Get user info if available
+            let username = 'guest';
+            let country = 'unknown';
+
+            try {
+                const userKey = globalThis.APP_CONFIG?.AUTH?.USER_KEY || 'currentUser';
+                const userStr = localStorage.getItem(userKey);
+                if (userStr) {
+                    const userObj = JSON.parse(userStr);
+                    username = userObj.username || 'guest';
+                    country = userObj.country || 'unknown';
+                }
+            } catch (e) {
+                console.warn('Could not parse user info for analytics');
+            }
+
             await fetch('/api/analytics', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -277,7 +292,9 @@
                     guess: guess,
                     isCorrect: isCorrect,
                     level: level,
-                    url: window.location.pathname,
+                    username: username,
+                    country: country,
+                    url: globalThis.location.pathname,
                     timestamp: new Date().toISOString()
                 })
             });

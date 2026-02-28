@@ -88,7 +88,7 @@ class AuthService {
         try {
             const API_URL = globalThis.APP_CONFIG
                 ? globalThis.APP_CONFIG.getFullApiUrl(globalThis.APP_CONFIG.ENDPOINTS.AUTH_REGISTER)
-                : `${globalThis.location.origin}/api/register`;
+                : `${globalThis.location.origin}/api/auth/register`;
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -96,7 +96,8 @@ class AuthService {
                 body: JSON.stringify({
                     username: userData.name,
                     email: userData.email,
-                    password: userData.password
+                    password: userData.password,
+                    country: userData.country
                 })
             });
 
@@ -126,7 +127,7 @@ class AuthService {
         try {
             const API_URL = globalThis.APP_CONFIG
                 ? globalThis.APP_CONFIG.getFullApiUrl(globalThis.APP_CONFIG.ENDPOINTS.AUTH_LOGIN)
-                : `${globalThis.location.origin}/api/login`;
+                : `${globalThis.location.origin}/api/auth/login`;
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -374,11 +375,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Las contraseñas no coinciden');
                 }
 
+                const country = document.getElementById('country')?.value;
+
+                if (!country) {
+                    throw new Error('Por favor selecciona tu país');
+                }
+
                 const submitBtn = registerForm.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
 
-                const result = await globalThis.AuthService.register({ name: username, email, password });
+                const result = await globalThis.AuthService.register({ name: username, email, password, country });
 
                 if (result.success) {
                     showSuccessMessage('¡Registro exitoso! Bienvenido/a');

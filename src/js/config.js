@@ -14,7 +14,7 @@ const isDevelopment = isLocalhost;
 const API_CONFIG = {
   development: {
     baseURL: 'http://localhost:3000',
-    apiPath: ''
+    apiPath: '/api'
   },
   production: {
     baseURL: globalThis.location.origin,
@@ -109,7 +109,7 @@ globalThis.APP_CONFIG = {
     USERNAME: {
       MIN_LENGTH: 3,
       MAX_LENGTH: 20,
-      PATTERN: /^[a-zA-Z0-9_]+$/
+      PATTERN: /^\w+$/
     },
     PASSWORD: {
       MIN_LENGTH: 6,
@@ -148,19 +148,19 @@ globalThis.APP_CONFIG = {
 };
 
 // Suppress logs in production
-if (!isDevelopment) {
-  const noop = () => { };
-  console.log = noop;
-  console.info = noop;
-  console.warn = noop;
-  console.error = noop;
-} else {
+if (isDevelopment) {
   // Log de configuración SOLO en desarrollo
   console.log('🔧 TurkAmerica Configuration:', {
     Environment: globalThis.APP_CONFIG.APP.ENVIRONMENT,
     API_URL: globalThis.APP_CONFIG.API_BASE_URL,
     Version: globalThis.APP_CONFIG.APP.VERSION
   });
+} else {
+  const noop = () => { };
+  console.log = noop;
+  console.info = noop;
+  console.warn = noop;
+  console.error = noop;
 }
 
 // Hacer disponible globalmente

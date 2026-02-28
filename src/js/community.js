@@ -682,9 +682,10 @@ async function viewLesson(id) {
 }
 
 function buildLessonModalContent(lesson) {
-    const contentHtml = (lesson.content || '').trim().startsWith('<')
-        ? lesson.content
-        : (globalThis.marked ? globalThis.marked.parse(lesson.content || '') : lesson.content);
+    let contentHtml = lesson.content || '';
+    if (!contentHtml.trim().startsWith('<')) {
+        contentHtml = globalThis.marked ? globalThis.marked.parse(contentHtml) : contentHtml;
+    }
 
     return `
         <div class="mb-8 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -877,7 +878,7 @@ function updateContributeButton() {
 
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const diffDays = Math.ceil(Math.abs(new Date() - date) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil(Math.abs(Date.now() - date) / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return 'Hoy';
     if (diffDays === 1) return 'Ayer';

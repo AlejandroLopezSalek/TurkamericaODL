@@ -149,6 +149,12 @@ router.get('/word-of-day', async (req, res) => {
         }
 
         // 3. Generate new word via AI
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const recentWordsDocs = await DailyWord.find({ createdAt: { $gte: thirtyDaysAgo } }, { 'data.word': 1 }).sort({ createdAt: -1 });
+        const recentWords = recentWordsDocs.map(d => d.data?.word).filter(Boolean);
+        const avoidPrompt = recentWords.length > 0 ? `\n\nNOTE: Try to avoid these words that were provided in the last 30 days: ${recentWords.join(', ')}. You can repeat them occasionally if they are very important, but prefer providing new words.` : '';
+
         const completion = await groq.chat.completions.create({
             model: 'llama-3.1-8b-instant',
             messages: [
@@ -165,13 +171,14 @@ Return ONLY a JSON object with these exact fields (no markdown, no code block):
   "pronunciation": "<phonetic pronunciation for Spanish speakers>",
   "translation": "<Spanish translation>",
   "example": "<Short example sentence in Turkish using the word/phrase>",
-  "exampleTranslation": "<Spanish translation of the example>",
+  "exampleTranslation": "<Spanish translation of the example, BUT LEAVE THE TARGET WORD IN TURKISH so the user has to guess it>",
   "level": "<one of: A1, A2, B1, B2, C1>",
   "tip": "<Short memory tip in Spanish to remember this>"
 }
 Pick a useful, everyday term. It can be a single word or a common short phrase. 
-IMPORTANT: DO NOT use extremely basic greetings like "merhaba", "selam", "nasılsın", "günaydın", or "iyi akşamlar" (unless it is for a specific level like C1 in a complex idiom). 
-Provide variety across different levels (A1 to C1).`
+IMPORTANT: DO NOT use extremely basic greetings like "merhaba", "selam", "nasılsın", "günaydın", or "iyi akşamlar" (unless it is for a specific level like C1 in a complex idiom).
+CRITICAL: In 'exampleTranslation', you MUST NOT translate the target 'word'. Leave the target 'word' exactly as it is in Turkish within the Spanish sentence.
+Provide variety across different levels (A1 to C1).${avoidPrompt}`
                 }
             ],
             temperature: 0.9,
@@ -209,6 +216,21 @@ Provide variety across different levels (A1 to C1).`
             level: 'A1',
             tip: 'Suena como "mer-aba" — el saludo más básico en turco.'
         });
+    }
+});
+
+// GET /past-words (Mounted at /api/chat/past-words)
+router.get('/past-words', async (req, res) => {
+    try {
+        const pastWords = await DailyWord.find({}).sort({ date: -1 });
+        const results = pastWords.map(doc => ({
+            date: doc.date,
+            ...doc.data
+        }));
+        res.json(results);
+    } catch (err) {
+        console.error('Error fetching past words:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -301,7 +323,7 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
             aiResponse: sanitizedReply,
             context: (typeof context === 'object' && context !== null)
                 ? { page: String(context.page || '') }
-                : { raw: String(context || '') },
+                : { raw: typeof context === 'string' ? context : '' },
             lessonContext: sanitizedLessonContext,
             metadata: {
                 ip: req.ip,
@@ -335,14 +357,14 @@ Respond ONLY with a valid JSON object — no markdown, no extra text:
   "example": "<short Turkish example sentence using the word>",
   "exampleTranslation": "<Spanish translation of the example>",
   "level": "<A1|A2|B1|B2|C1>",
-  "tip": "<one short learning tip in Spanish about this word>"
+  "tip": "<A hint about the word's meaning, like a Spanglish sentence mixing Spanish and the Turkish word (e.g., 'Ayer fui a la [ev] para descansar'), to help them guess>"
 }`;
 
 router.get('/word-of-day', async (req, res) => {
     const todayUtc = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
 
     // Return cached result if still today
-    if (wordOfDayCache && wordOfDayCache.date === todayUtc) {
+    if (wordOfDayCache?.date === todayUtc) {
         return res.json(wordOfDayCache.data);
     }
 
@@ -364,7 +386,7 @@ router.get('/word-of-day', async (req, res) => {
         const raw = completion.choices[0]?.message?.content || '{}';
 
         // Strip any accidental markdown fences
-        const cleaned = raw.replace(/```json|```/g, '').trim();
+        const cleaned = raw.replaceAll(/```json|```/g, '').trim();
         const data = JSON.parse(cleaned);
 
         // Validate required fields

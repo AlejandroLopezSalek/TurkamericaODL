@@ -87,7 +87,7 @@
         // Unified Interaction: Click anywhere on the card
         item.onclick = (e) => {
             // Check if click was on a toggle link to avoid multiple triggers
-            if (e.target.closest('a') && e.target.closest('a').href) {
+            if (e.target.closest('a')?.href) {
                 return; // Let links handle themselves
             }
             e.preventDefault();

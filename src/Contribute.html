@@ -10,7 +10,7 @@ scripts:
 <div class="content contribute-page max-w-4xl mx-auto">
     <!-- Compact Header for Mobile Edit Mode -->
     <div class="compact-header mb-4">
-        <a href="/" class="compact-back-btn text-white hover:text-indigo-200 transition-colors">
+        <a href="/" aria-label="Volver" class="compact-back-btn text-white hover:text-indigo-200 transition-colors">
             <i class="fas fa-times"></i>
         </a>
 
@@ -29,28 +29,32 @@ scripts:
                     conocimientos creando lecciones o recomendando libros útiles.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <button
+                    <button type="button"
                         class="flex flex-col items-center text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-700 dark:to-slate-700/50 border-2 border-transparent hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg group"
                         onclick="selectContributionType('lesson')">
-                        <div
-                            class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                        <span
+                            class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform block">
                             <i class="fas fa-book-open"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Crear Lección</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-300">Crea una lección completa con formato
-                            profesional, secciones y explicaciones.</p>
+                        </span>
+                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">Crear
+                            Lección</strong>
+                        <span class="text-sm text-slate-600 dark:text-slate-300 block">Crea una lección completa con
+                            formato
+                            profesional, secciones y explicaciones.</span>
                     </button>
 
-                    <button
+                    <button type="button"
                         class="flex flex-col items-center text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-700/50 border-2 border-transparent hover:border-purple-400 dark:hover:border-purple-500 transition-all duration-300 hover:shadow-lg group"
                         onclick="selectContributionType('book')">
-                        <div
-                            class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                        <span
+                            class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform block">
                             <i class="fas fa-file-pdf"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Compartir Libro</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-300">Comparte un enlace a un libro o recurso
-                            PDF útil para la comunidad.</p>
+                        </span>
+                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">Compartir
+                            Libro</strong>
+                        <span class="text-sm text-slate-600 dark:text-slate-300 block">Comparte un enlace a un libro o
+                            recurso
+                            PDF útil para la comunidad.</span>
                     </button>
                 </div>
             </div>
@@ -119,8 +123,8 @@ scripts:
                 </div>
 
                 <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Contenido de la
-                        Lección <span class="text-red-500">*</span></label>
+                    <div class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Contenido de la
+                        Lección <span class="text-red-500">*</span></div>
                     <div
                         class="lesson-editor rounded-xl border border-slate-300 dark:border-slate-600 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
                         <div id="lessonContentEditor"

@@ -23,7 +23,14 @@ const registerValidation = [
         .normalizeEmail(),
     body('password')
         .isLength({ min: 6 })
-        .withMessage('La contraseña debe tener al menos 6 caracteres')
+        .withMessage('La contraseña debe tener al menos 6 caracteres'),
+    body('country')
+        .notEmpty()
+        .withMessage('El país es requerido')
+        .isString()
+        .withMessage('El país debe ser texto')
+        .isLength({ min: 2, max: 5 })
+        .withMessage('Código de país inválido')
 ];
 
 const loginValidation = [
@@ -52,7 +59,7 @@ router.post('/register', registerValidation, async (req, res) => {
             });
         }
 
-        const { username, email, password } = req.body;
+        const { username, email, password, country } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({
@@ -79,11 +86,12 @@ router.post('/register', registerValidation, async (req, res) => {
         const newUser = new User({
             username: username.toLowerCase(),
             email: email.toLowerCase(),
-            password: password
+            password: password,
+            country: country
         });
 
         await newUser.save();
-        console.log('✅ User registered successfully:', newUser.username);
+        console.log(`✅ User registered successfully: ${newUser.username} (Country: ${newUser.country})`);
 
         // Generate JWT
         const token = jwt.sign(
@@ -119,7 +127,7 @@ router.post('/register', registerValidation, async (req, res) => {
 });
 
 // POST /api/login - User login
-router.post('/login/', loginValidation, async (req, res) => {
+router.post('/login', loginValidation, async (req, res) => {
     try {
         console.log('🔐 Login attempt received.');
 
@@ -209,10 +217,17 @@ async function handleGoogleUser(payload) {
     const randomPassword = crypto.randomBytes(16).toString('hex');
     const firstName = name ? name.split(' ')[0] : 'User';
     const lastName = name?.includes(' ') ? name.split(' ').slice(1).join(' ') : '';
-    const sanitizedBase = email.split('@')[0].replaceAll(/\W/g, '');
+    let sanitizedBase = email.split('@')[0].replaceAll(/\W/g, '');
+
+    // Username max length is 20, random suffix is 4 digits
+    if (sanitizedBase.length > 15) {
+        sanitizedBase = sanitizedBase.substring(0, 15);
+    }
+    // Guarantee 4 digits suffix so length check (min: 3) is always passed
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
 
     user = new User({
-        username: sanitizedBase + Math.floor(Math.random() * 10000), // Ensure unique username without invalid chars
+        username: sanitizedBase + randomSuffix, // Ensure unique username without invalid chars
         email,
         password: randomPassword, // Fallback password
         googleId,

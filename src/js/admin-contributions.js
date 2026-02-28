@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Append modals to body to ensure full-screen blur works correctly
+    const requestModal = document.getElementById('requestModal');
+    if (requestModal) document.body.appendChild(requestModal);
+
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) document.body.appendChild(confirmModal);
+
     initAdminDashboard();
 });
 
