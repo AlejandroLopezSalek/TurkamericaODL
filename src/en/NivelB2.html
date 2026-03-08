@@ -1,0 +1,93 @@
+---
+layout: base_en.njk
+---
+{% import "components.njk" as components %}
+
+<section class="mt-10 px-4 max-w-7xl mx-auto">
+  <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-8 flex items-center gap-3">
+    <i class="fas fa-book text-indigo-600 dark:text-indigo-400"></i>
+    Grammar Level B2
+  </h2>
+  <div class="grammar-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {{ components.grammarCard("Bildirme Ekleri (-DIr) (Present)", "Advanced", "Express facts, general truths and
+    assumptions (probably).", "bildirme-eki-present") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-IncAyA kadar, -dIkçA)", "Advanced", "Express 'until...' and 'as...'.",
+    "zarf-fiil-kadar-dikce") }}
+
+    {{ components.grammarCard("Sıfat-Fiiller (Ortaçlar) - Part 1", "Advanced", "Adjectival participles (doing):
+    -An, -AsI, -mAz, -Ar.", "sifat-fiiller-1") }}
+
+    {{ components.grammarCard("Sıfat-Fiiller (Ortaçlar) - Part 2", "Advanced", "Adjectival participles (did/will
+    do): -DIk, -AcAk, -mIş.", "sifat-fiiller-2") }}
+
+    {{ components.grammarCard("Edilgen Çatı (Passive Voice)", "Advanced", "Express actions where the subject receives
+    the
+    action ('to be done').", "edilgen-cati") }}
+
+    {{ components.grammarCard("Ettirgen Çatı (Causative) - Part 1", "Advanced", "Make someone do something (Suffixes:
+    -dIr, -t).", "ettirgen-cati-1") }}
+
+    {{ components.grammarCard("Ettirgen Çatı (Causative) - Part 2", "Advanced", "Make someone do something (Suffixes:
+    -Ir, -Ar, -Er, -It).", "ettirgen-cati-2") }}
+
+    {{ components.grammarCard("Oldurgan Çatı (Factitive)", "Advanced", "Convert intransitive verbs to transitive
+    (e.g. sleep -&gt; make sleep).", "oldurgan-cati") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-mAdAn önce, -dIktAn sonra)", "Advanced", "Time sequencing: 'before...'
+    and 'after...'.", "zarf-fiil-sonra-once") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (Mode/Sequence - Review)", "Intermediate", "B1 Review: -(y)Ip (and),
+    -(y)A...-(y)A (repetition), -(y)ArAk (mode).", "zarf-fiil-ip-arak") }}
+
+    {{ components.grammarCard("Bağlaçlar (Conjunctions: ki, diye, etc.)", "Advanced", "Use of key conjunctions: ki
+    (that), diye (saying/for), bu yüzden (therefore).", "baglaclar-ki-diye") }}
+
+    {{ components.grammarCard("Dolaylı Anlatım (Indirect Speech) - Affirmative", "Advanced", "Report what someone
+    said ('Said that...'): -DIğI, -AcAğI.", "dolayli-anlatim-duz") }}
+
+    {{ components.grammarCard("Dolaylı Anlatım (Indirect Speech) - Questions", "Advanced", "Report questions
+    ('Asked if...'): -DIğInI, -AcAğInI.", "dolayli-anlatim-soru") }}
+
+    {{ components.grammarCard("Dolaylı Anlatım (Indirect Speech) - Imperative", "Advanced", "Report orders ('Said
+    to do...'): -mAsInI.", "dolayli-anlatim-emir") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (Review: -Ir -mAz, -(y)AlI)", "Intermediate", "B1 Review: 'as soon as...'
+    and 'since...'.", "zarf-fiil-irmaz-ali") }}
+
+    {{ components.grammarCard("İsim Cümleleri (Clauses: -mAsI, -DIğI)", "Advanced", "Noun clauses: 'The fact
+    that...' and 'That (someone) does...'.", "isim-cumleleri-masi-digi") }}
+
+    {{ components.grammarCard("Bağlaçlar (Review: hem... hem, ne... ne)", "Intermediate", "Review of double
+    conjunctions:
+    'both... and...', 'neither... nor...', 'either... or...'.", "baglaclar-hem-ne-ya") }}
+  </div>
+</section>
+
+<section class="mt-16 mb-12">
+  <div class="flex items-center gap-3 mb-8">
+    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Master Fluency (B2)</h2>
+    <div class="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
+  </div>
+
+  <div class="flex justify-center max-w-4xl mx-auto">
+    {{ components.affiliateCard(
+    title="italki",
+    description="At this level, you need real practice. Find native speakers to perfect your accent and dialect.",
+    link="https://www.italki.com/affshare?ref=af30849267",
+    btnText="Connect with Natives",
+    badge="Essential for B2",
+    icon="comments"
+    ) }}
+  </div>
+</section>
+
+
+<div class="sr-only">
+  {% for key, lesson in b2_lessons %}
+  <article data-lesson-id="{{key}}">
+    <h2>{{ lesson.title }}</h2>
+    <div>{{ lesson.content | safe }}</div>
+  </article>
+  {% endfor %}
+</div>

@@ -196,6 +196,7 @@ app.use('/api/contributions', require('./routes/contributions'));
 app.use('/api/lessons', require('./routes/lessons'));
 app.use('/api/progress', require('./routes/progress')); // Progress Tracking
 app.use('/api/chat', require('./routes/ai')); // AI Mascot Route
+app.use('/api/wod', require('./routes/wod')); // Word of the day stats
 app.use('/api/notifications', require('./routes/notifications')); // Push Notifications
 app.use('/api/analytics', require('./routes/analytics')); // Analytics Route (stops 404s)
 

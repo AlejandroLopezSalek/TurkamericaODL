@@ -44,14 +44,15 @@ layout: niveles.njk
     {{ components.grammarCard("Países y Gentilicios", "Básico", "Nombres de países y lenguas: Türkiye, İspanya,
     İngilizce, vs.", "paises") }}
 
-    {{ components.grammarCard("Kendi & Hep", "Básico", "Palabras de énfasis: kendi (propio), hep (siempre).", "enfasis")
+    {{ components.grammarCard("Kendi &amp; Hep", "Básico", "Palabras de énfasis: kendi (propio), hep (siempre).", "enfasis")
     }}
 
     {{ components.grammarCard("Intervalos de Tiempo", "Básico", "-DAn hasta -(y)A kadar, antes/después y desde hace.",
     "tiempo-intervalos") }}
   </div>
+</section>
 
-  <section class="mt-16 mb-12">
+<section class="mt-16 mb-12">
     <div class="flex items-center gap-3 mb-8">
       <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Herramientas Recomendadas para A1</h2>
       <div class="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
@@ -71,7 +72,7 @@ layout: niveles.njk
 
   <div class="sr-only">
     {% for key, lesson in a1_lessons %}
-    <article id="seo-lesson-{{ key }}">
+    <article data-lesson-id="{{key}}">
       <h2>{{ lesson.title }}</h2>
       <div>{{ lesson.content | safe }}</div>
     </article>

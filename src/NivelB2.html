@@ -31,7 +31,7 @@ layout: niveles.njk
     -Ir, -Ar, -Er, -It).", "ettirgen-cati-2") }}
 
     {{ components.grammarCard("Oldurgan Çatı (Factitiva)", "Avanzado", "Convertir verbos intransitivos en transitivos
-    (ej. dormir -> hacer dormir).", "oldurgan-cati") }}
+    (ej. dormir -&gt; hacer dormir).", "oldurgan-cati") }}
 
     {{ components.grammarCard("Zarf-Fiiller (-mAdAn önce, -dIktAn sonra)", "Avanzado", "Secuenciación de tiempo: 'antes
     de...' y 'después de...'.", "zarf-fiil-sonra-once") }}
@@ -84,7 +84,7 @@ layout: niveles.njk
 
 <div class="sr-only">
   {% for key, lesson in b2_lessons %}
-  <article id="seo-lesson-{{ key }}">
+  <article data-lesson-id="{{key}}">
     <h2>{{ lesson.title }}</h2>
     <div>{{ lesson.content | safe }}</div>
   </article>

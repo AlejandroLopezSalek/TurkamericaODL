@@ -1,0 +1,303 @@
+﻿---
+layout: base_en.njk
+
+scripts:
+- lesson-editor.js
+- contribute.js
+- carousel-universal.js
+---
+
+<div class="content contribute-page max-w-4xl mx-auto">
+    <!-- Compact Header for Mobile Edit Mode -->
+    <div class="compact-header mb-4">
+        <a href="/en/" aria-label="Volver" class="compact-back-btn text-white hover:text-indigo-200 transition-colors">
+            <i class="fas fa-times"></i>
+        </a>
+
+    </div>
+
+    <div class="page-header relative z-10">
+        <!-- Main Card Container -->
+        <div
+            class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 border border-white/20 dark:border-slate-700/50">
+
+            <!-- Contribution Selection (Selection Cards) -->
+            <div id="selectionContainer" class="selection-container">
+                <h2 class="text-center text-2xl md:text-3xl font-bold mb-2 text-slate-800 dark:text-white">Help your
+                    community!</h2>
+                <p class="text-center text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">Share your knowledge by
+                    creating lessons or recommending useful books.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <button type="button"
+                        class="flex flex-col items-center text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-700 dark:to-slate-700/50 border-2 border-transparent hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-300 hover:shadow-lg group"
+                        onclick="selectContributionType('lesson')">
+                        <span
+                            class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform block">
+                            <i class="fas fa-book-open"></i>
+                        </span>
+                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">Create
+                            Lesson</strong>
+                        <span class="text-sm text-slate-600 dark:text-slate-300 block">Create a complete lesson with
+                            professional formatting, sections, and explanations.</span>
+                    </button>
+
+                    <button type="button"
+                        class="flex flex-col items-center text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-700/50 border-2 border-transparent hover:border-purple-400 dark:hover:border-purple-500 transition-all duration-300 hover:shadow-lg group"
+                        onclick="selectContributionType('book')">
+                        <span
+                            class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform block">
+                            <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">Share
+                            Book</strong>
+                        <span class="text-sm text-slate-600 dark:text-slate-300 block">Share a link to a book or PDF
+                            resource useful for the community.</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lesson Creation Form (SIMPLIFIED) -->
+            <form id="lessonEditForm"
+                class="contribution-form hidden space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div
+                    class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                        <i class="fas fa-edit"></i> Lesson Editor
+                    </h2>
+                    <button type="button"
+                        class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center gap-2 font-medium transition-colors"
+                        onclick="showSelection()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="lessonTitle"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Lesson Title
+                            <span class="text-red-500">*</span></label>
+                        <input type="text" id="lessonTitle" required placeholder="Ex: Simple Present - Level A1"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="lessonLevel"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Level <span
+                                class="text-red-500">*</span></label>
+                        <select id="lessonLevel" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Select level</option>
+                            <option value="A1">A1 - Beginner</option>
+                            <option value="A2">A2 - Elementary</option>
+                            <option value="B1">B1 - Intermediate</option>
+                            <option value="B2">B2 - Upper Intermediate</option>
+                            <option value="C1">C1 - Advanced</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="lessonBadge"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Difficulty <span
+                                class="text-red-500">*</span></label>
+                        <select id="lessonBadge" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Select difficulty</option>
+                            <option value="Básico">Basic</option>
+                            <option value="Intermedio">Intermediate</option>
+                            <option value="Avanzado">Advanced</option>
+                            <option value="Nuevo">New</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="lessonDescription"
+                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Short Description <span
+                            class="text-red-500">*</span></label>
+                    <textarea id="lessonDescription" required rows="2"
+                        placeholder="Brief description of what the lesson is about..."
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Lesson Content
+                        <span class="text-red-500">*</span></div>
+                    <div
+                        class="lesson-editor rounded-xl border border-slate-300 dark:border-slate-600 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
+                        <div id="lessonContentEditor"
+                            class="min-h-[400px] p-6 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 prose dark:prose-invert max-w-none focus:outline-none">
+                            <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">Section Title</h2>
+                            <p>Write your lesson content here...</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                        <i class="fas fa-info-circle"></i> Use the toolbar above to format.
+                    </p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button"
+                        class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        onclick="showSelection()">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-8 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Submit Lesson
+                    </button>
+                </div>
+            </form>
+
+            <!-- Book Upload Form (UNCHANGED logic, updated styles) -->
+            <form id="bookUploadForm"
+                class="contribution-form hidden space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div
+                    class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
+                        <i class="fas fa-book"></i> Share Book
+                    </h2>
+                    <button type="button"
+                        class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center gap-2 font-medium transition-colors"
+                        onclick="showSelection()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+
+                <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg flex gap-3">
+                    <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                    <p class="text-sm text-blue-800 dark:text-blue-200"><strong>Note:</strong> We only share links to
+                        books. We do not upload files directly to save server space.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="bookTitle"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Book Title
+                            <span class="text-red-500">*</span></label>
+                        <input type="text" id="bookTitle" required placeholder="Ex: Complete Turkish Grammar"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="bookAuthor"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Author <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="bookAuthor" required placeholder="Author's name"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="bookLevel"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Level <span
+                                class="text-red-500">*</span></label>
+                        <select id="bookLevel" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Select level</option>
+                            <option value="A1">A1 - Beginner</option>
+                            <option value="A2">A2 - Elementary</option>
+                            <option value="B1">B1 - Intermediate</option>
+                            <option value="B2">B2 - Upper Intermediate</option>
+                            <option value="C1">C1 - Advanced</option>
+                            <option value="Todos">All levels</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="bookCategory"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Category <span
+                                class="text-red-500">*</span></label>
+                        <select id="bookCategory" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Select category</option>
+                            <option value="Gramática">Grammar</option>
+                            <option value="Vocabulario">Vocabulary</option>
+                            <option value="Lectura">Reading</option>
+                            <option value="Ejercicios">Exercises</option>
+                            <option value="Cultura">Culture</option>
+                            <option value="General">General</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="bookUrl" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Book
+                        Link <span class="text-red-500">*</span></label>
+                    <input type="url" id="bookUrl" required placeholder="https://example.com/book.pdf"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Google Drive, Dropbox, or any public link</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="bookFormat"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Format <span
+                                class="text-red-500">*</span></label>
+                        <select id="bookFormat" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Select format</option>
+                            <option value="PDF">PDF</option>
+                            <option value="EPUB">EPUB</option>
+                            <option value="MOBI">MOBI</option>
+                            <option value="Otro">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="bookSize"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Approximate
+                            Size</label>
+                        <input type="text" id="bookSize" placeholder="Ex: 5 MB"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="bookDescription"
+                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Description <span
+                            class="text-red-500">*</span></label>
+                    <textarea id="bookDescription" required rows="4"
+                        placeholder="Describe the content of the book and why it is useful..."
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="bookLanguage"
+                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Book Language <span
+                            class="text-red-500">*</span></label>
+                    <select id="bookLanguage" required
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+                        <option value="">Select language</option>
+                        <option value="Español">Spanish</option>
+                        <option value="Turco">Turkish</option>
+                        <option value="Inglés">English</option>
+                        <option value="Bilingüe">Bilingual</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button"
+                        class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        onclick="window.location.href='/en/'">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-8 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-lg shadow-purple-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Submit Proposal
+                    </button>
+                </div>
+            </form>
+
+            <!-- My Contributions Section -->
+            <div class="my-contributions mt-12 pt-8 border-t-2 border-slate-100 dark:border-slate-700">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                    <i class="fas fa-list text-indigo-500"></i> My Contributions
+                </h2>
+                <div id="myContributionsList" class="contributions-list grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

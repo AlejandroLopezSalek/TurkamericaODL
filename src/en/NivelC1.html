@@ -1,0 +1,57 @@
+---
+layout: base_en.njk
+---
+{% import "components.njk" as components %}
+
+<section class="mt-10 px-4 max-w-7xl mx-auto">
+  <div class="grammar-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {{ components.grammarCard("İsim Cümleleri (Advanced)", "Advanced", "Nominal Sentences combined with compound tenses
+    (idi, imiş, ise) and modals.", "isim-cumleleri-c1") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-DIkçA / -sIn diye)", "Advanced", "Verbal adverbs: 'the more...'
+    (-DIkçA) and 'so that...' (-sIn diye).", "zarf-fiil-dikca-diye") }}
+
+    {{ components.grammarCard("Yeterlilik Fiili (Advanced)", "Advanced", "Capacity Verb (Can): -(y)Abilmek and its
+    irregular negative -(y)AmAmAk.", "yeterlilik-fiili-c1") }}
+
+    {{ components.grammarCard("Sıfat-Fiiller (Participles)", "Advanced", "Relative clauses with -An (subject), -DIğI
+    (object) and -(y)AcAk (future object).", "sifat-fiiller-c1") }}
+
+    {{ components.grammarCard("Bağlaçlar (Cause)", "Advanced", "Conjunctions: çünkü, zira (because), bu yüzden,
+    dolayısıyla (therefore), nitekim (indeed).", "baglaclar-c1-zaman") }}
+
+    {{ components.grammarCard("Bağlaçlar (Contrast)", "Advanced", "Conjunctions: ama, fakat (but), oysa, halbuki
+    (while), ne var ki (the fact is that).", "baglaclar-c1-karsilastirma") }}
+
+    {{ components.grammarCard("Bağlaçlar (Double Conjunctions)", "Advanced", "hem... hem (both... and), ne... ne
+    (neither... nor), ya... ya (either... or), ister... ister (whether...).", "baglaclar-c1-ciftli") }}
+  </div>
+</section>
+
+<section class="mt-16 mb-12">
+  <div class="flex items-center gap-3 mb-8">
+    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Perfection (C1+)</h2>
+    <div class="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
+  </div>
+
+  <div class="flex justify-center max-w-4xl mx-auto">
+    {{ components.affiliateCard(
+    title="italki",
+    description="Keep your level high. Talk about politics, culture and literature with experts.",
+    link="https://www.italki.com/affshare?ref=af30849267",
+    btnText="Advanced Debates",
+    badge="Maintenance",
+    icon="comments"
+    ) }}
+  </div>
+</section>
+
+
+<div class="sr-only">
+  {% for key, lesson in c1_lessons %}
+  <article data-lesson-id="{{key}}">
+    <h2>{{ lesson.title }}</h2>
+    <div>{{ lesson.content | safe }}</div>
+  </article>
+  {% endfor %}
+</div>

@@ -1,0 +1,89 @@
+---
+layout: base_en.njk
+---
+{% import "components.njk" as components %}
+
+<section class="mt-10 px-4 max-w-7xl mx-auto">
+  <div class="grammar-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {{ components.grammarCard("Zarf-Fiiller (-(y)ArAk, -(y)A)", "Intermediate", "Verbal adverbs indicating the mode or
+    manner in which an action is performed ('doing').", "zarf-fiil-arak") }}
+
+    {{ components.grammarCard("Şimdiki Zamanın Hikâyesi", "Intermediate", "Past continuous tense ('was doing'). Used for
+    actions in progress in the past.", "simdiki-zaman-hikayesi") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-(y)ken)", "Intermediate", "Verbal adverb meaning 'while' or 'when',
+    indicating simultaneity.", "zarf-fiil-ken") }}
+
+    {{ components.grammarCard("İsim-Fiil Ekleri (-mAk, -mA)", "Intermediate", "Nominalization suffixes (verbal nouns) to
+    form infinitives and verbal nouns of action.", "isim-fiil-mak-ma") }}
+
+    {{ components.grammarCard("İsim-Fiil Ekleri (-(y)Iş)", "Intermediate", "Nominalization suffix indicating the 'manner
+    of doing' something (e.g. yürüyüş - walk).", "isim-fiil-is") }}
+
+    {{ components.grammarCard("Emir Kipinde Dolaylı Anlatım", "Intermediate", "Indirect speech to report orders or
+    requests ('said to do...').", "dolayli-anlatim") }}
+
+    {{ components.grammarCard("Gereklilik Kipi (-mAlI)", "Intermediate", "Necessity mode ('must', 'have to'). Also used
+    for assumptions ('must be...').", "gereklilik-kipi") }}
+
+    {{ components.grammarCard("Gereklilik (Gerek / Lazım / Zorunda)", "Intermediate", "Other ways to express necessity
+    (lazım/gerek) and obligation (zorunda/mecbur).", "gereklilik-kullanimlari") }}
+
+    {{ components.grammarCard("Gereklilik Kipinin Hikâyesi (-mAlIydı)", "Intermediate", "Expresses regret or unfulfilled
+    past necessity ('should have done...').", "gereklilik-kipi-hikayesi") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (Amaç: -mAk için / üzere)", "Intermediate", "Verbal adverbs indicating
+    purpose ('in order to do...').", "zarf-fiil-mak-icin") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-mAktAnsA / -mA rağmen)", "Intermediate", "Express preference ('instead
+    of...') and concession ('despite...').", "zarf-fiil-maktansa-ragmen") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-A rağmen / -sA bile)", "Intermediate", "Other ways to express concession
+    ('despite...' / 'even if...').", "zarf-fiil-a-ragmen-sa-bile") }}
+
+    {{ components.grammarCard("Dilek Kipi (-sA)", "Intermediate", "Wish mode ('I wish...') and simple conditional
+    ('If...').", "dilek-kipi") }}
+
+    {{ components.grammarCard("Dilek Kipinin Hikâyesi (-sAydı)", "Intermediate", "Unfulfilled past wish ('I wish I
+    had...') and past unreal conditional ('If I had...').", "dilek-kipi-hikayesi") }}
+
+    {{ components.grammarCard("Şart Kipi (Koşul: -(y)sA)", "Intermediate", "Conditional form ('If...') applied to
+    different verbal tenses.", "sart-kipi") }}
+
+    {{ components.grammarCard("İşteş Çatılı Fiiller (-(I)ş / -lAş)", "Intermediate", "Reciprocal ('each other') or
+    collective ('together') voice.", "istes-catili-fiiller") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-(y)IncA / -Ir -mAz)", "Intermediate", "Verbal adverbs of time: 'when...'
+    (-(y)IncA) and 'as soon as...' (-Ir -mAz).", "zarf-fiil-inca-ir-maz") }}
+
+    {{ components.grammarCard("Zarf-Fiiller (-DIğIndAn beri / -(y)AlI)", "Intermediate", "Verbal adverbs indicating
+    duration ('since...').", "zarf-fiil-digindan-beri") }}
+  </div>
+</section>
+
+<section class="mt-16 mb-12">
+  <div class="flex items-center gap-3 mb-8">
+    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">For Intermediate Level B1</h2>
+    <div class="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
+  </div>
+
+  <div class="flex justify-center max-w-4xl mx-auto">
+    {{ components.affiliateCard(
+    title="italki",
+    description="Perfect your accent and fluency by talking about complex topics with native speakers.",
+    link="https://www.italki.com/affshare?ref=af30849267",
+    btnText="Practice Conversation",
+    icon="comments"
+    ) }}
+  </div>
+</section>
+
+
+<div class="sr-only">
+  {% for key, lesson in b1_lessons %}
+  <article data-lesson-id="{{key}}">
+    <h2>{{ lesson.title }}</h2>
+    <div>{{ lesson.content | safe }}</div>
+  </article>
+  {% endfor %}
+</div>

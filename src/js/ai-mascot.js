@@ -51,6 +51,14 @@ function createMascotUI() {
         mascotBtn = document.createElement('div');
         mascotBtn.id = 'turkbot-btn';
         mascotBtn.className = 'fixed bottom-6 right-6 z-[9990] cursor-pointer group transition-all duration-300 hover:scale-110 transform scale-0 opacity-0'; // Start hidden for animation
+        const lang = localStorage.getItem('language') || 'es';
+
+        const TEXTS = {
+            es: { bubbleText: "¡Merhaba! Soy Capi" },
+            en: { bubbleText: "Merhaba! I'm Capi" },
+            pt: { bubbleText: "Merhaba! Eu sou o Capi" }
+        };
+
         mascotBtn.innerHTML = `
             <div class="relative flex items-center justify-center w-[75px] h-[75px] md:w-[130px] md:h-[130px]">
                  
@@ -60,7 +68,7 @@ function createMascotUI() {
 
                  <!-- Desktop Speech Bubble -->
                  <div class="absolute -top-12 right-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm py-1 px-3 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-slate-200 dark:border-slate-700 hidden md:block">
-                    ¡Merhaba! Soy Capi
+                    ${TEXTS[lang].bubbleText}
                 </div>
 
                 <!-- Image with Picture Tag -->
@@ -415,6 +423,7 @@ async function handleSend(e) {
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
         const contextData = await gatherContext();
+        const lang = localStorage.getItem('language') || 'es';
 
         const API_URL = `${globalThis.API_BASE_URL}/chat`;
         const response = await fetch(API_URL, {
@@ -423,7 +432,8 @@ async function handleSend(e) {
             body: JSON.stringify({
                 message: message,
                 context: contextData,
-                history: history
+                history: history,
+                lang: lang
             })
         });
 

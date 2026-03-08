@@ -1,0 +1,81 @@
+---
+layout: base_pt.njk
+---
+{% import "components.njk" as components %}
+
+<section class="mt-10 px-4 max-w-7xl mx-auto">
+  <div class="grammar-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {{ components.grammarCard("Alfabeto Turco", "Básico", "As 29 letras do alfabeto turco com seus sons específicos.",
+    "alfabeto") }}
+
+    {{ components.grammarCard("Caso Locativo da,de /ta,te", "Básico", "Equivalente à preposição 'em/no/na'.",
+    "preposicion") }}
+
+    {{ components.grammarCard("Var e Yok - Existência", "Básico", "Expressa a presença ou ausência de algo com 'var'
+    (há/existe) e 'yok' (não há/não existe).", "var-yok") }}
+
+    {{ components.grammarCard("Ordem das Frases (SOV)", "Básico", "Entenda a ordem típica turca: Sujeito + Objeto +
+    Verbo, diferente do Português SVO.", "orden") }}
+
+    {{ components.grammarCard("Perguntas Básicas", "Básico", "Interrogativos fundamentais: nerede, ne zaman, neden, ne
+    kadar, kaç, nerelisin, nere(ye).", "preguntas-basicas") }}
+
+    {{ components.grammarCard("Demonstrativos: Bu • Şu • O", "Básico", "Indica proximidade: bu (perto do falante), şu
+    (perto do ouvinte), o (longe de ambos).", "demostrativos") }}
+
+    {{ components.grammarCard("Sufixo Plural (-lAr)", "Básico", "Sufixo plural aplicando harmonia vocálica: -lar /
+    -ler.",
+    "plural") }}
+
+    {{ components.grammarCard("Sufixo de Pergunta (mi/mı/mu/mü)", "Básico", "Enclítico interrogativo ajustado à vogal
+    precedente.", "sufijo-pregunta") }}
+
+    {{ components.grammarCard("Presente Simples (Şimdiki Zaman)", "Básico", "Raiz verbal + -yor + terminações
+    pessoais.", "tiempo-presente") }}
+
+    {{ components.grammarCard("Casos Locativos (-yA / -DAn)", "Básico", "-yA para direção (para), -DAn para origem
+    (de).", "casos") }}
+
+    {{ components.grammarCard("-mAk istemek", "Básico", "Infinitivo + istemek para expressar desejo ou intenção.",
+    "deseo") }}
+
+    {{ components.grammarCard("Sufixos de Relação", "Básico", "Sufixos de posse (-ın/-in) e localização (-de/-da).",
+    "relacion") }}
+
+    {{ components.grammarCard("Países e Nacionalidades", "Básico", "Nomes de países e línguas: Türkiye, İspanya,
+    İngilizce, etc.", "paises") }}
+
+    {{ components.grammarCard("Kendi &amp; Hep", "Básico", "Palavras de ênfase: kendi (próprio), hep (sempre).", "enfasis")
+    }}
+
+    {{ components.grammarCard("Intervalos de Tempo", "Básico", "-DAn até -(y)A kadar, antes/depois e desde.",
+    "tiempo-intervalos") }}
+  </div>
+</section>
+
+<section class="mt-16 mb-12">
+    <div class="flex items-center gap-3 mb-8">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Ferramentas Recomendadas para A1</h2>
+      <div class="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
+    </div>
+
+    <div class="flex justify-center max-w-4xl mx-auto">
+      {{ components.affiliateCard(
+      title="italki",
+      description="Não espere para ser 'fluente'. Encontre um professor paciente e comece a falar hoje mesmo.",
+      link="https://www.italki.com/affshare?ref=af30849267",
+      btnText="Encontrar Professor",
+      icon="comments"
+      ) }}
+    </div>
+  </section>
+
+
+  <div class="sr-only">
+    {% for key, lesson in a1_lessons %}
+    <article data-lesson-id="{{key}}">
+      <h2>{{ lesson.title }}</h2>
+      <div>{{ lesson.content | safe }}</div>
+    </article>
+    {% endfor %}
+  </div>

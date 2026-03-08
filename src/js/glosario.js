@@ -148,6 +148,33 @@
         const storageKey = 'wod_answered_' + data.date;
         const localAnswered = localStorage.getItem(storageKey) === data.word;
 
+        const lang = localStorage.getItem('language') || 'es';
+        const isEn = lang === 'en';
+        const isPt = lang === 'pt';
+
+        let answerLabel = "¿Cómo se traduce?";
+        let answerPlaceholder = "Traducción al español...";
+        let verifyText = "Verificar";
+        let completedText = "¡Ya has completado esta palabra!";
+        let revealText = "Ver traducción";
+        let translationLabel = "Traducción";
+
+        if (isEn) {
+            answerLabel = "How do you translate it?";
+            answerPlaceholder = "English translation...";
+            verifyText = "Verify";
+            completedText = "You have already completed this word!";
+            revealText = "View translation";
+            translationLabel = "Translation";
+        } else if (isPt) {
+            answerLabel = "Como se traduz?";
+            answerPlaceholder = "Tradução em português...";
+            verifyText = "Verificar";
+            completedText = "Você já completou esta palavra!";
+            revealText = "Ver tradução";
+            translationLabel = "Tradução";
+        }
+
         inner.innerHTML = `
             <!-- Header row -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pr-6">
@@ -172,25 +199,25 @@
             <!-- Answer input zone -->
             <div id="glosAnswerZone" class="mb-4 ${localAnswered ? 'hidden' : ''}">
                 <label class="block text-white/80 text-xs font-semibold uppercase tracking-wider mb-2 ml-1">
-                    <i class="fas fa-pencil mr-1"></i>¿Cómo se traduce?
+                    <i class="fas fa-pencil mr-1"></i>${answerLabel}
                 </label>
                 <div class="flex gap-2">
-                    <input id="glosAnswerInput" type="text" placeholder="Traducción al español..." class="flex-1 min-w-0 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/20 transition-all font-medium"/>
+                    <input id="glosAnswerInput" type="text" placeholder="${answerPlaceholder}" class="flex-1 min-w-0 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/20 transition-all font-medium"/>
                     <button id="glosCheckBtn" class="shrink-0 px-4 py-3 bg-white text-blue-700 font-bold rounded-xl text-sm hover:bg-white/90 transition-all shadow-md hover:shadow-lg active:scale-95">
-                        <span class="hidden sm:inline">Verificar</span>
+                        <span class="hidden sm:inline">${verifyText}</span>
                         <i class="fas fa-check sm:hidden"></i>
                     </button>
                 </div>
             </div>
 
             <div id="glosFeedback" class="mt-4 ${localAnswered ? 'bg-green-500/20 border-green-400/30 text-green-50 block' : 'hidden'} rounded-xl px-4 py-3 text-sm font-medium transition-all border shadow-sm">
-                ${localAnswered ? '<i class="fas fa-check-circle mr-2 text-green-300"></i>¡Ya has completado esta palabra!' : ''}
+                ${localAnswered ? `<i class="fas fa-check-circle mr-2 text-green-300"></i>${completedText}` : ''}
             </div>
 
             <!-- Reveal buttons -->
             <div class="flex gap-3 mt-4">
                 <button id="glosRevealBtn" class="flex-1 py-3 px-4 rounded-xl border border-white/20 text-white text-sm font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2 shadow-sm ${localAnswered ? 'hidden' : ''}">
-                    <i class="fas fa-eye"></i> Ver traducción
+                    <i class="fas fa-eye"></i> ${revealText}
                 </button>
                 <button id="glosTipBtn" class="py-3 px-4 rounded-xl border border-white/20 text-white text-sm font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2 shadow-sm">
                     <i class="fas fa-lightbulb"></i> Tip
@@ -199,7 +226,7 @@
 
             <!-- Translation -->
             <div id="glosTranslation" class="${localAnswered ? '' : 'hidden'} mt-5 text-center p-5 bg-white/10 rounded-2xl border border-white/20 transition-all shadow-inner backdrop-blur-sm">
-                <div class="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-2">Traducción</div>
+                <div class="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-2">${translationLabel}</div>
                 <div class="text-3xl font-black text-white px-2 leading-tight">${escHtml(data.translation)}</div>
             </div>
 
@@ -237,19 +264,33 @@
             const normUser = normalize(userAnswer);
             const normCorrect = normalize(data.translation);
 
+            // Only accept exact match OR if the answer consists of multiple words,
+            // check each word individually (e.g. "to eat" matches "eat" only in full)
+            const correctWords = normCorrect.split(/\s+/);
+            const isMultiWord = correctWords.length > 1;
             const isCorrect = normUser === normCorrect ||
-                normCorrect.includes(normUser) ||
-                normUser.includes(normCorrect);
+                // For multi-word translations: user must match the full string (no partial)
+                // For single-word: require at least 90% character length AND starts-with match
+                (!isMultiWord &&
+                    normUser.length >= Math.ceil(normCorrect.length * 0.9) &&
+                    normCorrect.startsWith(normUser));
 
             getEl('glosAnswerZone')?.classList.add('hidden');
+            const lang = localStorage.getItem('language') || 'es';
             const feedback = getEl('glosFeedback');
             if (feedback) {
                 if (isCorrect) {
                     feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-green-500/20 border border-green-400/40 text-green-50 block shadow-sm';
-                    feedback.innerHTML = '<i class="fas fa-circle-check mr-2 text-green-300 text-lg align-text-bottom"></i> ¡Correcto! 🎉 Bien hecho.';
+                    let correctFeedbackMsg = '¡Correcto! 🎉 Bien hecho.';
+                    if (lang === 'en') correctFeedbackMsg = 'Correct! 🎉 Well done.';
+                    if (lang === 'pt') correctFeedbackMsg = 'Correto! 🎉 Muito bem.';
+                    feedback.innerHTML = `<i class="fas fa-circle-check mr-2 text-green-300 text-lg align-text-bottom"></i> ${correctFeedbackMsg}`;
                 } else {
                     feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-red-500/20 border border-red-400/40 text-red-50 block shadow-sm';
-                    feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300 text-lg align-text-bottom"></i> La traducción correcta era: <strong class="text-white">${escHtml(data.translation)}</strong>`;
+                    let wrongFeedbackMsg = 'La traducción correcta era:';
+                    if (lang === 'en') wrongFeedbackMsg = 'The correct translation was:';
+                    if (lang === 'pt') wrongFeedbackMsg = 'A tradução correta era:';
+                    feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300 text-lg align-text-bottom"></i> ${wrongFeedbackMsg} <strong class="text-white">${escHtml(data.translation)}</strong>`;
                 }
             }
 

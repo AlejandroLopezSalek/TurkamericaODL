@@ -78,13 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Save on change
-        languageSelect.addEventListener('change', () => {
-            const lang = languageSelect.value;
-            localStorage.setItem('language', lang);
-            console.log(`🌐 Language set to: ${lang}`);
-            // Here you would trigger a translation function or reload
-            // location.reload(); // Optional: reload to apply language
-        });
+        languageSelect.addEventListener('change', () => handleLanguageChange(languageSelect));
     }
 
     // --- Reset Logic (Tailwind Modal) ---
@@ -169,3 +163,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('⚙️ Settings Panel loaded');
 });
+
+// Helper function for language select changes
+function handleLanguageChange(languageSelect) {
+    const lang = languageSelect.value;
+    localStorage.setItem('language', lang);
+    console.log(`🌐 Language set to: ${lang}`);
+
+    const currentPath = globalThis.window.location.pathname;
+
+    let basePath = currentPath;
+    if (currentPath.startsWith('/en/')) {
+        basePath = currentPath.substring(3);
+        if (basePath === '') basePath = '/';
+    } else if (currentPath.startsWith('/pt/')) {
+        basePath = currentPath.substring(3);
+        if (basePath === '') basePath = '/';
+    }
+
+    let newPath = basePath;
+    if (lang === 'en' || lang === 'pt') {
+        newPath = `/${lang}${basePath === '/' ? '/' : basePath}`;
+    }
+
+    if (currentPath !== newPath) {
+        globalThis.window.location.href = newPath;
+    } else {
+        globalThis.location.reload();
+    }
+}

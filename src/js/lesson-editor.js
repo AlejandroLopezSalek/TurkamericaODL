@@ -154,7 +154,8 @@ class LessonEditor {
         if (command === 'h2' || command === 'h3') {
             document.execCommand('formatBlock', false, command);
         } else {
-            document.execCommand(command, false, null);
+            // @ts-ignore
+    document.execCommand(command, false, null);
         }
         this.editor.focus();
     }

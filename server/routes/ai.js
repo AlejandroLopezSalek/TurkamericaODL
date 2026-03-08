@@ -81,7 +81,7 @@ Content: ${cleanContent.substring(0, 1500)}...
 };
 
 // Helper to construct system prompt
-const buildSystemPrompt = (user, context, lessonContentContext, memoryContext) => {
+const buildSystemPrompt = (user, context, lessonContentContext, memoryContext, lang = 'es', ragContext = '') => {
     let userContext = "User: Guest";
 
     if (user) {
@@ -106,6 +106,7 @@ CONTEXT:
 ${userContext}
 ${lessonContentContext}
 Current Page: ${contextStr || 'General Dashboard'}${memoryContext || ''}
+${ragContext}
 
 CRITICAL RULES:
 1. **Language**: EXPLAIN in Spanish, but PROVIDE EXAMPLES in Turkish.
@@ -259,7 +260,19 @@ router.post('/', async (req, res) => {
             memoryContext = `\nMEMORY: The user was last studying "${user.stats.lastViewedLesson.title}".`;
         }
 
-        const systemPrompt = buildSystemPrompt(user, context, lessonContentContext, memoryContext);
+        // --- RAG RETRIEVAL ---
+        const ragService = require('../services/ragService');
+        const similarChunks = await ragService.findSimilarContext(message, 3);
+        let ragContext = "";
+        if (similarChunks && similarChunks.length > 0) {
+            ragContext = `\n*** COMMUNITY KNOWLEDGE BASE ***\nIf the user's question is related to the following community material, use it to formulate your answer:\n`;
+            similarChunks.forEach(chunk => {
+                ragContext += `[Source: "${chunk.metadata?.title || 'Community Lesson'}" by ${chunk.metadata?.author || 'Unknown'} - Level ${chunk.metadata?.level || 'N/A'}]:\n"${chunk.text}"\n\n`;
+            });
+        }
+
+        const langToPass = req.body.lang || 'es';
+        const systemPrompt = buildSystemPrompt(user, context, lessonContentContext, memoryContext, langToPass, ragContext);
 
         const messages = [{ role: "system", content: systemPrompt }];
 
@@ -347,15 +360,17 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
 let wordOfDayCache = null;
 
 const WORD_OF_DAY_PROMPT = `You are a Turkish language teacher for Spanish speakers.
-Generate a "Turkish Word of the Day" for language learners.
+Generate a "Turkish Word or Phrase of the Day" for language learners.
 Choose a word appropriate for any level (A1–C1). Vary difficulty each day.
+IMPORTANT: DO NOT use extremely basic greetings like "merhaba", "selam", "nasılsın", "günaydın", or "iyi akşamlar" (unless it is for a specific level like C1 in a complex idiom).
+CRITICAL: In 'exampleTranslation', you MUST NOT translate the target 'word'. Leave the target 'word' exactly as it is in Turkish within the Spanish sentence.
 Respond ONLY with a valid JSON object — no markdown, no extra text:
 {
   "word": "<Turkish word or short phrase>",
   "translation": "<Spanish translation>",
   "pronunciation": "<phonetic guide in Spanish e.g. 'mer-AB-a'>",
   "example": "<short Turkish example sentence using the word>",
-  "exampleTranslation": "<Spanish translation of the example>",
+  "exampleTranslation": "<Spanish translation of the example, BUT LEAVE THE TARGET WORD IN TURKISH so the user has to guess it>",
   "level": "<A1|A2|B1|B2|C1>",
   "tip": "<A hint about the word's meaning, like a Spanglish sentence mixing Spanish and the Turkish word (e.g., 'Ayer fui a la [ev] para descansar'), to help them guess>"
 }`;
