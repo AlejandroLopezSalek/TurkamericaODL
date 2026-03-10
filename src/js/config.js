@@ -11,9 +11,11 @@ const isLocalhost = globalThis.location.hostname === 'localhost' ||
 const isDevelopment = isLocalhost;
 
 // Configuración de API
+// En localhost usamos origin dinámica (funciona en :3000, :3002, cualquier puerto)
+// En producción también usamos origin para que sea relativo al dominio actual
 const API_CONFIG = {
   development: {
-    baseURL: 'http://localhost:3000',
+    baseURL: globalThis.location.origin, // ← dinámico: funciona en cualquier puerto local
     apiPath: '/api'
   },
   production: {
@@ -23,8 +25,6 @@ const API_CONFIG = {
 };
 
 // Seleccionar configuración según entorno
-// Si estamos en localhost, asumimos desarrollo y usamos el puerto 3000
-// Si no, estamos en producción
 const currentConfig = isLocalhost ? API_CONFIG.development : API_CONFIG.production;
 
 // Configuración global de la aplicación

@@ -74,3 +74,5 @@ debug-contributions.js
 fix-contributions.js
 check-contributions.js
 check-users.js
+
+.agents/

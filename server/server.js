@@ -24,38 +24,27 @@ const PORT = process.env.PORT || 3000;
 // ================================
 
 const getAllowedOrigins = () => {
-  const baseOrigins = [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:8000',
-    'http://localhost:8080',
-    'http://localhost:5500',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:8080',
-    'http://127.0.0.1:5500',
+  return [
     // Production domains (HTTPS only)
     'https://odl-turquia.club',
     'https://www.odl-turquia.club'
   ];
-
-  if (process.env.ALLOWED_ORIGINS) {
-    const prodOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
-    return [...baseOrigins, ...prodOrigins];
-  }
-
-  return baseOrigins;
 };
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
+
     const allowedOrigins = getAllowedOrigins();
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+
+    // Always allow any localhost/* or 127.0.0.1/* in development
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+    if (isLocalhost || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
-      console.log('⚠️  Blocked CORS request from unlisted origin.');
+      console.log('⚠️  Blocked CORS request from unlisted origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -69,9 +58,6 @@ const corsOptions = {
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
-// ================================
-// SECURITY MIDDLEWARE
-// ================================
 
 // Security headers (after CORS so preflight isn't intercepted)
 app.use(helmet({
@@ -83,7 +69,18 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
+      connectSrc: [
+        "'self'",
+        // Allow all localhost ports for local development
+        "http://localhost:*",
+        "http://127.0.0.1:*",
+        "https://fonts.googleapis.com", "https://fonts.gstatic.com",
+        "https://cdnjs.cloudflare.com",
+        "https://pagead2.googlesyndication.com",
+        "https://*.adtrafficquality.google",
+        "https://cdn.jsdelivr.net",
+        "https://accounts.google.com"
+      ],
       frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://tpc.googlesyndication.com", "https://www.google.com", "https://accounts.google.com"],
     },
   },
