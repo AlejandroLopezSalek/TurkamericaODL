@@ -183,7 +183,7 @@ router.get('/word-of-day', async (req, res) => {
         // 2. Check MongoDB for today's unified document
         let dailyDoc = await DailyWord.findOne({ date: todayStr });
 
-        if (dailyDoc && dailyDoc.translations.get(lang)) {
+        if (dailyDoc && dailyDoc.translations && dailyDoc.translations.get(lang)) {
             const data = dailyDoc.translations.get(lang);
             // Sync back to Redis
             if (redisClient.isOpen && redisClient.isReady) {
@@ -194,9 +194,9 @@ router.get('/word-of-day', async (req, res) => {
 
         // 3. Generation / Translation Logic
         let wordData;
-        if (dailyDoc) {
+        if (dailyDoc && dailyDoc.translations) {
             // Document exists for another language, translate the existing word
-            const existingData = dailyDoc.translations.values().next().value;
+            const existingData = dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || dailyDoc.translations.values().next().value;
             console.log(`🌍 Translating existing WOD (${existingData.word}) to ${languageName}`);
             wordData = await generateWodTranslation(existingData, languageName, lang);
             
@@ -325,12 +325,26 @@ router.get('/past-words', async (req, res) => {
         const langCode = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
         const pastWords = await DailyWord.find({}).sort({ date: -1 });
         const results = pastWords.map(doc => {
-            const translation = doc.translations.get(langCode) || doc.translations.get('es') || doc.translations.values().next().value;
+            // Support both new Map format and legacy 'data' object
+            let translation = null;
+            if (doc.translations instanceof Map) {
+                translation = doc.translations.get(langCode) || doc.translations.get('es') || doc.translations.values().next().value;
+            } else if (doc.translations) {
+                // If lean() or plain obj
+                translation = doc.translations[langCode] || doc.translations['es'] || Object.values(doc.translations)[0];
+            } else if (doc._doc && doc._doc.data) {
+                translation = doc._doc.data;
+            } else if (doc.data) {
+                translation = doc.data;
+            }
+
+            if (!translation) return null;
+
             return {
                 date: doc.date,
                 ...translation
             };
-        });
+        }).filter(Boolean);
         res.json(results);
     } catch (err) {
         console.error('Error fetching past words:', err.message);
