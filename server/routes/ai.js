@@ -182,10 +182,21 @@ router.get('/word-of-day', async (req, res) => {
 
         // 2. Check MongoDB for today's unified document
         let dailyDoc = await DailyWord.findOne({ date: todayStr });
+        
+        // Safely extract existing data (new Map or legacy 'data' field)
+        let existingData = null;
+        if (dailyDoc) {
+            if (dailyDoc.translations && typeof dailyDoc.translations.get === 'function') {
+                existingData = dailyDoc.translations.get(lang) || dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || Array.from(dailyDoc.translations.values())[0];
+            } else {
+                // Legacy document
+                existingData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
+            }
+        }
 
-        if (dailyDoc && dailyDoc.translations && dailyDoc.translations.get(lang)) {
+        // Return if we already have the translation in the requested language
+        if (dailyDoc && dailyDoc.translations && typeof dailyDoc.translations.get === 'function' && dailyDoc.translations.get(lang)) {
             const data = dailyDoc.translations.get(lang);
-            // Sync back to Redis
             if (redisClient.isOpen && redisClient.isReady) {
                 await redisClient.setEx(redisKey, 86400, JSON.stringify(data)).catch(() => { });
             }
@@ -194,28 +205,54 @@ router.get('/word-of-day', async (req, res) => {
 
         // 3. Generation / Translation Logic
         let wordData;
-        if (dailyDoc && dailyDoc.translations) {
-            // Document exists for another language, translate the existing word
-            const existingData = dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || dailyDoc.translations.values().next().value;
-            console.log(`🌍 Translating existing WOD (${existingData.word}) to ${languageName}`);
+        if (existingData) {
+            // Document exists, translate the existing word
+            console.log(`🌍 Translating existing WOD (${existingData.word || 'legacy'}) to ${languageName}`);
             wordData = await generateWodTranslation(existingData, languageName, lang);
             
-            // Update document
+            // Ensure translations exists as a Map and persist
+            if (!dailyDoc.translations || typeof dailyDoc.translations.set !== 'function') {
+                dailyDoc.translations = new Map();
+                // Migrating: preserve old data if we don't know the lang (assume 'es')
+                const langMatch = dailyDoc.date.match(/_([a-z]{2})$/);
+                const docLang = langMatch ? langMatch[1] : 'es';
+                dailyDoc.translations.set(docLang, existingData);
+            }
             dailyDoc.translations.set(lang, wordData);
             await dailyDoc.save();
         } else {
             // Generate brand new WOD
             console.log(`✨ Generating brand new WOD for ${todayStr} (${languageName})`);
             const recentWordsDocs = await DailyWord.find({}, { 'translations.es.word': 1 }).sort({ date: -1 }).limit(20);
-            const recentWords = recentWordsDocs.map(d => d.translations.get('es')?.word).filter(Boolean);
+            const recentWords = recentWordsDocs.map(d => {
+                if (d.translations && typeof d.translations.get === 'function') return d.translations.get('es')?.word;
+                return d.data?.word;
+            }).filter(Boolean);
             
             wordData = await generateNewWod(languageName, lang, recentWords);
             
-            // Create document
-            dailyDoc = await DailyWord.create({
-                date: todayStr,
-                translations: { [lang]: wordData }
-            });
+            if (dailyDoc) {
+                // If dailyDoc exists but has no data, update it
+                dailyDoc.translations = new Map([[lang, wordData]]);
+                await dailyDoc.save();
+            } else {
+                // Create brand new document
+                try {
+                    dailyDoc = await DailyWord.create({
+                        date: todayStr,
+                        translations: { [lang]: wordData }
+                    });
+                } catch (createErr) {
+                    if (createErr.code === 11000) {
+                        // Rare race condition: someone else created the doc. Retry once or fallback.
+                        dailyDoc = await DailyWord.findOne({ date: todayStr });
+                        if (dailyDoc && dailyDoc.translations && typeof dailyDoc.translations.set === 'function') {
+                            dailyDoc.translations.set(lang, wordData);
+                            await dailyDoc.save();
+                        }
+                    } else throw createErr;
+                }
+            }
         }
 
         // 4. Save to Redis and Return
@@ -323,28 +360,34 @@ function getFallbackWod(langCode) {
 router.get('/past-words', async (req, res) => {
     try {
         const langCode = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
-        const pastWords = await DailyWord.find({}).sort({ date: -1 });
+        // Use lean() for performance and to work with plain JS objects
+        const pastWords = await DailyWord.find({}).sort({ date: -1 }).lean();
+        
         const results = pastWords.map(doc => {
-            // Support both new Map format and legacy 'data' object
             let translation = null;
-            if (doc.translations instanceof Map) {
-                translation = doc.translations.get(langCode) || doc.translations.get('es') || doc.translations.values().next().value;
-            } else if (doc.translations) {
-                // If lean() or plain obj
-                translation = doc.translations[langCode] || doc.translations['es'] || Object.values(doc.translations)[0];
-            } else if (doc._doc && doc._doc.data) {
-                translation = doc._doc.data;
-            } else if (doc.data) {
+            
+            // 1. Check for Map-like translations (from Mongoose) or plain object translations
+            if (doc.translations) {
+                if (typeof doc.translations.get === 'function') {
+                    translation = doc.translations.get(langCode) || doc.translations.get('es') || Array.from(doc.translations.values())[0];
+                } else {
+                    translation = doc.translations[langCode] || doc.translations['es'] || Object.values(doc.translations)[0];
+                }
+            }
+            
+            // 2. Fallback to legacy 'data' field
+            if (!translation) {
                 translation = doc.data;
             }
 
-            if (!translation) return null;
+            if (!translation || typeof translation !== 'object') return null;
 
             return {
                 date: doc.date,
                 ...translation
             };
         }).filter(Boolean);
+        
         res.json(results);
     } catch (err) {
         console.error('Error fetching past words:', err.message);
