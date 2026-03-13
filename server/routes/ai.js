@@ -153,25 +153,7 @@ const ttsService = require('../services/ttsService');
 // Redis Cache handles storage
 
 
-// Helper to generate the target word sync prompt
-const getTargetWordPrompt = (existingOther, languageName) => {
-    if (!existingOther?.data?.word) return "";
-
-    const sourceLevelBadge = existingOther.data.level || "";
-    const levelPrefixMatch = sourceLevelBadge.match(/^([a-zA-Z0-9]+)\s*-/);
-    const levelInstruction = levelPrefixMatch
-        ? `\n- "level": MUST start with "${levelPrefixMatch[1]} - " followed by the ${languageName} translated level name.`
-        : "";
-
-    return `\n\nCRITICAL INSTRUCTION - SYNC REQUIRED:
-You MUST use these exact Turkish values for the following fields. DO NOT alter them:
-- "word": "${existingOther.data.word}"
-- "pronunciation": "${existingOther.data.pronunciation}"
-- "example": "${existingOther.data.example}"${levelInstruction}
-
-Your ONLY task is to provide the ${languageName} translations for 'translation', 'level', 'tip', and 'exampleTranslation'. 
-CRITICAL RULE: You MUST NOT translate the target word itself in the 'exampleTranslation'. Keep the target word "${existingOther.data.word}" in its original Turkish form inside the translated sentence!`;
-};
+// Redis Cache handles storage
 
 // GET /word-of-day (Mounted at /api/chat/word-of-day)
 const DailyWord = require('../models/DailyWord');
@@ -179,167 +161,176 @@ const DailyWord = require('../models/DailyWord');
 router.get('/word-of-day', async (req, res) => {
     try {
         if (!process.env.GROQ_API_KEY) {
-            console.error('[WoD] ERROR: GROQ_API_KEY is missing from process.env');
             return res.status(503).json({ error: 'AI service not configured' });
         }
+
         const lang = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
         let languageName = 'Spanish';
-        if (lang === 'en') {
-            languageName = 'English';
-        } else if (lang === 'tr') {
-            languageName = 'Turkish';
-        }
-        const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-        const cacheKey = todayStr + '_v7_' + lang;
+        if (lang === 'en') languageName = 'English';
+        else if (lang === 'tr') languageName = 'Turkish';
 
-        // 1. Check Redis in-memory cache first
+        const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        const redisKey = `WOD:${todayStr}:${lang}`;
+
+        // 1. Check Redis for specific language
         try {
             if (redisClient.isOpen && redisClient.isReady) {
-                const cachedWord = await redisClient.get(cacheKey);
-                if (cachedWord) {
-                    return res.json(JSON.parse(cachedWord));
-                }
+                const cached = await redisClient.get(redisKey);
+                if (cached) return res.json(JSON.parse(cached));
             }
-        } catch (e) {
-            console.warn('[Redis] Fail:', e.message);
-        }
+        } catch (e) { console.warn('[Redis] Cache failed:', e.message); }
 
-        // 2. Check MongoDB
-        const existing = await DailyWord.findOne({ date: cacheKey });
-        if (existing) {
+        // 2. Check MongoDB for today's unified document
+        let dailyDoc = await DailyWord.findOne({ date: todayStr });
+
+        if (dailyDoc && dailyDoc.translations.get(lang)) {
+            const data = dailyDoc.translations.get(lang);
+            // Sync back to Redis
             if (redisClient.isOpen && redisClient.isReady) {
-                // Restore it to Redis for next time (expires in 24 hours)
-                await redisClient.setEx(cacheKey, 86400, JSON.stringify(existing.data)).catch(() => { });
+                await redisClient.setEx(redisKey, 86400, JSON.stringify(data)).catch(() => { });
             }
-            return res.json(existing.data);
+            return res.json(data);
         }
 
-        // 2.5 Check if ANY OTHER language generated a word today
-        const cachePrefix = todayStr + '_v7_';
-        const existingOther = await DailyWord.findOne({
-            date: {
-                $regex: '^' + cachePrefix,
-                $ne: cacheKey
-            }
-        });
+        // 3. Generation / Translation Logic
+        let wordData;
+        if (dailyDoc) {
+            // Document exists for another language, translate the existing word
+            const existingData = dailyDoc.translations.values().next().value;
+            console.log(`🌍 Translating existing WOD (${existingData.word}) to ${languageName}`);
+            wordData = await generateWodTranslation(existingData, languageName, lang);
+            
+            // Update document
+            dailyDoc.translations.set(lang, wordData);
+            await dailyDoc.save();
+        } else {
+            // Generate brand new WOD
+            console.log(`✨ Generating brand new WOD for ${todayStr} (${languageName})`);
+            const recentWordsDocs = await DailyWord.find({}, { 'translations.es.word': 1 }).sort({ date: -1 }).limit(20);
+            const recentWords = recentWordsDocs.map(d => d.translations.get('es')?.word).filter(Boolean);
+            
+            wordData = await generateNewWod(languageName, lang, recentWords);
+            
+            // Create document
+            dailyDoc = await DailyWord.create({
+                date: todayStr,
+                translations: { [lang]: wordData }
+            });
+        }
 
-        let targetWordPrompt = getTargetWordPrompt(existingOther, languageName);
+        // 4. Save to Redis and Return
+        if (redisClient.isOpen && redisClient.isReady) {
+            await redisClient.setEx(redisKey, 86400, JSON.stringify(wordData)).catch(() => { });
+        }
+        res.json(wordData);
 
-        // 3. Generate new word via AI
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    } catch (err) {
+        console.error('[word-of-day] Error:', err.message);
+        res.json(getFallbackWod(req.query.lang));
+    }
+});
 
-        // Avoid recently generated words
-        const recentWordsDocs = await DailyWord.find({ date: { $regex: '^' + todayStr.substring(0, 7) }, createdAt: { $gte: thirtyDaysAgo } }, { 'data.word': 1 }).sort({ createdAt: -1 });
-        const recentWords = recentWordsDocs.map(d => d.data?.word).filter(Boolean);
-        const avoidPrompt = recentWords.length > 0 && !targetWordPrompt ? `\n\nNOTE: Try to avoid these words that were provided recently: ${recentWords.join(', ')}.` : '';
+// Helper: Generate brand new WOD (Turkish Focus)
+async function generateNewWod(languageName, lang, recentWords = []) {
+    const avoidPrompt = recentWords.length > 0 ? `\n\nAvoid these recently used words: ${recentWords.join(', ')}.` : '';
+    const DYNAMIC_EXAMPLES = {
+        en: { word: 'Anne', level: 'A1 - Beginner', tip: 'Remember the word looks like Anne.', sentence: 'I want to see my Anne' },
+        tr: { word: 'Anne', level: 'A1 - Başlangıç', tip: 'Anne kelimesine benzer.', sentence: 'Anne görmek istiyorum' },
+        es: { word: 'Anne', level: 'A1 - Principiante', tip: 'Recuerda que se parece al nombre Anne.', sentence: 'Quiero ver a mi Anne' }
+    };
+    const ex = DYNAMIC_EXAMPLES[lang] || DYNAMIC_EXAMPLES.es;
 
-        // Dynamic examples based on language to avoid confusing the AI
-        const DYNAMIC_EXAMPLES = {
-            en: { word: 'Anne', level: 'A1 - Beginner', tip: 'Remember the word looks like Anne.', sentence: 'I want to see my Anne' },
-            tr: { word: 'Anne', level: 'A1 - Başlangıç', tip: 'Anne kelimesine benzer.', sentence: 'Anne görmek istiyorum' },
-            es: { word: 'Anne', level: 'A1 - Principiante', tip: 'Recuerda que se parece al nombre Anne.', sentence: 'Quiero ver a mi Anne' }
-        };
-        const exMap = DYNAMIC_EXAMPLES[lang] || DYNAMIC_EXAMPLES.es;
+    const prompt = `Act as a Turkish language learning API. Generate a 'Word of the Day'.
+Interface Language: ${languageName}.
+Strict JSON, no markdown.
 
-        const userPrompt = `Act as a Turkish language learning API. Your task is to generate a 'Word of the Day' for a learning application.
+CRITICAL: 
+1. Choose an intermediate Turkish vocabulary (A2-C1).
+2. "pronunciation" field: Clear phonetic guide using ${languageName} alphabet.
+3. "exampleTranslation": DO NOT translate target word itself (e.g. "I want to see my Anne").
 
-You must output ONLY strictly valid JSON. Do not include any markdown formatting, conversational text, or explanations.
-
-The user's interface language is: ${languageName}.
-
-CRITICAL INSTRUCTIONS:
-1. Choose an intermediate-to-advanced Turkish vocabulary word (ranging from A2 to C1). Avoid overly basic A1 words like 'yemek', 'su', 'ev', or 'merhaba'. Ensure it is a REAL Turkish word.
-2. The 'pronunciation' field MUST be a clear phonetic guide using the ${languageName} alphabet (e.g. 'AHN-neh').
-3. Translation fields MUST be written entirely in ${languageName}. NO Turkish characters allowed in translation fields, EXCEPT for rule 5 below.
-4. For 'example': You MUST write a grammatically correct sentence using ONLY Turkish.
-5. For 'exampleTranslation': You MUST NOT translate the target word itself. Instead, insert the original Turkish word within the ${languageName} translation appropriately. For example, if the word is 'Elma', the output MUST be "She ate an Elma", NOT "She ate an apple". Translate the rest of the sentence into natural ${languageName}.
-
-EXAMPLE OUTPUT FORMAT (for a ${languageName} user learning the word 'Anne'):
+FORMAT:
 {
   "word": "Anne",
   "pronunciation": "AHN-neh",
   "translation": "Mother",
-  "level": "${exMap.level}",
-  "tip": "${exMap.tip}",
+  "level": "${ex.level}",
+  "tip": "${ex.tip}",
   "example": "Annemi görmek istiyorum",
-  "exampleTranslation": "${exMap.sentence}"
+  "exampleTranslation": "${ex.sentence}"
+}${avoidPrompt}`;
+
+    const { text } = await generateText({
+        model: groq.chat('moonshotai/kimi-k2-instruct'),
+        prompt,
+        temperature: 0.7,
+    });
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI failed to provide valid JSON');
+    return JSON.parse(jsonMatch[0]);
 }
 
-Create a JSON object for the daily word following the exact structure from the example above.${targetWordPrompt}${avoidPrompt}`;
+// Helper: Translate existing WOD word to new language
+async function generateWodTranslation(existingData, languageName, lang) {
+    const prompt = `Act as a Turkish learning API. Translate this existing Word of the Day to ${languageName}.
+You MUST keep the exact same "word", "pronunciation", and "example".
+Only translate the descriptive fields.
 
-        // Use generateText instead of generateObject — more model-compatible, 
-        // avoids JSON schema mode restrictions. The prompt already enforces JSON output.
-        const { text: rawText } = await generateText({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
-            system: `You are a strict native Turkish language teacher. You ONLY output raw valid JSON with no markdown, no code fences, no explanation.`,
-            prompt: userPrompt,
-            temperature: 0.6,
-            maxRetries: 1,
-            maxTokens: 800,
-        });
+TARGET WORD: ${existingData.word}
 
-        // Extract JSON from response (handles model wrapping it in markdown sometimes)
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error('AI did not return valid JSON: ' + rawText.substring(0, 200));
-        }
-        const wordData = JSON.parse(jsonMatch[0]);
+JSON to Translate:
+${JSON.stringify(existingData)}
 
-        // Validate required fields
-        const requiredFields = ['word', 'pronunciation', 'translation', 'level', 'tip', 'example', 'exampleTranslation'];
-        for (const field of requiredFields) {
-            if (!wordData[field] || typeof wordData[field] !== 'string') {
-                throw new Error(`Missing or invalid field: ${field}`);
-            }
-        }
+CRITICAL: "exampleTranslation" MUST keep the word "${existingData.word}" untranslated inside the ${languageName} sentence.
+Output ONLY raw JSON.`;
 
+    const { text } = await generateText({
+        model: groq.chat('moonshotai/kimi-k2-instruct'),
+        prompt,
+        temperature: 0.3,
+    });
 
-        // Validation via zod is already handled by generateObject above
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI failed to provide valid translation JSON');
+    const translated = JSON.parse(jsonMatch[0]);
+    
+    // Safety Force Sync
+    translated.word = existingData.word;
+    translated.pronunciation = existingData.pronunciation;
+    translated.example = existingData.example;
+    
+    return translated;
+}
 
-        // 4. Save to MongoDB & Redis (upsert to handle rare races)
-        await DailyWord.findOneAndUpdate(
-            { date: cacheKey },
-            { data: wordData },
-            { upsert: true, new: true }
-        );
+// Helper: Fallback
+function getFallbackWod(langCode) {
+    const validLang = ['en', 'tr'].includes(langCode) ? langCode : 'es';
+    const FALLBACKS = {
+        en: { word: 'Merhaba', pron: 'mer-HA-ba', trans: 'Hello', level: 'A1 - Beginner', tip: 'Common greeting.', ex: 'Merhaba, nasılsın?', ext: 'Hello, how are you?' },
+        tr: { word: 'Merhaba', pron: 'mer-HA-ba', trans: 'Merhaba', level: 'A1 - Başlangıç', tip: 'En yaygın selamlama.', ex: 'Merhaba, nasılsın?', ext: 'Merhaba, nasılsın?' },
+        es: { word: 'Merhaba', pron: 'mer-HA-ba', trans: 'Hola', level: 'A1 - Principiante', tip: 'Saludo común.', ex: 'Merhaba, nasılsın?', ext: '¿Hola, cómo estás?' }
+    };
+    const f = FALLBACKS[validLang];
+    return {
+        word: f.word, pronunciation: f.pron, translation: f.trans, level: f.level,
+        tip: f.tip, example: f.ex, exampleTranslation: f.ext
+    };
+}
 
-        if (redisClient.isOpen && redisClient.isReady) {
-            await redisClient.setEx(cacheKey, 86400, JSON.stringify(wordData)).catch(() => { });
-        }
-        res.json(wordData);
-    } catch (err) {
-        console.error('[word-of-day] Error:', err.message);
-        // Fallback to a hardcoded word so the widget never breaks
-        const validLang = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
-        const FALLBACK_WORDS = {
-            en: { trans: 'Hello', level: 'A1 - Beginner', tip: 'Merhaba is the most common greeting in Turkish.', sentTrans: 'Hello, how are you?' },
-            tr: { trans: 'Merhaba', level: 'A1 - Başlangıç', tip: 'Merhaba, en yaygın selamlamadır.', sentTrans: 'Merhaba, nasılsın?' },
-            es: { trans: 'Hola', level: 'A1 - Principiante', tip: 'Merhaba es el saludo más común en turco.', sentTrans: '¿Hola, cómo estás?' }
-        };
-        const fbMap = FALLBACK_WORDS[validLang];
-
-        const fallback = {
-            word: 'Merhaba',
-            pronunciation: 'mer-HA-ba',
-            translation: fbMap.trans,
-            level: fbMap.level,
-            tip: fbMap.tip,
-            example: 'Merhaba, nasılsın?',
-            exampleTranslation: fbMap.sentTrans
-        };
-        res.json(fallback);
-    }
-});
 
 // GET /past-words (Mounted at /api/chat/past-words)
 router.get('/past-words', async (req, res) => {
     try {
+        const langCode = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
         const pastWords = await DailyWord.find({}).sort({ date: -1 });
-        const results = pastWords.map(doc => ({
-            date: doc.date,
-            ...doc.data
-        }));
+        const results = pastWords.map(doc => {
+            const translation = doc.translations.get(langCode) || doc.translations.get('es') || doc.translations.values().next().value;
+            return {
+                date: doc.date,
+                ...translation
+            };
+        });
         res.json(results);
     } catch (err) {
         console.error('Error fetching past words:', err.message);
