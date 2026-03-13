@@ -13,6 +13,46 @@ function getCurrentLevel() {
 
 const CURRENT_LEVEL = getCurrentLevel();
 const LEVEL_LOWER = CURRENT_LEVEL.toLowerCase();
+
+// i18n support
+const lang = globalThis.location.pathname.startsWith('/en/') ? 'en' : (globalThis.location.pathname.startsWith('/pt/') ? 'pt' : 'es');
+const translations = {
+    es: {
+        notFound: "Tema no encontrado",
+        noContent: "No se encontró contenido para este tema.",
+        editLesson: "Editar Lección",
+        loginRequired: "Debes iniciar sesión para editar",
+        deleted: "Lección eliminada correctamente",
+        errorDelete: "Error al eliminar la lección",
+        viewExplanation: "Ver Explicación",
+        basic: "Básico",
+        new: "Nuevo"
+    },
+    en: {
+        notFound: "Topic not found",
+        noContent: "No content found for this topic.",
+        editLesson: "Edit Lesson",
+        loginRequired: "You must be logged in to edit",
+        deleted: "Lesson deleted successfully",
+        errorDelete: "Error deleting lesson",
+        viewExplanation: "See Explanation",
+        basic: "Basic",
+        new: "New"
+    },
+    pt: {
+        notFound: "Tema não encontrado",
+        noContent: "Nenhum conteúdo encontrado para este tema.",
+        editLesson: "Editar Lição",
+        loginRequired: "Você deve estar logado para editar",
+        deleted: "Lição excluída com sucesso",
+        errorDelete: "Erro ao excluir a lição",
+        viewExplanation: "Ver Explicação",
+        basic: "Básico",
+        new: "Novo"
+    }
+};
+const t = translations[lang];
+
 let explanationsCache = null;
 
 // 2. Data Fetching
@@ -45,7 +85,7 @@ async function getExplanations() {
                         const key = lesson.id || lesson.lessonId;
                         if (key) {
                             data[key] = {
-                                title: lesson.title || 'Nueva Lección',
+                                title: lesson.title || t.new,
                                 content: lesson.content || lesson.newContent || '',
                                 description: lesson.description || '',
                                 id: key,
@@ -116,8 +156,8 @@ async function openExplanation(topic) {
         setupDeleteButton(modal, item);
         injectPronunciation(contentEl);
     } else {
-        titleEl.textContent = 'Tema no encontrado';
-        contentEl.innerHTML = '<p class="text-center text-gray-500 my-4">No se encontró contenido para este tema.</p>';
+        titleEl.textContent = t.notFound;
+        contentEl.innerHTML = `<p class="text-center text-gray-500 my-4">${t.noContent}</p>`;
     }
 
     // SHOW MODAL - Force it
@@ -137,17 +177,13 @@ function setupModalActions(actionsEl, item, topic) {
         const btn = document.createElement('button');
         btn.className = 'bg-white/20 hover:bg-white/30 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors';
         btn.innerHTML = '<i class="fas fa-edit"></i>';
-        btn.title = "Editar Lección";
+        btn.title = t.editLesson;
 
         btn.onclick = () => {
             // UPDATE: Check if logged in
             if (!globalThis.AuthService?.isLoggedIn()) {
-                if (globalThis.ToastSystem) globalThis.ToastSystem.error('Debes iniciar sesión para editar', 'Acceso Restringido');
-                else alert('Debes iniciar sesión para editar');
-
-                // Open login modal if exists, or redirect
-                // Assuming standard auth-ui might allow triggering login, doing redirect for now to be safe
-                // globalThis.location.href = '/login/'; 
+                if (globalThis.ToastSystem) globalThis.ToastSystem.error(t.loginRequired, 'Acceso Restringido');
+                else alert(t.loginRequired);
                 return;
             }
 
@@ -205,7 +241,7 @@ async function handleDelete(dbId, modal, deleteBtn) {
         // FIX: Method name was wrong (deleteContribution exists in service, deleteLesson does not)
         await globalThis.ContributionService.deleteContribution(dbId);
 
-        if (globalThis.toastSuccess) globalThis.toastSuccess('Lección eliminada correctamente');
+        if (globalThis.toastSuccess) globalThis.toastSuccess(t.deleted);
 
         modal.classList.add('hidden');
         setTimeout(() => globalThis.location.reload(), 800);
@@ -214,8 +250,8 @@ async function handleDelete(dbId, modal, deleteBtn) {
         deleteBtn.disabled = false;
         deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
 
-        if (globalThis.toastError) globalThis.toastError('Error al eliminar la lección');
-        else alert('Error al eliminar la lección');
+        if (globalThis.toastError) globalThis.toastError(t.errorDelete);
+        else alert(t.errorDelete);
     }
 }
 
@@ -257,7 +293,7 @@ function renderDynamicCards(lessons) {
             'Avançado': { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400' },
             'Nuevo': { bg: 'bg-indigo-50 dark:bg-indigo-900/30', text: 'text-indigo-700 dark:text-indigo-400' }
         };
-        const badgeType = lesson.badge || 'Nuevo';
+        const badgeType = lesson.badge || t.new;
         const badgeStyle = badgeConfig[badgeType] || badgeConfig['Nuevo'];
 
         card.innerHTML = `
@@ -269,7 +305,7 @@ function renderDynamicCards(lessons) {
             </h3>
             <div class="flex items-center gap-2 mb-4">
                 <span class="px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                    Básico
+                    ${t.basic}
                 </span>
             </div>
             <p class="card-description text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-3">
@@ -278,7 +314,7 @@ function renderDynamicCards(lessons) {
             <button class="explanation-btn w-full py-2.5 rounded-lg font-semibold bg-indigo-600 text-white shadow-md hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center justify-center gap-2"
                     data-topic="${id}">
                 <i class="fas fa-book-open"></i>
-                Ver Explicación
+                ${t.viewExplanation}
             </button>
         `;
 
