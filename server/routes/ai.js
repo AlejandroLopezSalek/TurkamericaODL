@@ -160,19 +160,17 @@ const DailyWord = require('../models/DailyWord');
 
 router.get('/word-of-day', async (req, res) => {
     try {
-        if (!process.env.GROQ_API_KEY) {
-            return res.status(503).json({ error: 'AI service not configured' });
-        }
+        if (!process.env.GROQ_API_KEY) return res.status(503).json({ error: 'AI service not configured' });
 
         const lang = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
-        let languageName = 'Spanish';
-        if (lang === 'en') languageName = 'English';
-        else if (lang === 'tr') languageName = 'Turkish';
+        let languageName = (lang === 'en') ? 'English' : (lang === 'tr' ? 'Turkish' : 'Spanish');
 
-        const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-        const redisKey = `WOD:${todayStr}:${lang}`;
+        // Timezone-safe today string (YYYY-MM-DD)
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const redisKey = `WOD:V2:${todayStr}:${lang}`;
 
-        // 1. Check Redis for specific language
+        // 1. Redis Cache
         try {
             if (redisClient.isOpen && redisClient.isReady) {
                 const cached = await redisClient.get(redisKey);
@@ -180,21 +178,9 @@ router.get('/word-of-day', async (req, res) => {
             }
         } catch (e) { console.warn('[Redis] Cache failed:', e.message); }
 
-        // 2. Check MongoDB for today's unified document
-        let dailyDoc = await DailyWord.findOne({ date: todayStr });
-        
-        // Safely extract existing data (new Map or legacy 'data' field)
-        let existingData = null;
-        if (dailyDoc) {
-            if (dailyDoc.translations && typeof dailyDoc.translations.get === 'function') {
-                existingData = dailyDoc.translations.get(lang) || dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || Array.from(dailyDoc.translations.values())[0];
-            } else {
-                // Legacy document
-                existingData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
-            }
-        }
+        // 2. MongoDB Search
+        let dailyDoc = await DailyWord.findOne({ date: { $regex: '^' + todayStr } });
 
-        // Return if we already have the translation in the requested language
         if (dailyDoc && dailyDoc.translations && typeof dailyDoc.translations.get === 'function' && dailyDoc.translations.get(lang)) {
             const data = dailyDoc.translations.get(lang);
             if (redisClient.isOpen && redisClient.isReady) {
@@ -203,70 +189,71 @@ router.get('/word-of-day', async (req, res) => {
             return res.json(data);
         }
 
-        // 3. Generation / Translation Logic
-        let wordData;
-        if (existingData) {
-            // Document exists, translate the existing word
-            console.log(`🌍 Translating existing WOD (${existingData.word || 'legacy'}) to ${languageName}`);
-            wordData = await generateWodTranslation(existingData, languageName, lang);
-            
-            // Ensure translations exists as a Map and persist
-            if (!dailyDoc.translations || typeof dailyDoc.translations.set !== 'function') {
-                dailyDoc.translations = new Map();
-                // Migrating: preserve old data if we don't know the lang (assume 'es')
-                const langMatch = dailyDoc.date.match(/_([a-z]{2})$/);
-                const docLang = langMatch ? langMatch[1] : 'es';
-                dailyDoc.translations.set(docLang, existingData);
-            }
-            dailyDoc.translations.set(lang, wordData);
-            await dailyDoc.save();
-        } else {
-            // Generate brand new WOD
-            console.log(`✨ Generating brand new WOD for ${todayStr} (${languageName})`);
-            const recentWordsDocs = await DailyWord.find({}, { 'translations.es.word': 1 }).sort({ date: -1 }).limit(20);
-            const recentWords = recentWordsDocs.map(d => {
-                if (d.translations && typeof d.translations.get === 'function') return d.translations.get('es')?.word;
-                return d.data?.word;
-            }).filter(Boolean);
-            
-            wordData = await generateNewWod(languageName, lang, recentWords);
-            
-            if (dailyDoc) {
-                // If dailyDoc exists but has no data, update it
-                dailyDoc.translations = new Map([[lang, wordData]]);
-                await dailyDoc.save();
+        // 3. Logic to either Translate existing or Generate new
+        let wordData = null;
+        let existingData = null;
+        
+        if (dailyDoc) {
+            if (dailyDoc.translations && typeof dailyDoc.translations.get === 'function') {
+                existingData = dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || Array.from(dailyDoc.translations.values())[0];
             } else {
-                // Create brand new document
-                try {
-                    dailyDoc = await DailyWord.create({
-                        date: todayStr,
-                        translations: { [lang]: wordData }
-                    });
-                } catch (createErr) {
-                    if (createErr.code === 11000) {
-                        // Rare race condition: someone else created the doc. Retry once or fallback.
-                        dailyDoc = await DailyWord.findOne({ date: todayStr });
-                        if (dailyDoc && dailyDoc.translations && typeof dailyDoc.translations.set === 'function') {
-                            dailyDoc.translations.set(lang, wordData);
-                            await dailyDoc.save();
-                        }
-                    } else throw createErr;
-                }
+                existingData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
             }
         }
 
-        // 4. Save to Redis and Return
+        if (existingData && existingData.word) {
+            console.log(`[WOD] Translating "${existingData.word}" to ${languageName}`);
+            wordData = await generateWodTranslation(existingData, languageName, lang);
+        } else {
+            console.log(`[WOD] Generating brand new word for ${todayStr} (${languageName})`);
+            const recent = await DailyWord.find({}).sort({ date: -1 }).limit(30).lean();
+            const recentWords = recent.map(r => {
+                if (r.translations) return (r.translations instanceof Map ? r.translations.get('es') : r.translations['es'])?.word;
+                return r.data?.word;
+            }).filter(Boolean);
+            
+            wordData = await generateNewWod(languageName, lang, recentWords);
+        }
+
+        if (!wordData) throw new Error("Failed to generate or translate word data");
+
+        // 4. Persistence & Migration
+        if (dailyDoc) {
+            if (!dailyDoc.translations || typeof dailyDoc.translations.set !== 'function') {
+                const oldData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
+                dailyDoc.translations = new Map();
+                if (oldData) dailyDoc.translations.set('es', oldData);
+            }
+            dailyDoc.translations.set(lang, wordData);
+            dailyDoc.date = todayStr;
+            await dailyDoc.save();
+        } else {
+            try {
+                dailyDoc = await DailyWord.create({
+                    date: todayStr,
+                    translations: new Map([[lang, wordData]])
+                });
+            } catch (err) {
+                if (err.code === 11000) {
+                    dailyDoc = await DailyWord.findOne({ date: todayStr });
+                    if (dailyDoc && dailyDoc.translations) {
+                        dailyDoc.translations.set(lang, wordData);
+                        await dailyDoc.save();
+                    }
+                } else throw err;
+            }
+        }
+
         if (redisClient.isOpen && redisClient.isReady) {
             await redisClient.setEx(redisKey, 86400, JSON.stringify(wordData)).catch(() => { });
         }
         res.json(wordData);
 
     } catch (err) {
-        console.error('[word-of-day] Error:', err.message);
+        console.error('[word-of-day] CRITICAL ERROR:', err);
         res.json(getFallbackWod(req.query.lang));
     }
 });
-
 // Helper: Generate brand new WOD (Turkish Focus)
 async function generateNewWod(languageName, lang, recentWords = []) {
     const avoidPrompt = recentWords.length > 0 ? `\n\nAvoid these recently used words: ${recentWords.join(', ')}.` : '';
