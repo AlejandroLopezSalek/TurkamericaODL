@@ -169,7 +169,6 @@
         } else if (isPt) {
             answerLabel = "Como se traduz?";
             answerPlaceholder = "Tradução em português...";
-            verifyText = "Verificar";
             completedText = "Você já completou esta palavra!";
             revealText = "Ver tradução";
             translationLabel = "Tradução";
@@ -248,9 +247,67 @@
 
     function bindModalEvents(data, storageKey) {
         let answered = localStorage.getItem(storageKey) === data.word;
+        let attemptsLeft = 3;
+
+        const lang = localStorage.getItem('language') || 'es';
+        const isEn = lang === 'en';
+        const isPt = lang === 'pt';
 
         const checkBtn = getEl('glosCheckBtn');
         const input = getEl('glosAnswerInput');
+        const feedback = getEl('glosFeedback');
+        const answerZone = getEl('glosAnswerZone');
+
+        // Inject attempt counter badge
+        if (answerZone && !answered) {
+            let counterLabel = 'intentos restantes';
+            if (isEn) counterLabel = 'attempts remaining';
+            else if (isPt) counterLabel = 'tentativas restantes';
+
+            const badge = document.createElement('div');
+            badge.id = 'glosAttemptBadge';
+            badge.className = 'mt-2 text-right text-xs font-semibold text-white/50 transition-all';
+            badge.innerHTML = `<span id="glosAttemptCount">3</span> ${counterLabel}`;
+            answerZone.appendChild(badge);
+        }
+
+        const updateCounter = () => {
+            const countEl = getEl('glosAttemptCount');
+            const badge = getEl('glosAttemptBadge');
+            if (!countEl || !badge) return;
+            countEl.textContent = attemptsLeft;
+            if (attemptsLeft === 1) {
+                badge.className = 'mt-2 text-right text-xs font-bold text-red-300 animate-pulse transition-all';
+            } else if (attemptsLeft === 2) {
+                badge.className = 'mt-2 text-right text-xs font-semibold text-yellow-300 transition-all';
+            }
+        };
+
+        const revealAnswer = (isCorrect) => {
+            answerZone?.classList.add('hidden');
+            getEl('glosTranslation')?.classList.remove('hidden');
+            getEl('glosExampleTranslation')?.classList.remove('hidden');
+            getEl('glosRevealBtn')?.classList.add('hidden');
+            answered = true;
+            localStorage.setItem(storageKey, data.word);
+            reRenderGlossary();
+
+            if (!feedback) return;
+
+            if (isCorrect) {
+                feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-green-500/20 border border-green-400/40 text-green-50 block shadow-sm';
+                let msg = '¡Correcto! 🎉 Bien hecho.';
+                if (isEn) msg = 'Correct! 🎉 Well done.';
+                else if (isPt) msg = 'Correto! 🎉 Muito bem.';
+                feedback.innerHTML = `<i class="fas fa-circle-check mr-2 text-green-300 text-lg align-text-bottom"></i> ${msg}`;
+            } else {
+                feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-red-500/20 border border-red-400/40 text-red-50 block shadow-sm';
+                let msg = 'Sin intentos. La traducción era:';
+                if (isEn) msg = 'No attempts left. The translation was:';
+                else if (isPt) msg = 'Sem tentativas. A tradução era:';
+                feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300 text-lg align-text-bottom"></i> ${msg} <strong class="text-white">${escHtml(data.translation)}</strong>`;
+            }
+        };
 
         const doCheck = () => {
             if (answered) return;
@@ -261,47 +318,38 @@
                 .normalize('NFD').replaceAll(/[\u0300-\u036f]/gu, '')
                 .replaceAll(/[^a-z0-9\s]/gu, '').trim();
 
-            const normUser = normalize(userAnswer);
-            const normCorrect = normalize(data.translation);
+            const isCorrect = normalize(userAnswer) === normalize(data.translation) ||
+                (data.translation.split(/\s+/).length === 1 &&
+                    normalize(userAnswer).length >= Math.ceil(normalize(data.translation).length * 0.9) &&
+                    normalize(data.translation).startsWith(normalize(userAnswer)));
 
-            // Only accept exact match OR if the answer consists of multiple words,
-            // check each word individually (e.g. "to eat" matches "eat" only in full)
-            const correctWords = normCorrect.split(/\s+/);
-            const isMultiWord = correctWords.length > 1;
-            const isCorrect = normUser === normCorrect ||
-                // For multi-word translations: user must match the full string (no partial)
-                // For single-word: require at least 90% character length AND starts-with match
-                (!isMultiWord &&
-                    normUser.length >= Math.ceil(normCorrect.length * 0.9) &&
-                    normCorrect.startsWith(normUser));
-
-            getEl('glosAnswerZone')?.classList.add('hidden');
-            const lang = localStorage.getItem('language') || 'es';
-            const feedback = getEl('glosFeedback');
-            if (feedback) {
-                if (isCorrect) {
-                    feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-green-500/20 border border-green-400/40 text-green-50 block shadow-sm';
-                    let correctFeedbackMsg = '¡Correcto! 🎉 Bien hecho.';
-                    if (lang === 'en') correctFeedbackMsg = 'Correct! 🎉 Well done.';
-                    if (lang === 'pt') correctFeedbackMsg = 'Correto! 🎉 Muito bem.';
-                    feedback.innerHTML = `<i class="fas fa-circle-check mr-2 text-green-300 text-lg align-text-bottom"></i> ${correctFeedbackMsg}`;
-                } else {
-                    feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-red-500/20 border border-red-400/40 text-red-50 block shadow-sm';
-                    let wrongFeedbackMsg = 'La traducción correcta era:';
-                    if (lang === 'en') wrongFeedbackMsg = 'The correct translation was:';
-                    if (lang === 'pt') wrongFeedbackMsg = 'A tradução correta era:';
-                    feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300 text-lg align-text-bottom"></i> ${wrongFeedbackMsg} <strong class="text-white">${escHtml(data.translation)}</strong>`;
-                }
+            if (isCorrect) {
+                revealAnswer(true);
+                return;
             }
 
-            getEl('glosTranslation')?.classList.remove('hidden');
-            getEl('glosExampleTranslation')?.classList.remove('hidden');
-            getEl('glosRevealBtn')?.classList.add('hidden');
+            attemptsLeft--;
+            updateCounter();
 
-            answered = true;
-            localStorage.setItem(storageKey, data.word);
+            if (attemptsLeft <= 0) {
+                revealAnswer(false);
+                return;
+            }
 
-            reRenderGlossary();
+            if (feedback) {
+                feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-red-500/20 border border-red-400/40 text-red-50 block shadow-sm';
+                let wrongMsg = 'Incorrecto, ¡intenta de nuevo!';
+                if (attemptsLeft === 1) {
+                    wrongMsg = '⚠️ ¡Último intento!';
+                    if (isEn) wrongMsg = '⚠️ Last attempt!';
+                    else if (isPt) wrongMsg = '⚠️ Última tentativa!';
+                } else {
+                    if (isEn) wrongMsg = 'Incorrect, try again!';
+                    else if (isPt) wrongMsg = 'Incorreto, tente novamente!';
+                }
+                feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i> ${wrongMsg}`;
+            }
+            if (input) { input.value = ''; input.focus(); }
         };
 
         if (checkBtn && input) {
@@ -311,15 +359,14 @@
 
         getEl('glosRevealBtn')?.addEventListener('click', () => {
             if (answered) return;
-            getEl('glosTranslation')?.classList.remove('hidden');
-            getEl('glosExampleTranslation')?.classList.remove('hidden');
-            getEl('glosAnswerZone')?.classList.add('hidden');
-            getEl('glosRevealBtn')?.classList.add('hidden');
-
-            answered = true;
-            localStorage.setItem(storageKey, data.word);
-
-            reRenderGlossary();
+            revealAnswer(false);
+            if (feedback) {
+                feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-white/10 border border-white/20 text-white/70 block shadow-sm';
+                let msg = 'Traducción revelada.';
+                if (isEn) msg = 'Translation revealed.';
+                else if (isPt) msg = 'Tradução revelada.';
+                feedback.innerHTML = `<i class="fas fa-eye mr-2"></i> ${msg}`;
+            }
         });
 
         getEl('glosTipBtn')?.addEventListener('click', () => {

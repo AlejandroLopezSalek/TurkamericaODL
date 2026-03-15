@@ -296,22 +296,34 @@
 
     // ---- Event bindings ----
     function bindEvents() {
-        // Verify answer
         const checkBtn = getEl('wodCheckBtn');
         const input = getEl('wodAnswerInput');
+        let attemptsLeft = 3;
+
+        // Inject attempt counter badge under the input row
+        if (input && checkBtn) {
+            const lang = localStorage.getItem('language') || 'es';
+            const isEn = lang === 'en';
+            const isPt = lang === 'pt';
+            const counterLabel = isEn ? 'attempts remaining' : (isPt ? 'tentativas restantes' : 'intentos restantes');
+            const badge = document.createElement('div');
+            badge.id = 'wodAttemptBadge';
+            badge.className = 'mt-1 text-right text-xs font-semibold text-white/40 transition-all';
+            badge.innerHTML = `<span id="wodAttemptCount">3</span> ${counterLabel}`;
+            input.closest('div')?.after(badge);
+        }
 
         if (checkBtn && input) {
             const doCheck = () => {
                 if (answered) return;
                 const userAnswer = input.value.trim();
                 if (!userAnswer) return;
-                checkAnswer(userAnswer, wodData.translation);
+                checkAnswer(userAnswer, wodData.translation, attemptsLeft, (newAttempts) => { attemptsLeft = newAttempts; });
             };
             checkBtn.addEventListener('click', doCheck);
             input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doCheck(); });
         }
 
-        // Reveal translation
         getEl('wodRevealBtn')?.addEventListener('click', () => {
             if (answered) return;
             const div = getEl('wodTranslation');
@@ -324,17 +336,16 @@
 
             saveWodAnalytics(wodData.word, null, false, wodData.level);
             answered = true;
-            localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word); // Persist locally per user
+            localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
         });
 
-        // Show tip
         getEl('wodTipBtn')?.addEventListener('click', () => {
             getEl('wodTip')?.classList.toggle('hidden');
         });
     }
 
     // ---- Answer checking ----
-    function checkAnswer(userAnswer, correctAnswer) {
+    function checkAnswer(userAnswer, correctAnswer, attemptsLeft, setAttempts) {
         const feedback = getEl('wodFeedback');
         const input = getEl('wodAnswerInput');
         if (!feedback) return;
@@ -342,7 +353,6 @@
         const normUser = normalizeAnswer(userAnswer);
         const normCorrect = normalizeAnswer(correctAnswer);
 
-        // Strict check: exact match, or (single-word only) user typed at least 90% of the answer
         const correctWords = normCorrect.split(/\s+/);
         const isMultiWord = correctWords.length > 1;
         const isCorrect = normUser === normCorrect ||
@@ -350,16 +360,15 @@
                 normUser.length >= Math.ceil(normCorrect.length * 0.9) &&
                 normCorrect.startsWith(normUser));
 
-        // Save to analytics
-        saveWodAnalytics(wodData.word, userAnswer, isCorrect, wodData.level);
-
         const isEn = localStorage.getItem('language') === 'en';
         const isPt = localStorage.getItem('language') === 'pt';
 
         if (isCorrect) {
-            // Hide answer zone after submitting correctly
+            saveWodAnalytics(wodData.word, userAnswer, true, wodData.level);
+
             const answerZone = getEl('wodAnswerZone');
             if (answerZone) answerZone.classList.add('hidden');
+            getEl('wodAttemptBadge')?.remove();
 
             const div = getEl('wodTranslation');
             const exTr = getEl('wodExampleTranslation');
@@ -368,9 +377,39 @@
 
             answered = true;
             localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
+        } else {
+            const newAttempts = attemptsLeft - 1;
+            if (setAttempts) setAttempts(newAttempts);
+
+            // Update counter badge
+            const countEl = getEl('wodAttemptCount');
+            const badge = getEl('wodAttemptBadge');
+            if (countEl) countEl.textContent = newAttempts;
+            if (badge) {
+                if (newAttempts === 1) badge.className = 'mt-1 text-right text-xs font-bold text-red-300 animate-pulse transition-all';
+                else if (newAttempts === 2) badge.className = 'mt-1 text-right text-xs font-semibold text-yellow-300 transition-all';
+            }
+
+            if (newAttempts <= 0) {
+                // Out of attempts — reveal
+                const answerZone = getEl('wodAnswerZone');
+                if (answerZone) answerZone.classList.add('hidden');
+                getEl('wodAttemptBadge')?.remove();
+                getEl('wodTranslation')?.classList.remove('hidden');
+                getEl('wodExampleTranslation')?.classList.remove('hidden');
+                answered = true;
+                localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
+
+                feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
+                let msg = isEn ? 'No attempts left. The answer was:' : (isPt ? 'Sem tentativas. A resposta era:' : 'Sin intentos. La respuesta era:');
+                feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>${msg} <strong>${escHtml(correctAnswer)}</strong>`;
+                feedback.classList.remove('hidden');
+                return;
+            }
         }
 
-        displayFeedback(feedback, input, isCorrect, isEn, isPt);
+        displayFeedback(feedback, isCorrect ? null : input, isCorrect, isEn, isPt);
+        if (!isCorrect && input) { input.value = ''; input.focus(); }
         feedback.classList.remove('hidden');
     }
 
