@@ -1,0 +1,29 @@
+---
+title: Story Lab - LabCapi
+description: Historias interactivas en turco adaptadas a tu nivel.
+layout: base.njk
+scripts:
+- lab-story.js
+---
+
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-4">Story Lab</h2>
+            <p class="text-lg text-slate-600 dark:text-slate-400">Lee y escucha historias en turco adaptadas a tu nivel.
+            </p>
+        </div>
+
+        <!-- Story Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="story-grid">
+            <!-- Stories will be loaded here -->
+            <div class="col-span-full text-center py-12">
+                <div
+                    class="animate-spin inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full">
+                </div>
+                <p class="mt-4 text-slate-500">Cargando historias...</p>
+            </div>
+        </div>
+    </div>
+</div>

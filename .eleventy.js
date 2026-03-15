@@ -27,19 +27,28 @@ module.exports = function eleventyConfigSetup(eleventyConfig) {
 
 
     // ===== FIX UTF-8 para Nunjucks =====
+    // Note: Changed throwOnUndefined to false to prevent errors with optional template variables
     eleventyConfig.setNunjucksEnvironmentOptions({
         autoescape: false,
-        throwOnUndefined: true
+        throwOnUndefined: false
     });
 
     eleventyConfig.addFilter("safe", function (value) {
         return value;
     });
 
+    // Filter to get locale suffix for layouts
+    eleventyConfig.addFilter("localeSuffix", function (locale) {
+        return (locale && locale !== 'es') ? '_' + locale : '';
+    });
+
     // ===== Añadir timestamp para Cache Busting (NUEVO) =====
     eleventyConfig.addGlobalData("timestamp", () => {
         return Date.now();
     });
+
+    // ===== Establecer locale por defecto para evitar errores en templates =====
+    eleventyConfig.addGlobalData("locale", "es");
 
     // Date filter for sitemap
     eleventyConfig.addFilter("toISOString", (dateObj) => {

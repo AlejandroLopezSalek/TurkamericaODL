@@ -158,34 +158,50 @@ const ttsService = require('../services/ttsService');
 // GET /word-of-day (Mounted at /api/chat/word-of-day)
 const DailyWord = require('../models/DailyWord');
 
+// Helper: Cache Management
+async function getCachedWod(key) {
+    try {
+        if (redisClient.isOpen && redisClient.isReady) {
+            const cached = await redisClient.get(key);
+            if (cached) return JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('[Redis] Cache get failed:', e.message);
+    }
+    return null;
+}
+
+async function cacheWodData(key, data) {
+    try {
+        if (redisClient.isOpen && redisClient.isReady) {
+            await redisClient.setEx(key, 86400, JSON.stringify(data)).catch(() => { });
+        }
+    } catch (e) {
+        console.warn('[Redis] Cache set failed:', e.message);
+    }
+}
+
 router.get('/word-of-day', async (req, res) => {
     try {
         if (!process.env.GROQ_API_KEY) return res.status(503).json({ error: 'AI service not configured' });
 
         const lang = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
-        let languageName = (lang === 'en') ? 'English' : (lang === 'tr' ? 'Turkish' : 'Spanish');
+        const languageName = (lang === 'en') ? 'English' : (lang === 'tr' ? 'Turkish' : 'Spanish');
 
-        // Timezone-safe today string (YYYY-MM-DD)
         const now = new Date();
         const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const redisKey = `WOD:V2:${todayStr}:${lang}`;
 
-        // 1. Redis Cache
-        try {
-            if (redisClient.isOpen && redisClient.isReady) {
-                const cached = await redisClient.get(redisKey);
-                if (cached) return res.json(JSON.parse(cached));
-            }
-        } catch (e) { console.warn('[Redis] Cache failed:', e.message); }
+        // 1. Cache Check
+        const cached = await getCachedWod(redisKey);
+        if (cached) return res.json(cached);
 
-        // 2. MongoDB Search
+        // 2. Database Check
         let dailyDoc = await DailyWord.findOne({ date: { $regex: '^' + todayStr } });
 
-        if (dailyDoc && dailyDoc.translations && typeof dailyDoc.translations.get === 'function' && dailyDoc.translations.get(lang)) {
+        if (dailyDoc?.translations?.get?.(lang)) {
             const data = dailyDoc.translations.get(lang);
-            if (redisClient.isOpen && redisClient.isReady) {
-                await redisClient.setEx(redisKey, 86400, JSON.stringify(data)).catch(() => { });
-            }
+            await cacheWodData(redisKey, data);
             return res.json(data);
         }
 
@@ -194,14 +210,14 @@ router.get('/word-of-day', async (req, res) => {
         let existingData = null;
         
         if (dailyDoc) {
-            if (dailyDoc.translations && typeof dailyDoc.translations.get === 'function') {
+            if (dailyDoc.translations?.get) {
                 existingData = dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || Array.from(dailyDoc.translations.values())[0];
             } else {
                 existingData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
             }
         }
 
-        if (existingData && existingData.word) {
+        if (existingData?.word) {
             console.log(`[WOD] Translating "${existingData.word}" to ${languageName}`);
             wordData = await generateWodTranslation(existingData, languageName, lang);
         } else {
@@ -218,35 +234,10 @@ router.get('/word-of-day', async (req, res) => {
         if (!wordData) throw new Error("Failed to generate or translate word data");
 
         // 4. Persistence & Migration
-        if (dailyDoc) {
-            if (!dailyDoc.translations || typeof dailyDoc.translations.set !== 'function') {
-                const oldData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
-                dailyDoc.translations = new Map();
-                if (oldData) dailyDoc.translations.set('es', oldData);
-            }
-            dailyDoc.translations.set(lang, wordData);
-            dailyDoc.date = todayStr;
-            await dailyDoc.save();
-        } else {
-            try {
-                dailyDoc = await DailyWord.create({
-                    date: todayStr,
-                    translations: new Map([[lang, wordData]])
-                });
-            } catch (err) {
-                if (err.code === 11000) {
-                    dailyDoc = await DailyWord.findOne({ date: todayStr });
-                    if (dailyDoc && dailyDoc.translations) {
-                        dailyDoc.translations.set(lang, wordData);
-                        await dailyDoc.save();
-                    }
-                } else throw err;
-            }
-        }
+        await persistWodData(dailyDoc, todayStr, lang, wordData);
 
-        if (redisClient.isOpen && redisClient.isReady) {
-            await redisClient.setEx(redisKey, 86400, JSON.stringify(wordData)).catch(() => { });
-        }
+        // 5. Cache & Return
+        await cacheWodData(redisKey, wordData);
         res.json(wordData);
 
     } catch (err) {
@@ -254,6 +245,31 @@ router.get('/word-of-day', async (req, res) => {
         res.json(getFallbackWod(req.query.lang));
     }
 });
+
+async function persistWodData(dailyDoc, todayStr, lang, wordData) {
+    if (!dailyDoc) {
+        try {
+            return await DailyWord.create({
+                date: todayStr,
+                translations: new Map([[lang, wordData]])
+            });
+        } catch (err) {
+            if (err.code !== 11000) throw err;
+            dailyDoc = await DailyWord.findOne({ date: todayStr });
+        }
+    }
+
+    if (dailyDoc) {
+        if (!dailyDoc.translations?.set) {
+            const oldData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
+            dailyDoc.translations = new Map();
+            if (oldData) dailyDoc.translations.set('es', oldData);
+        }
+        dailyDoc.translations.set(lang, wordData);
+        dailyDoc.date = todayStr;
+        await dailyDoc.save();
+    }
+}
 // Helper: Generate brand new WOD (Turkish Focus)
 async function generateNewWod(languageName, lang, recentWords = []) {
     const avoidPrompt = recentWords.length > 0 ? `\n\nAvoid these recently used words: ${recentWords.join(', ')}.` : '';
@@ -395,14 +411,6 @@ router.post('/grade-sentence', async (req, res) => {
         if (lang === 'en') languageName = 'English';
         else if (lang === 'tr') languageName = 'Turkish';
 
-        const gradingSchema = z.object({
-            is_correct: z.boolean().describe('True if the translation conveys the correct meaning, even if there are minor grammar errors.'),
-            grammar_score: z.number().min(0).max(10).describe('Score out of 10 for the grammar and vocabulary used in the Turkish translation.'),
-            errors_found: z.array(z.string()).describe(`An array of strings explaining specific mistakes made, in ${languageName}. Leave empty if perfect.`),
-            native_suggestion: z.string().describe(`How a native Turkish speaker would naturally say this sentence.`),
-            encouraging_message: z.string().describe(`A short encouraging message to the student in ${languageName}!`)
-        });
-
         const systemInstructions = `You are a strict but encouraging native Turkish teacher grading a student's translation. 
 The student is trying to translate a sentence from ${languageName} into Turkish. Evaluate their Turkish input.`;
 
@@ -491,7 +499,10 @@ router.post('/', async (req, res) => {
         if (similarChunks && similarChunks.length > 0) {
             ragContext = `\n*** COMMUNITY KNOWLEDGE BASE ***\nIf the user's question is related to the following community material, use it to formulate your answer:\n`;
             similarChunks.forEach(chunk => {
-                ragContext += `[Source: "${chunk.metadata?.title || 'Community Lesson'}" by ${chunk.metadata?.author || 'Unknown'} - Level ${chunk.metadata?.level || 'N/A'}]:\n"${chunk.text}"\n\n`;
+                const title = String(chunk.metadata?.title || 'Community Lesson');
+                const author = String(chunk.metadata?.author || 'Unknown');
+                const level = String(chunk.metadata?.level || 'N/A');
+                ragContext += `[Source: "${title}" by ${author} - Level ${level}]:\n"${chunk.text}"\n\n`;
             });
         }
 
@@ -616,6 +627,111 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
 
 
 
+
+// --- LABCAPI EXPERIMENTS ---
+
+// GET /lab/analyze-dna
+// Usage: GET /api/chat/lab/analyze-dna?text=arabamda&lang=es
+router.get('/lab/analyze-dna', async (req, res) => {
+    try {
+        const { text, lang = 'es' } = req.query;
+        if (!text) return res.status(400).json({ error: 'Text is required' });
+
+        const prompt = `Act as a linguistic expert in Turkish and ${lang}. 
+        Perform a "Suffix DNA" analysis of the word: "${text}".
+        
+        Analyze the word's morphology (aglutination):
+        1. Identify the root (kök).
+        2. Identify each suffix added (ekler) and their individual meanings (case, plural, possessive, etc.).
+        3. Explain how they chain together.
+        
+        Output ONLY raw JSON in this format:
+        {
+          "word": "${text}",
+          "root": { "text": "...", "meaning": "..." },
+          "suffixes": [
+            { "text": "...", "type": "...", "meaning": "..." }
+          ],
+          "overall_meaning": "..."
+        }`;
+
+        const { text: rawAnalysis } = await generateText({
+            model: groq.chat('moonshotai/kimi-k2-instruct'),
+            prompt,
+            temperature: 0.3,
+        });
+
+        const jsonMatch = /\{[\s\S]*\}/.exec(rawAnalysis);
+        res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /lab/generate-exam
+router.post('/lab/generate-exam', async (req, res) => {
+    try {
+        const { level = 'A1' } = req.body;
+        const prompt = `Generate a personalized Turkish exam for level ${level}.
+        Include 5 questions:
+        - 2 Multiple choice (Vocabulary)
+        - 2 Translate to Turkish (focus on suffix usage)
+        - 1 Explain a grammar point (e.g., vowel harmony)
+        
+        Output ONLY raw JSON:
+        {
+          "exam_id": "exam_${Date.now()}",
+          "title": "Examen de Nivel ${level}",
+          "questions": [
+            { "id": 1, "type": "multiple_choice", "question": "...", "options": ["A", "B", "C"], "correct_answer": "A" },
+            { "id": 3, "type": "translation", "question": "Translate: 'My car'", "hint": "Use possessive suffix" }
+          ]
+        }`;
+
+        const { text: rawExam } = await generateText({
+            model: groq.chat('moonshotai/kimi-k2-instruct'),
+            prompt,
+            temperature: 0.7,
+        });
+
+        const jsonMatch = /\{[\s\S]*\}/.exec(rawExam);
+        res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /lab/grade-exam
+router.post('/lab/grade-exam', async (req, res) => {
+    try {
+        const { answers, original_exam, lang = 'es' } = req.body;
+        const prompt = `Grade this Turkish exam.
+        Exam: ${JSON.stringify(original_exam)}
+        User Answers: ${JSON.stringify(answers)}
+        
+        Explain the "WHY" behind every mistake with pedagogical depth in ${lang}. Focus on suffixes and vowel harmony.
+        
+        Output ONLY raw JSON:
+        {
+          "score": 80,
+          "feedback": [
+            { "question_id": 1, "status": "correct/incorrect", "explanation": "..." }
+          ],
+          "capi_advice": "..."
+        }`;
+
+        const { text: rawGrading } = await generateText({
+            model: groq.chat('moonshotai/kimi-k2-instruct'),
+            prompt,
+            temperature: 0.3,
+        });
+
+        const jsonMatch = /\{[\s\S]*\}/.exec(rawGrading);
+        res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 module.exports = router;
 // Models: kimi-k2-instruct-0905 (WoD, grade) | kimi-k2-instruct (chat)

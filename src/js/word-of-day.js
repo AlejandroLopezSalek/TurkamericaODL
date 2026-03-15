@@ -18,33 +18,42 @@
         .normalize('NFD').replaceAll(/[\u0300-\u036f]/gu, '')
         .replaceAll(/[^a-z0-9\s]/gu, '').trim();
 
-    function displayFeedback(feedback, input, isCorrect, isEn, isPt) {
+    function displayFeedback(feedback, input, isCorrect, isEn, isPt, attemptsLeft) {
+        const langKey = isEn ? 'en' : (isPt ? 'pt' : 'es');
+        
         if (isCorrect) {
             feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-green-400/20 border border-green-400/40 text-green-100';
-
-            let msg = '¡Correcto! 🎉 Bien hecho.';
-            if (isPt) msg = 'Correto! 🎉 Muito bem.';
-            else if (isEn) msg = 'Correct! 🎉 Well done.';
+            const msg = {
+                es: '¡Correcto! 🎉 Bien hecho.',
+                pt: 'Correto! 🎉 Muito bem.',
+                en: 'Correct! 🎉 Well done.'
+            }[langKey];
 
             feedback.innerHTML = `<i class="fas fa-circle-check mr-2 text-green-300"></i>${msg}`;
             if (input) {
                 input.classList.add('border-green-400/60', 'bg-green-400/10');
                 input.classList.remove('border-white/20', 'border-red-400/60', 'bg-red-400/10');
             }
-        } else {
-            feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
+            return;
+        }
 
-            let msg = 'Incorrecto, ¡intenta de nuevo!';
-            if (isPt) msg = 'Incorreto, tente novamente!';
-            else if (isEn) msg = "Incorrect, try again!";
+        // Incorrect Case
+        feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
+        
+        const msgs = {
+            es: { retry: 'Incorrecto, ¡intenta de nuevo!', last: '⚠️ ¡Último intento!' },
+            en: { retry: 'Incorrect, try again!', last: '⚠️ Last attempt!' },
+            pt: { retry: 'Incorreto, tente novamente!', last: '⚠️ Última tentativa!' }
+        }[langKey];
 
-            feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>${msg}`;
-            if (input) {
-                input.classList.add('border-red-400/60', 'bg-red-400/10');
-                input.classList.remove('border-white/20', 'border-green-400/60', 'bg-green-400/10');
-                input.value = '';
-                input.focus();
-            }
+        const msg = (attemptsLeft === 1) ? msgs.last : msgs.retry;
+        feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>${msg}`;
+
+        if (input) {
+            input.classList.add('border-red-400/60', 'bg-red-400/10');
+            input.classList.remove('border-white/20', 'border-green-400/60', 'bg-green-400/10');
+            input.value = '';
+            input.focus();
         }
     }
 
@@ -303,9 +312,12 @@
         // Inject attempt counter badge under the input row
         if (input && checkBtn) {
             const lang = localStorage.getItem('language') || 'es';
-            const isEn = lang === 'en';
-            const isPt = lang === 'pt';
-            const counterLabel = isEn ? 'attempts remaining' : (isPt ? 'tentativas restantes' : 'intentos restantes');
+            const labels = {
+                en: 'attempts remaining',
+                pt: 'tentativas restantes',
+                es: 'intentos restantes'
+            };
+            const counterLabel = labels[lang] || labels.es;
             const badge = document.createElement('div');
             badge.id = 'wodAttemptBadge';
             badge.className = 'mt-1 text-right text-xs font-semibold text-white/40 transition-all';
@@ -350,66 +362,82 @@
         const input = getEl('wodAnswerInput');
         if (!feedback) return;
 
-        const normUser = normalizeAnswer(userAnswer);
-        const normCorrect = normalizeAnswer(correctAnswer);
-
-        const correctWords = normCorrect.split(/\s+/);
-        const isMultiWord = correctWords.length > 1;
-        const isCorrect = normUser === normCorrect ||
-            (!isMultiWord &&
-                normUser.length >= Math.ceil(normCorrect.length * 0.9) &&
-                normCorrect.startsWith(normUser));
-
+        const isCorrect = isWodCorrect(userAnswer, correctAnswer);
         const isEn = localStorage.getItem('language') === 'en';
         const isPt = localStorage.getItem('language') === 'pt';
 
         if (isCorrect) {
-            saveWodAnalytics(wodData.word, userAnswer, true, wodData.level);
-
-            const answerZone = getEl('wodAnswerZone');
-            if (answerZone) answerZone.classList.add('hidden');
-            getEl('wodAttemptBadge')?.remove();
-
-            const div = getEl('wodTranslation');
-            const exTr = getEl('wodExampleTranslation');
-            if (div) div.classList.remove('hidden');
-            if (exTr) exTr.classList.remove('hidden');
-
-            answered = true;
-            localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
-        } else {
-            const newAttempts = attemptsLeft - 1;
-            if (setAttempts) setAttempts(newAttempts);
-
-            // Update counter badge
-            const countEl = getEl('wodAttemptCount');
-            const badge = getEl('wodAttemptBadge');
-            if (countEl) countEl.textContent = newAttempts;
-            if (badge) {
-                if (newAttempts === 1) badge.className = 'mt-1 text-right text-xs font-bold text-red-300 animate-pulse transition-all';
-                else if (newAttempts === 2) badge.className = 'mt-1 text-right text-xs font-semibold text-yellow-300 transition-all';
-            }
-
-            if (newAttempts <= 0) {
-                // Out of attempts — reveal
-                const answerZone = getEl('wodAnswerZone');
-                if (answerZone) answerZone.classList.add('hidden');
-                getEl('wodAttemptBadge')?.remove();
-                getEl('wodTranslation')?.classList.remove('hidden');
-                getEl('wodExampleTranslation')?.classList.remove('hidden');
-                answered = true;
-                localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
-
-                feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
-                let msg = isEn ? 'No attempts left. The answer was:' : (isPt ? 'Sem tentativas. A resposta era:' : 'Sin intentos. La respuesta era:');
-                feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>${msg} <strong>${escHtml(correctAnswer)}</strong>`;
-                feedback.classList.remove('hidden');
-                return;
-            }
+            handleWodCorrect(userAnswer, isEn, isPt);
+            return;
         }
 
-        displayFeedback(feedback, isCorrect ? null : input, isCorrect, isEn, isPt);
-        if (!isCorrect && input) { input.value = ''; input.focus(); }
+        const newAttempts = attemptsLeft - 1;
+        if (setAttempts) setAttempts(newAttempts);
+        updateWodAttemptUI(newAttempts);
+
+        if (newAttempts <= 0) {
+            handleWodOutOfAttempts(feedback, correctAnswer, isEn, isPt);
+            return;
+        }
+
+        displayFeedback(feedback, input, false, isEn, isPt, newAttempts);
+    }
+
+    function isWodCorrect(user, correct) {
+        const normUser = normalizeAnswer(user);
+        const normCorrect = normalizeAnswer(correct);
+        const isMultiWord = normCorrect.split(/\s+/).length > 1;
+
+        return normUser === normCorrect ||
+            (!isMultiWord &&
+                normUser.length >= Math.ceil(normCorrect.length * 0.9) &&
+                normCorrect.startsWith(normUser));
+    }
+
+    function handleWodCorrect(userAnswer, isEn, isPt) {
+        saveWodAnalytics(wodData.word, userAnswer, true, wodData.level);
+        getEl('wodAnswerZone')?.classList.add('hidden');
+        getEl('wodAttemptBadge')?.remove();
+        getEl('wodTranslation')?.classList.remove('hidden');
+        getEl('wodExampleTranslation')?.classList.remove('hidden');
+        answered = true;
+        localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
+        
+        displayFeedback(getEl('wodFeedback'), null, true, isEn, isPt, attemptsLeft);
+    }
+
+    function updateWodAttemptUI(count) {
+        const countEl = getEl('wodAttemptCount');
+        const badge = getEl('wodAttemptBadge');
+        if (countEl) countEl.textContent = count;
+        if (badge) {
+            const clsMap = {
+                1: 'mt-1 text-right text-xs font-bold text-red-300 animate-pulse transition-all',
+                2: 'mt-1 text-right text-xs font-semibold text-yellow-300 transition-all'
+            };
+            const cls = clsMap[count] || '';
+            if (cls) badge.className = cls;
+        }
+    }
+
+    function handleWodOutOfAttempts(feedback, correctAnswer, isEn, isPt) {
+        getEl('wodAnswerZone')?.classList.add('hidden');
+        getEl('wodAttemptBadge')?.remove();
+        getEl('wodTranslation')?.classList.remove('hidden');
+        getEl('wodExampleTranslation')?.classList.remove('hidden');
+        answered = true;
+        localStorage.setItem(getStorageKey(getCurrentUsername()), wodData.word);
+
+        feedback.className = 'mt-3 rounded-lg px-4 py-3 text-sm font-medium transition-all bg-red-400/20 border border-red-400/40 text-red-100';
+        const langKeyForLabels = isEn ? 'en' : (isPt ? 'pt' : 'es');
+        const labels = {
+            en: 'No attempts left. The answer was:',
+            pt: 'Sem tentativas. A resposta era:',
+            es: 'Sin intentos. La respuesta era:'
+        };
+        const msg = labels[langKeyForLabels] || labels.es;
+
+        feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i>${msg} <strong>${escHtml(correctAnswer)}</strong>`;
         feedback.classList.remove('hidden');
     }
 

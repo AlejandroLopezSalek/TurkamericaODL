@@ -294,18 +294,19 @@
 
             if (!feedback) return;
 
+            const lang = isEn ? 'en' : (isPt ? 'pt' : 'es');
+            const msgs = {
+                es: { success: '¡Correcto! 🎉 Bien hecho.', failure: 'Sin intentos. La traducción era:' },
+                en: { success: 'Correct! 🎉 Well done.', failure: 'No attempts left. The translation was:' },
+                pt: { success: 'Correto! 🎉 Muito bem.', failure: 'Sem tentativas. A tradução era:' }
+            }[lang];
+
+            feedback.className = `mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all shadow-sm block ${isCorrect ? 'bg-green-500/20 border-green-400/40 text-green-50' : 'bg-red-500/20 border-red-400/40 text-red-50'}`;
+            
             if (isCorrect) {
-                feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-green-500/20 border border-green-400/40 text-green-50 block shadow-sm';
-                let msg = '¡Correcto! 🎉 Bien hecho.';
-                if (isEn) msg = 'Correct! 🎉 Well done.';
-                else if (isPt) msg = 'Correto! 🎉 Muito bem.';
-                feedback.innerHTML = `<i class="fas fa-circle-check mr-2 text-green-300 text-lg align-text-bottom"></i> ${msg}`;
+                feedback.innerHTML = `<i class="fas fa-circle-check mr-2 text-green-300 text-lg align-text-bottom"></i> ${msgs.success}`;
             } else {
-                feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-red-500/20 border border-red-400/40 text-red-50 block shadow-sm';
-                let msg = 'Sin intentos. La traducción era:';
-                if (isEn) msg = 'No attempts left. The translation was:';
-                else if (isPt) msg = 'Sem tentativas. A tradução era:';
-                feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300 text-lg align-text-bottom"></i> ${msg} <strong class="text-white">${escHtml(data.translation)}</strong>`;
+                feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300 text-lg align-text-bottom"></i> ${msgs.failure} <strong class="text-white">${escHtml(data.translation)}</strong>`;
             }
         };
 
@@ -337,16 +338,15 @@
             }
 
             if (feedback) {
+                const lang = isEn ? 'en' : (isPt ? 'pt' : 'es');
+                const wrongMsgs = {
+                    es: { retry: 'Incorrecto, ¡intenta de nuevo!', last: '⚠️ ¡Último intento!' },
+                    en: { retry: 'Incorrect, try again!', last: '⚠️ Last attempt!' },
+                    pt: { retry: 'Incorreto, tente novamente!', last: '⚠️ Última tentativa!' }
+                }[lang];
+
+                const wrongMsg = (attemptsLeft === 1) ? wrongMsgs.last : wrongMsgs.retry;
                 feedback.className = 'mt-4 rounded-xl px-4 py-3 text-sm font-medium transition-all bg-red-500/20 border border-red-400/40 text-red-50 block shadow-sm';
-                let wrongMsg = 'Incorrecto, ¡intenta de nuevo!';
-                if (attemptsLeft === 1) {
-                    wrongMsg = '⚠️ ¡Último intento!';
-                    if (isEn) wrongMsg = '⚠️ Last attempt!';
-                    else if (isPt) wrongMsg = '⚠️ Última tentativa!';
-                } else {
-                    if (isEn) wrongMsg = 'Incorrect, try again!';
-                    else if (isPt) wrongMsg = 'Incorreto, tente novamente!';
-                }
                 feedback.innerHTML = `<i class="fas fa-circle-xmark mr-2 text-red-300"></i> ${wrongMsg}`;
             }
             if (input) { input.value = ''; input.focus(); }
