@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const striptags = require('striptags');
 const User = require('../models/User');
 const ChatLog = require('../models/ChatLog');
+const LabStory = require('../models/LabStory');
 const redisClient = require('../redisClient');
 // path removed
 
@@ -499,10 +500,11 @@ router.post('/', async (req, res) => {
         if (similarChunks && similarChunks.length > 0) {
             ragContext = `\n*** COMMUNITY KNOWLEDGE BASE ***\nIf the user's question is related to the following community material, use it to formulate your answer:\n`;
             similarChunks.forEach(chunk => {
-                const title = String(chunk.metadata?.title || 'Community Lesson');
-                const author = String(chunk.metadata?.author || 'Unknown');
-                const level = String(chunk.metadata?.level || 'N/A');
-                ragContext += `[Source: "${title}" by ${author} - Level ${level}]:\n"${chunk.text}"\n\n`;
+                const title = typeof chunk.metadata?.title === 'object' ? JSON.stringify(chunk.metadata.title) : String(chunk.metadata?.title || 'Community Lesson');
+                const author = typeof chunk.metadata?.author === 'object' ? JSON.stringify(chunk.metadata.author) : String(chunk.metadata?.author || 'Unknown');
+                const level = typeof chunk.metadata?.level === 'object' ? JSON.stringify(chunk.metadata.level) : String(chunk.metadata?.level || 'N/A');
+                const chunkText = String(chunk.text || '');
+                ragContext += `[Source: "${title}" by ${author} - Level ${level}]:\n"${chunkText}"\n\n`;
             });
         }
 
@@ -526,7 +528,7 @@ router.post('/', async (req, res) => {
             .limit(5); // Load the last 5 interactions (10 messages total)
 
         // The query returns descending (newest first), so we reverse it to chronological order
-        pastLogs.reverse().forEach(log => {
+        [...pastLogs].reverse().forEach(log => {
             if (log.userMessage) messages.push({ role: 'user', content: log.userMessage });
             if (log.aiResponse) messages.push({ role: 'assistant', content: log.aiResponse });
         });
@@ -729,6 +731,277 @@ router.post('/lab/grade-exam', async (req, res) => {
         const jsonMatch = /\{[\s\S]*\}/.exec(rawGrading);
         res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /lab/current-active-story
+router.get('/lab/current-active-story', async (req, res) => {
+    try {
+        const user = await getUserFromRequest(req);
+        if (!user) return res.json({ active: false });
+
+        const storyId = user.stats?.activeStoryId;
+        if (!storyId) return res.json({ active: false });
+
+        if (redisClient.isOpen && redisClient.isReady) {
+            const cached = await redisClient.get(`STORY:${storyId}`).catch(() => null);
+            if (cached) {
+                const state = JSON.parse(cached);
+                return res.json({
+                    active: true,
+                    story: {
+                        id: storyId,
+                        title: state.title,
+                        current_chapter: state.history[state.history.length - 1].content_data
+                    }
+                });
+            }
+        }
+
+        // Fallback to MongoDB
+        const persisted = await LabStory.findOne({ storyId, userId: user._id });
+        if (persisted && persisted.history && persisted.history.length > 0) {
+            return res.json({
+                active: true,
+                story: {
+                    id: storyId,
+                    title: persisted.title,
+                    current_chapter: persisted.history[persisted.history.length - 1].content_data
+                }
+            });
+        }
+
+        res.status(404).json({ error: "Story not found" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /lab/story/:id
+router.get('/lab/story/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await getUserFromRequest(req);
+        if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+        if (redisClient.isOpen && redisClient.isReady) {
+            const cached = await redisClient.get(`STORY:${id}`).catch(() => null);
+            if (cached) {
+                const state = JSON.parse(cached);
+                
+                // Update active story in profile when loading a past one
+                if (user.stats) {
+                    user.stats.activeStoryId = id;
+                    await user.save();
+                }
+
+                return res.json({
+                    active: true,
+                    story: {
+                        id: id,
+                        title: state.title,
+                        current_chapter: state.history[state.history.length - 1].content_data
+                    }
+                });
+            }
+        }
+
+        // Fallback to MongoDB
+        const persisted = await LabStory.findOne({ storyId: id, userId: user._id });
+        if (persisted && persisted.history && persisted.history.length > 0) {
+            if (user.stats) {
+                user.stats.activeStoryId = id;
+                await user.save();
+            }
+
+            return res.json({
+                active: true,
+                story: {
+                    id: id,
+                    title: persisted.title,
+                    current_chapter: persisted.history[persisted.history.length - 1].content_data
+                }
+            });
+        }
+
+        res.status(404).json({ error: "Story not found" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /lab/active-story
+router.delete('/lab/active-story', async (req, res) => {
+    try {
+        const user = await getUserFromRequest(req);
+        if (user) {
+            user.stats.activeStoryId = null;
+            await user.save();
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /lab/start-story
+router.post('/lab/start-story', async (req, res) => {
+    try {
+        const { genre = 'Aventura', charName = 'Un principiante', userPrompt = '', level = 'A1' } = req.body;
+        const storyId = `story_${Date.now()}`;
+        
+        const prompt = `Actúa como Capi, el guía de TurkAmerica. Genera el primer capítulo de una historia interactiva para aprender Turco.
+        Nivel del estudiante: ${level}.
+        Género: ${genre}.
+        Protagonista: ${charName}.
+        Directiva adicional: ${userPrompt || 'Ninguna'}.
+        
+        CRITICAL: 
+        1. Escribe en Español fluido.
+        2. La historia debe avanzar por segmentos. Cada segmento de texto en Turco DEBE tener su texto (tr), pronunciación aproximada para hispanohablantes (py) y traducción literal o nota (note).
+        3. Para palabras difíciles o fuera del nivel ${level}, marca una anotación.
+        4. Output ONLY raw JSON:
+        {
+          "title": "...",
+          "first_chapter": {
+            "text": "Introducción en español...",
+            "segments": [
+               { "hz": "Turkish text", "py": "pronunciation for Spanish speakers", "tr": "literal Spanish translation", "note": "Grammar or vocabulary note (optional, use if word is difficult)" }
+            ],
+            "options": ["Opción A", "Opción B", "Opción C"]
+          }
+        }`;
+
+        console.log(`[StoryLab-TR] Generating story with model kimi-k2-instruct...`);
+        const { text: rawStory } = await generateText({
+            model: groq('moonshotai/kimi-k2-instruct'),
+            prompt,
+            temperature: 0.8,
+        });
+        console.log(`[StoryLab-TR] Story generated. Length: ${rawStory.length}`);
+
+        const jsonMatch = /\{[\s\S]*\}/.exec(rawStory);
+        const storyData = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
+        
+        const responseData = {
+            id: storyId,
+            title: storyData.title || 'Historia en Turco',
+            genre: genre,
+            first_chapter: storyData.first_chapter || { text: "Error generando historia.", segments: [], options: [] }
+        };
+
+        // Store active story in user profile
+        const user = await getUserFromRequest(req);
+        if (user) {
+            user.stats.activeStoryId = storyId;
+            await user.save();
+
+            // Store in MongoDB (Permanent)
+            await LabStory.create({
+                userId: user._id,
+                storyId,
+                title: responseData.title,
+                genre,
+                charName,
+                level,
+                lang: 'tr',
+                history: [{ role: 'assistant', content_data: responseData.first_chapter }]
+            }).catch(err => console.error("MongoDB Store Error:", err));
+        }
+
+        // Store in Redis (Expire in 2 hours)
+        if (redisClient.isOpen && redisClient.isReady) {
+            console.log(`[StoryLab-TR] Storing story in Redis: ${storyId}`);
+            await redisClient.setEx(`STORY:${storyId}`, 7200, JSON.stringify({
+                title: responseData.title,
+                history: [{ role: 'assistant', content_data: responseData.first_chapter }],
+                genre,
+                charName,
+                level,
+                lang: 'tr'
+            })).catch(err => {
+                console.warn(`[StoryLab-TR] Redis store error: ${err.message}`);
+            });
+        } else {
+            console.log(`[StoryLab-TR] Redis not available, skipping cache.`);
+        }
+
+        res.json(responseData);
+    } catch (error) {
+        console.error("Start Story Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /lab/continue-story
+router.post('/lab/continue-story', async (req, res) => {
+    try {
+        const { story_id, option } = req.body;
+        
+        let storyState = { history: [], genre: 'Aventura', charName: 'Aventurero', level: 'A1' };
+        if (redisClient.isOpen && redisClient.isReady) {
+            const cached = await redisClient.get(`STORY:${story_id}`).catch(() => null);
+            if (cached) storyState = JSON.parse(cached);
+        }
+
+        const historyPrompt = storyState.history.map(h => `${h.role === 'assistant' ? 'Capi' : 'Usuario'}: ${h.content_data.text || h.content_data}`).join('\n');
+
+        const prompt = `Continúa la historia de TurkAmerica basada en la opción elegida: "${option}".
+        Nivel: ${storyState.level}.
+        Contexto previo:
+        ${historyPrompt}
+        
+        Género: ${storyState.genre}.
+        Protagonista: ${storyState.charName}.
+        
+        CRITICAL: Output ONLY raw JSON:
+        {
+          "next_chapter": {
+            "text": "...",
+            "segments": [
+               { "hz": "Turkish text", "py": "pronunciation for Spanish speakers", "tr": "literal Spanish translation", "note": "Grammar or vocabulary note (optional, use if word is difficult)" }
+            ],
+            "options": ["Opción 1", "Opción 2", "Opción 3"]
+          }
+        }`;
+
+        const { text: rawNext } = await generateText({
+            model: groq.chat('moonshotai/kimi-k2-instruct'),
+            prompt,
+            temperature: 0.8,
+        });
+
+        const jsonMatch = /\{[\s\S]*\}/.exec(rawNext);
+        const nextData = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
+
+        // Update Redis
+        if (redisClient.isOpen && redisClient.isReady && story_id && nextData.next_chapter) {
+            storyState.history.push({ role: 'user', content_data: option });
+            storyState.history.push({ role: 'assistant', content_data: nextData.next_chapter });
+            await redisClient.setEx(`STORY:${story_id}`, 7200, JSON.stringify(storyState)).catch(() => {});
+        }
+
+        // Update MongoDB (Permanent)
+        const user = await getUserFromRequest(req);
+        if (user && story_id && nextData.next_chapter) {
+            await LabStory.findOneAndUpdate(
+                { storyId: story_id, userId: user._id },
+                { 
+                    $push: { 
+                        history: [
+                            { role: 'user', content_data: option },
+                            { role: 'assistant', content_data: nextData.next_chapter }
+                        ] 
+                    },
+                    $set: { lastUpdated: new Date() }
+                }
+            ).catch(err => console.error("MongoDB update error:", err));
+        }
+
+        res.json(nextData);
+    } catch (error) {
+        console.error("Continue Story Error:", error);
         res.status(500).json({ error: error.message });
     }
 });

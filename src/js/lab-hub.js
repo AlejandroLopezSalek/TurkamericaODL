@@ -30,6 +30,23 @@ class LabHub {
     }
 
     handleToolClick(title, dataTool) {
+        // Access Control: Check if user is logged in
+        if (globalThis.AuthService && !globalThis.AuthService.isLoggedIn()) {
+            const currentUrl = encodeURIComponent(globalThis.location.pathname);
+            const msg = "LabPanda requiere registro para acceder a las herramientas experimentales.";
+            
+            if (globalThis.toastWarning) {
+                globalThis.toastWarning(msg, "Acceso Restringido");
+            } else {
+                alert(msg);
+            }
+            
+            setTimeout(() => {
+                globalThis.location.href = `/login/?returnUrl=${currentUrl}`;
+            }, 1500);
+            return;
+        }
+
         // Priority for data-lab-tool attribute, fallback to title matching
         const tool = dataTool || title.toLowerCase();
 

@@ -4,20 +4,44 @@
 
 class LabStory {
     currentStory = null;
-    currentChapter = 0;
+    currentChapterData = null;
+    currentDisplayMode = localStorage.getItem('story_display_mode') || 'hz';
     history = JSON.parse(localStorage.getItem('lab_story_history') || '[]');
 
     constructor() {
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
         this.renderHistory();
+        this.checkActiveStory();
     }
 
     setupEventListeners() {
         document.getElementById('start-story-btn').onclick = () => this.startNewStory();
+        const closeBtn = document.getElementById('close-story-btn');
+        if (closeBtn) closeBtn.onclick = () => this.clearSession();
+        
+        // Mode toggle listeners
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.onclick = () => this.setDisplayMode(btn.dataset.mode);
+        });
+    }
+
+    async checkActiveStory() {
+        try {
+            const headers = globalThis.AuthService?.getAuthHeaders() || {};
+            const res = await fetch('/api/chat/lab/current-active-story', { headers });
+            const data = await res.json();
+            if (data.active) {
+                this.currentStory = { id: data.story.id, title: data.story.title };
+                this.renderChapter(data.story.current_chapter);
+            }
+        } catch (e) {
+            console.error("Error resuming story:", e);
+            this.setState('placeholder');
+        }
     }
 
     async startNewStory() {
@@ -32,9 +56,10 @@ class LabStory {
         this.setState('loading');
 
         try {
+            const headers = globalThis.AuthService?.getAuthHeaders() || { 'Content-Type': 'application/json' };
             const response = await fetch('/api/chat/lab/start-story', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ genre, charName, isPublic })
             });
 
@@ -42,58 +67,149 @@ class LabStory {
             if (data.error) throw new Error(data.error);
 
             this.currentStory = data;
-            this.currentChapter = 1;
             this.renderChapter(data.first_chapter);
             this.saveToHistory(data);
         } catch (e) {
             console.error(e);
-            this.notify("Fallo al iniciar historia: " + e.message, "error");
+            this.notify("Error al iniciar historia. Verifica tu conexión.", "error");
             this.setState('placeholder');
         }
     }
 
     renderChapter(chapter) {
+        if (!chapter) return;
+        this.currentChapterData = chapter;
         this.setState('content');
+        
+        const modeToggles = document.getElementById('mode-toggles');
+        if (modeToggles) modeToggles.classList.remove('hidden');
+
         const textContainer = document.getElementById('story-text');
         const optionsContainer = document.getElementById('story-options');
 
-        // Typing effect simulation or direct injection
-        textContainer.innerHTML = `<div class="animate-fadeIn">${marked.parse(chapter.text)}</div>`;
+        // Logic display
+        let html = `<div class="animate-fadeIn mb-6">${marked.parse(chapter.text || '')}</div>`;
+        
+        if (chapter.segments && Array.isArray(chapter.segments)) {
+            html += `<div class="story-segments flex flex-wrap gap-x-4 gap-y-6 items-end mt-4">`;
+            chapter.segments.forEach(seg => {
+                html += this.formatSegment(seg);
+            });
+            html += `</div>`;
+        }
+
+        textContainer.innerHTML = html;
         
         optionsContainer.innerHTML = '';
-        chapter.options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'story-option-btn text-slate-900 dark:text-white';
-            btn.innerHTML = `<span class="block text-[10px] uppercase opacity-50 mb-1">Opción</span> ${opt}`;
-            btn.onclick = () => this.nextChapter(opt);
-            optionsContainer.appendChild(btn);
-        });
+        if (chapter.options && Array.isArray(chapter.options)) {
+            chapter.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'story-option-btn text-slate-900 dark:text-white p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-left hover:bg-emerald-600 hover:text-white transition-all font-bold';
+                btn.innerHTML = `<span class="block text-[10px] uppercase opacity-50 mb-1">Opción</span> ${opt}`;
+                btn.onclick = () => this.nextChapter(opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
 
+        this.updateModeUI();
         document.getElementById('story-display').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    formatSegment(seg) {
+        const mode = this.currentDisplayMode;
+        // In TurkAmerica: hz is Turkish, py is Pronunciation, tr is Spanish Translation
+        if (mode === 'hz') {
+            return `<span class="text-3xl font-medium text-slate-900 dark:text-white">${seg.hz}</span>`;
+        } else if (mode === 'py') {
+            return `<ruby class="text-3xl font-medium text-slate-900 dark:text-white">${seg.hz}<rt class="text-xs text-emerald-500 font-bold mb-1">${seg.py}</rt></ruby>`;
+        } else {
+            // Full mode with Tooltip/Note
+            return `
+                <div class="group relative inline-block cursor-help border-b-2 border-dotted border-emerald-400 pb-1">
+                    <ruby class="text-3xl font-medium text-slate-900 dark:text-white">
+                        ${seg.hz}
+                        <rt class="text-xs text-emerald-500 font-bold mb-1">${seg.py}</rt>
+                    </ruby>
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 border border-slate-100 dark:border-white/10">
+                        <div class="text-xs font-bold text-emerald-600 mb-1 uppercase tracking-widest">${seg.tr}</div>
+                        ${seg.note ? `<div class="text-[10px] text-slate-500 leading-tight">${seg.note}</div>` : ''}
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-slate-800"></div>
+                    </div>
+                </div>`;
+        }
+    }
+
+    setDisplayMode(mode) {
+        this.currentDisplayMode = mode;
+        localStorage.setItem('story_display_mode', mode);
+        this.renderChapter(this.currentChapterData);
+    }
+
+    updateModeUI() {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            const isActive = btn.dataset.mode === this.currentDisplayMode;
+            btn.className = `mode-btn px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${isActive ? 'bg-white dark:bg-slate-800 shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`;
+        });
+    }
+
+    async loadStory(storyId) {
+        this.setState('loading');
+        try {
+            const headers = globalThis.AuthService?.getAuthHeaders() || {};
+            const res = await fetch(`/api/chat/lab/story/${storyId}`, { headers });
+            const data = await res.json();
+            if (data.active) {
+                this.currentStory = { id: data.story.id, title: data.story.title };
+                this.renderChapter(data.story.current_chapter);
+            } else {
+                this.notify("No se pudo encontrar la historia o ha expirado.", "warning");
+                this.setState('placeholder');
+            }
+        } catch (e) {
+            console.error("Error loading story:", e);
+            this.notify("Error al cargar la historia.", "error");
+            this.setState('placeholder');
+        }
     }
 
     async nextChapter(selectedOption) {
         this.setState('loading');
         try {
+            const headers = globalThis.AuthService?.getAuthHeaders() || { 'Content-Type': 'application/json' };
             const response = await fetch('/api/chat/lab/continue-story', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({
                     story_id: this.currentStory.id,
-                    option: selectedOption,
-                    chapter_index: this.currentChapter
+                    option: selectedOption
                 })
             });
 
             const data = await response.json();
             if (data.error) throw new Error(data.error);
 
-            this.currentChapter++;
             this.renderChapter(data.next_chapter);
         } catch (e) {
             console.error(e);
             this.notify("Error al continuar.", "error");
             this.setState('content');
+        }
+    }
+
+    async clearSession() {
+        this.currentStory = null;
+        this.currentChapterData = null;
+        this.setState('placeholder');
+        const modeToggles = document.getElementById('mode-toggles');
+        if (modeToggles) modeToggles.classList.add('hidden');
+        try {
+            const headers = globalThis.AuthService?.getAuthHeaders() || {};
+            await fetch('/api/chat/lab/active-story', { 
+                method: 'DELETE',
+                headers: headers
+            });
+        } catch (e) {
+            console.error("Error clearing session:", e);
         }
     }
 
@@ -121,6 +237,7 @@ class LabStory {
     }
 
     checkLimit() {
+        if (globalThis.AuthService?.getCurrentUser()?.role === 'admin') return true;
         const lastDate = localStorage.getItem('last_story_date');
         return lastDate !== new Date().toDateString();
     }
@@ -132,11 +249,9 @@ class LabStory {
         list.innerHTML = '';
         this.history.forEach(h => {
              const div = document.createElement('div');
-             div.className = 'p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 cursor-pointer hover:bg-emerald-500/10 transition-all';
-             div.innerHTML = `
-                <div class="font-bold text-xs text-slate-800 dark:text-white truncate">${h.title}</div>
-                <div class="text-[9px] text-slate-500">${new Date(h.date).toLocaleDateString()} • ${h.genre}</div>
-             `;
+             div.className = 'p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 cursor-pointer hover:bg-red-500/10 transition-all';
+             div.innerHTML = `<div class="font-bold text-xs truncate">${h.title}</div><div class="text-[9px] text-slate-500">${new Date(h.date).toLocaleDateString()}</div>`;
+             div.onclick = () => this.loadStory(h.id);
              list.appendChild(div);
         });
     }
