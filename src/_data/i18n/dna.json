@@ -1,0 +1,59 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "ADN de la Frase - Turkamerica",
+    "description": "Desglosa la estructura del turco y sus sufijos con IA.",
+    "subtitle": "ADN Lingüístico",
+    "desc": "Pega una palabra o frase en turco para analizar su estructura, raíces y sufijos.",
+    "placeholder": "Pega algo aquí...",
+    "btn_text": "ANALIZAR CADENA",
+    "limit_note": "Analiza hasta 5 frases por hora.",
+    "loading": "Secuenciando ADN...",
+    "res_general": "Significado General",
+    "root_label": "Raíz: ",
+    "suffix_label": "Sufijo: ",
+    "messages": {
+      "error_input": "Ingresa una palabra o frase.",
+      "error_gen": "Error al analizar la cadena."
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Sentence DNA - Turkamerica",
+    "description": "Break down Turkish structure and suffixes with AI.",
+    "subtitle": "Linguistic DNA",
+    "desc": "Paste a Turkish word or phrase to analyze its structure, roots, and suffixes.",
+    "placeholder": "Paste something here...",
+    "btn_text": "ANALYZE CHAIN",
+    "limit_note": "Analyze up to 5 phrases per hour.",
+    "loading": "Sequencing DNA...",
+    "res_general": "General Meaning",
+    "root_label": "Root: ",
+    "suffix_label": "Suffix: ",
+    "messages": {
+      "error_input": "Please enter a word or phrase.",
+      "error_gen": "Error analyzing the chain."
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "ADN da Frase - Turkamerica",
+    "description": "Desmonte a estrutura do turco e seus sufixos com IA.",
+    "subtitle": "ADN Linguístico",
+    "desc": "Cole uma palavra ou frase em turco para analisar sua estrutura, raízes e sufixos.",
+    "placeholder": "Cole algo aqui...",
+    "btn_text": "ANALISAR CADEIA",
+    "limit_note": "Analise até 5 frases por hora.",
+    "loading": "Sequenciando ADN...",
+    "res_general": "Significado Geral",
+    "root_label": "Raiz: ",
+    "suffix_label": "Sufijo: ",
+    "messages": {
+      "error_input": "Insira uma palabra o frase.",
+      "error_gen": "Erro ao analisar a cadeia."
+    }
+  }
+]

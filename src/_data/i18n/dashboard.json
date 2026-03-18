@@ -1,0 +1,257 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Dashboard - Turkamerica",
+    "description": "Tu panel de aprendizaje de turco.",
+    "welcome": {
+      "title": "Una Plataforma para la Comunidad",
+      "subtitle": "Aprendizaje de turco accesible para todos los hispanohablantes"
+    },
+    "mission": {
+      "title": "La Misión",
+      "desc": "TurkAmerica por parte de ODL nació con el objetivo de crear recursos de calidad para aprender turco dirigidos específicamente a la comunidad hispanohablante. El idioma no debe ser una barrera para conectar culturas."
+    },
+    "features": {
+      "title": "Cómo Funciona la Plataforma",
+      "levels": {
+        "title": "Niveles de Aprendizaje",
+        "desc": "Lecciones estructuradas por niveles (A1 a C1) con soporte de audio, traducciones e iteración dinámica."
+      },
+      "community": {
+        "title": "Comunidad",
+        "desc": "Explora libros PDF y lecciones creadas por otros usuarios, ¡o contribuye compartiendo lo tuyo!"
+      },
+      "wotd": {
+        "title": "Palabra del Día (IA)",
+        "desc": "Widget interactivo diario potenciado por Inteligencia Artificial con pronunciación, ejemplos y quizzes rápidos."
+      },
+      "chat": {
+        "title": "Asistente con IA",
+        "desc": "Chat inteligente integrado que entiende tu nivel y resuelve tus dudas sobre el turco en tiempo real."
+      },
+      "pwa": {
+        "title": "Multiplataforma",
+        "desc": "Aprende donde estés instalando nuestra PWA. Soporte completo de modo oscuro automático.",
+        "btn": "Instalar App"
+      },
+      "grammar": {
+        "title": "Gramática Segura",
+        "desc": "Diccionarios, plataformas validadas como Quizlet y clases sugeridas con profesores nativos de italki."
+      }
+    },
+    "odl": {
+      "title": "Organización de Desarrollo Latino",
+      "subtitle": "Developers & Language Enthusiasts",
+      "desc": "Apasionados por crear herramientas educativas que faciliten el aprendizaje de idiomas y mejoren la calidad de vida. TurkAmerica es un proyecto personal que busca llenar el vacío de recursos de turco para hispanohablantes.",
+      "tags": ["Developer", "5 Idiomas", "Open Source"]
+    },
+    "collaboration": {
+      "title": "Colaboración y Enseñanza",
+      "items": [
+        "<strong>Abierto a colaboraciones:</strong> Si eres desarrollador, diseñador o educador y quieres contribuir al proyecto, ¡contáctame!",
+        "<strong>Equipos de trabajo:</strong> Interesado en formar equipos para proyectos educativos y tecnológicos similares.",
+        "<strong>Mentoría:</strong> Dispuesto a enseñar y compartir conocimientos sobre desarrollo web, apps móviles y sistemas de aprendizaje.",
+        "<strong>Proyectos futuros:</strong> Expansión a otros idiomas, más funcionalidades en la app, sistema de comunidad y más."
+      ]
+    },
+    "support": {
+      "title": "Apoya el Proyecto",
+      "desc": "TurkAmerica es un proyecto gratuito y de código abierto. Si te ha sido útil y quieres apoyar su desarrollo continuo, considera hacer una donación. Tu apoyo ayuda a mantener los servidores, desarrollar nuevas funciones y crear más contenido educativo de calidad.",
+      "why_title": "¿Por qué donar?",
+      "reasons": [
+        "Mantén el proyecto gratuito para todos",
+        "Acelera el desarrollo de nuevas funciones",
+        "Apoya la creación de más contenido educativo",
+        "Ayuda a expandir a más idiomas",
+        "Contribuye al mantenimiento de servidores"
+      ],
+      "btn": "Apoyar en WhyDonate",
+      "btn_desc": "Cada contribución cuenta",
+      "thanks": "<strong>¡Gracias por tu apoyo!</strong> Cada donación, sin importar el monto, hace una diferencia real en el proyecto."
+    },
+    "contact": {
+      "title": "Contacto",
+      "desc": "¿Tienes preguntas, sugerencias o quieres colaborar?"
+    },
+    "thanks": {
+      "title": "Agradecimientos",
+      "desc": "Gracias a todos los usuarios, colaboradores y a la comunidad de aprendices de turco que hacen este proyecto posible. Especial agradecimiento a:",
+      "items": [
+        "La comunidad de desarrolladores open source",
+        "Cada usuario que confía en TurkAmerica para su aprendizaje"
+      ]
+    },
+    "cta_home": "Volver al Inicio"
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Dashboard - Turkamerica",
+    "description": "Your Turkish learning dashboard.",
+    "welcome": {
+      "title": "A Platform for the Community",
+      "subtitle": "Accessible Turkish learning for all English speakers"
+    },
+    "mission": {
+      "title": "The Mission",
+      "desc": "TurkAmerica by ODL was born with the goal of creating quality resources for learning Turkish specifically aimed at the English-speaking community. Language should not be a barrier to connecting cultures."
+    },
+    "features": {
+      "title": "How the Platform Works",
+      "levels": {
+        "title": "Learning Levels",
+        "desc": "Lessons structured by levels (A1 to C1) with audio support, translations, and dynamic iteration."
+      },
+      "community": {
+        "title": "Community",
+        "desc": "Explore PDF books and lessons created by other users, or contribute by sharing yours!"
+      },
+      "wotd": {
+        "title": "Word of the Day (AI)",
+        "desc": "Daily interactive widget powered by Artificial Intelligence with pronunciation, examples, and quick quizzes."
+      },
+      "chat": {
+        "title": "AI Assistant",
+        "desc": "Integrated smart chat that understands your level and solves your doubts about Turkish in real-time."
+      },
+      "pwa": {
+        "title": "Multiplatform",
+        "desc": "Learn wherever you are by installing our PWA. Full support for automatic dark mode.",
+        "btn": "Install App"
+      },
+      "grammar": {
+        "title": "Reliable Grammar",
+        "desc": "Dictionaries, validated platforms like Quizlet, and suggested classes with native italki teachers."
+      }
+    },
+    "odl": {
+      "title": "Latino Development Organization",
+      "subtitle": "Developers & Language Enthusiasts",
+      "desc": "Passionate about creating educational tools that facilitate language learning and improve quality of life. TurkAmerica is a personal project that aims to fill the gap of Turkish resources for English speakers.",
+      "tags": ["Developer", "5 Languages", "Open Source"]
+    },
+    "collaboration": {
+      "title": "Collaboration and Teaching",
+      "items": [
+        "<strong>Open to collaborations:</strong> If you are a developer, designer, or educator and want to contribute to the project, contact me!",
+        "<strong>Work teams:</strong> Interested in forming teams for similar educational and technological projects.",
+        "<strong>Mentorship:</strong> Willing to teach and share knowledge about web development, mobile apps, and learning systems.",
+        "<strong>Future projects:</strong> Expansion to other languages, more features in the app, community system, and more."
+      ]
+    },
+    "support": {
+      "title": "Support the Project",
+      "desc": "TurkAmerica is a free and open-source project. If it has been useful to you and you want to support its continuous development, consider making a donation. Your support helps maintain the servers, develop new features, and create more quality educational content.",
+      "why_title": "Why donate?",
+      "reasons": [
+        "Keep the project free for everyone",
+        "Accelerate the development of new features",
+        "Support the creation of more educational content",
+        "Help expand to more languages",
+        "Contribute to server maintenance"
+      ],
+      "btn": "Support on WhyDonate",
+      "btn_desc": "Every contribution counts",
+      "thanks": "<strong>Thank you for your support!</strong> Every donation, regardless of the amount, makes a real difference to the project."
+    },
+    "contact": {
+      "title": "Contact",
+      "desc": "Do you have questions, suggestions, or want to collaborate?"
+    },
+    "thanks": {
+      "title": "Acknowledgments",
+      "desc": "Thanks to all users, contributors, and the community of Turkish learners who make this project possible. Special thanks to:",
+      "items": [
+        "The open source developer community",
+        "Every user who trusts TurkAmerica for their learning"
+      ]
+    },
+    "cta_home": "Back to Home"
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Paine - Turkamerica",
+    "description": "Seu painel de aprendizagem de turco.",
+    "welcome": {
+      "title": "Uma Plataforma para a Comunidade",
+      "subtitle": "Aprendizagem de turco acessível para todos os falantes de português"
+    },
+    "mission": {
+      "title": "A Missão",
+      "desc": "O TurkAmerica pela ODL nasceu com o objetivo de criar recursos de qualidade para aprender turco especificamente voltados para a comunidade de língua portuguesa. O idioma não deve ser uma barreira para conectar culturas."
+    },
+    "features": {
+      "title": "Como a Plataforma Funciona",
+      "levels": {
+        "title": "Níveis de Aprendizagem",
+        "desc": "Lições estruturadas por níveis (A1 a C1) com suporte de áudio, traduções e iteração dinâmica."
+      },
+      "community": {
+        "title": "Comunidade",
+        "desc": "Explore livros em PDF e lições criadas por outros usuários, ou contribua compartilhando o seu!"
+      },
+      "wotd": {
+        "title": "Palavra do Dia (IA)",
+        "desc": "Widget interativo diário alimentado por Inteligência Artificial com pronúncia, exemplos e questionários rápidos."
+      },
+      "chat": {
+        "title": "Assistente de IA",
+        "desc": "Chat inteligente integrado que entende seu nível e resolve suas dúvidas sobre turco em tempo real."
+      },
+      "pwa": {
+        "title": "Multiplataforma",
+        "desc": "Aprenda onde estiver instalando nossa PWA. Suporte total para modo escuro automático.",
+        "btn": "Instalar App"
+      },
+      "grammar": {
+        "title": "Gramática Confiável",
+        "desc": "Dicionários, plataformas validadas como Quizlet e aulas sugeridas com professores nativos do italki."
+      }
+    },
+    "odl": {
+      "title": "Organização de Desenvolvimento Latino",
+      "subtitle": "Developers & Language Enthusiasts",
+      "desc": "Apaixonado pela criação de ferramentas educacionais que facilitem a aprendizagem de línguas e melhorem a qualidade de vida. O TurkAmerica é um projeto pessoal que visa preencher a lacuna de recursos turcos para falantes de português.",
+      "tags": ["Developer", "5 Idiomas", "Open Source"]
+    },
+    "collaboration": {
+      "title": "Colaboração e Ensino",
+      "items": [
+        "<strong>Aberto a colaborações:</strong> Se você é um desenvolvedor, designer ou educador e quer contribuir para o projeto, entre em contato!",
+        "<strong>Equipes de trabalho:</strong> Interessado em formar equipes para projetos educacionais e tecnológicos semelhantes.",
+        "<strong>Mentoria:</strong> Disposto a ensinar e compartilhar conhecimentos sobre desenvolvimento web, aplicativos móveis e sistemas de aprendizagem.",
+        "<strong>Projetos futuros:</strong> Expansão para outros idiomas, mais recursos no app, sistema comunitário e muito mais."
+      ]
+    },
+    "support": {
+      "title": "Apoie o Projeto",
+      "desc": "O TurkAmerica é um projeto gratuito e de código aberto. Se ele foi útil para você e você deseja apoiar seu desenvolvimento contínuo, considere fazer uma doação. Seu apoio ajuda a manter os servidores, desenvolver novos recursos e criar mais conteúdo educacional de qualidade.",
+      "why_title": "Por que doar?",
+      "reasons": [
+        "Mantenha o projeto gratuito para todos",
+        "Acelere o desenvolvimento de novos recursos",
+        "Apoie a criação de mais conteúdo educacional",
+        "Ajude a expandir para mais idiomas",
+        "Contribua para a manutenção do servidor"
+      ],
+      "btn": "Apoiar no WhyDonate",
+      "btn_desc": "Cada contribuição conta",
+      "thanks": "<strong>Obrigado pelo seu apoio!</strong> Cada doação, independentemente do valor, faz uma real diferença para o projeto."
+    },
+    "contact": {
+      "title": "Contato",
+      "desc": "Você tem perguntas, sugestões ou quer colaborar?"
+    },
+    "thanks": {
+      "title": "Agradecimentos",
+      "desc": "Obrigado a todos os usuários, colaboradores e à comunidade de estudantes de turco que tornam este projeto possível. Agradecimentos especiais a:",
+      "items": [
+        "A comunidade de desenvolvedores de código aberto",
+        "Cada usuário que confia no TurkAmerica para sua aprendizagem"
+      ]
+    },
+    "cta_home": "Voltar ao Início"
+  }
+]

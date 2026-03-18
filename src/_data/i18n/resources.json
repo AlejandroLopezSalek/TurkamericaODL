@@ -1,0 +1,83 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Recursos Recomendados | Aprende Turco",
+    "header": {
+      "title": "Herramientas Recomendadas",
+      "desc": "Hemos seleccionado las mejores plataformas para ayudarte a dominar el turco. Ya sea que busques <span class=\"text-blue-600 dark:text-blue-400 font-semibold\">profesores nativos</span> o <span class=\"text-indigo-600 dark:text-indigo-400 font-semibold\">clases estructuradas</span>, estas son nuestras recomendaciones top."
+    },
+    "pwa": {
+      "badge": "Recomendado",
+      "title": "Descargar App",
+      "desc": "Instala nuestra aplicación directamente en tu dispositivo para estudiar en cualquier momento, <b>incluso sin conexión</b>.",
+      "btn": "Tener en mi Celular / PC"
+    },
+    "italki": {
+      "title": "italki",
+      "desc": "La mejor plataforma para encontrar <b>profesores nativos</b> y practicar conversación 1-a-1. Ideal para todos los niveles. <br><br><b>Recomendado por ODL (Organización de Desarrollo Latino).</b>",
+      "btn": "Encontrar Profesor",
+      "badge": "Mejor para Conversación",
+      "footer": "Obtén $10 en créditos al registrarte"
+    },
+    "why_italki": {
+      "title": "¿Por qué recomendamos Italki?",
+      "desc": "Al usar Italki para aprender turco, apoyas directamente a <b>proyectos como Turkamerica de ODL</b>. Esto nos permite seguir creando contenido gratuito y mejorando la plataforma para toda la comunidad.",
+      "thanks": "Gracias por tu apoyo"
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Recommended Resources | Learn Turkish",
+    "header": {
+      "title": "Recommended Tools",
+      "desc": "We have selected the best platforms to help you master Turkish. Whether you are looking for <span class=\"text-blue-600 dark:text-blue-400 font-semibold\">native teachers</span> or <span class=\"text-indigo-600 dark:text-indigo-400 font-semibold\">structured classes</span>, these are our top recommendations."
+    },
+    "pwa": {
+      "badge": "Recommended",
+      "title": "Download App",
+      "desc": "Install our app directly on your device to study anytime, <b>even offline</b>.",
+      "btn": "Get on my Mobile / PC"
+    },
+    "italki": {
+      "title": "italki",
+      "desc": "The best platform to find <b>native teachers</b> and practice 1-on-1 conversation. Ideal for all levels. <br><br><b>Recommended by ODL (Latin Development Organization).</b>",
+      "btn": "Find Teacher",
+      "badge": "Best for Conversation",
+      "footer": "Get $10 in credits when you sign up"
+    },
+    "why_italki": {
+      "title": "Why we recommend Italki?",
+      "desc": "By using Italki to learn Turkish, you directly support <b>projects like ODL's Turkamerica</b>. This allows us to keep creating free content and improving the platform for the entire community.",
+      "thanks": "Thanks for your support"
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Recursos Recomendados | Aprenda Turco",
+    "header": {
+      "title": "Ferramentas Recomendadas",
+      "desc": "Selecionamos as melhores plataformas para ajudá-lo a dominar o turco. Esteja você procurando por <span class=\"text-blue-600 dark:text-blue-400 font-semibold\">professores nativos</span> ou <span class=\"text-indigo-600 dark:text-indigo-400 font-semibold\">aulas estruturadas</span>, estas são nossas recomendações principais."
+    },
+    "pwa": {
+      "badge": "Recomendado",
+      "title": "Baixar App",
+      "desc": "Instale nosso aplicativo diretamente no seu dispositivo para estudar a qualquer momento, <b>mesmo offline</b>.",
+      "btn": "Ter no meu Celular / PC"
+    },
+    "italki": {
+      "title": "italki",
+      "desc": "A melhor plataforma para encontrar <b>professores nativos</b> e praticar conversação 1-a-1. Ideal para todos os níveis. <br><br><b>Recomendado pela ODL (Organização de Desenvolvimento Latino).</b>",
+      "btn": "Encontrar Professor",
+      "badge": "Melhor para Conversação",
+      "footer": "Ganhe $10 em créditos ao se cadastrar"
+    },
+    "why_italki": {
+      "title": "Por que recomendamos o Italki?",
+      "desc": "Ao usar o Italki para aprender turco, você apoia diretamente <b>projetos como o Turkamerica da ODL</b>. Isso nos permite continuar criando conteúdo gratuito e melhorando a plataforma para toda a comunidade.",
+      "thanks": "Obrigado pelo seu apoio"
+    }
+  }
+]

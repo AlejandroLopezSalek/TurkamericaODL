@@ -1,5 +1,12 @@
 ---
 layout: base.njk
+pagination:
+  data: i18n.admin
+  size: 1
+  alias: t
+permalink: "{{ t.dir }}Admin-Contributions/index.html"
+eleventyComputed:
+  title: "{{ t.admin.title }}"
 scripts:
 - lesson-editor.js
 - admin-contributions.js
@@ -7,8 +14,8 @@ scripts:
 
 <div class="max-w-7xl mx-auto px-4 py-8" id="admin-dashboard-page">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-800 dark:text-white">Panel de Administración</h1>
-        <p class="text-slate-600 dark:text-slate-400 mt-2">Gestiona las contribuciones de la comunidad</p>
+        <h1 class="text-3xl font-bold text-slate-800 dark:text-white">{{ t.admin.title }}</h1>
+        <p class="text-slate-600 dark:text-slate-400 mt-2">{{ t.admin.subtitle }}</p>
     </div>
 
     <!-- Stats Overview (Carousel on Mobile, Grid on Desktop) -->
@@ -24,7 +31,7 @@ scripts:
             </div>
             <div>
                 <h3 id="statPending" class="text-xl font-bold text-slate-800 dark:text-white leading-tight">0</h3>
-                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Pendientes</p>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ t.admin.stats.pending }}</p>
             </div>
         </div>
 
@@ -37,7 +44,7 @@ scripts:
             </div>
             <div>
                 <h3 id="statApproved" class="text-xl font-bold text-slate-800 dark:text-white leading-tight">0</h3>
-                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Aprobadas</p>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ t.admin.stats.approved }}</p>
             </div>
         </div>
 
@@ -50,7 +57,7 @@ scripts:
             </div>
             <div>
                 <h3 id="statRejected" class="text-xl font-bold text-slate-800 dark:text-white leading-tight">0</h3>
-                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Rechazadas</p>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ t.admin.stats.rejected }}</p>
             </div>
         </div>
 
@@ -63,7 +70,7 @@ scripts:
             </div>
             <div>
                 <h3 id="statTotal" class="text-xl font-bold text-slate-800 dark:text-white leading-tight">0</h3>
-                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Total</p>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ t.admin.stats.total }}</p>
             </div>
         </div>
     </div>
@@ -74,12 +81,12 @@ scripts:
             <button type="button" id="tabRequests"
                 class="px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400"
                 onclick="switchMainTab('requests')">
-                <i class="fas fa-inbox mr-2"></i> Solicitudes
+                <i class="fas fa-inbox mr-2"></i> {{ t.admin.tabs.requests }}
             </button>
             <button type="button" id="tabLessons"
                 class="px-6 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
                 onclick="switchMainTab('lessons')">
-                <i class="fas fa-book mr-2"></i> Lecciones Publicadas
+                <i class="fas fa-book mr-2"></i> {{ t.admin.tabs.lessons }}
             </button>
         </div>
     </div>
@@ -92,20 +99,20 @@ scripts:
             <button type="button"
                 class="filter-tab active px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 outline-none focus:ring-2 focus:ring-blue-500/50 bg-blue-600 text-white shadow-md shadow-blue-500/20 shrink-0"
                 data-filter="all">
-                Todas <span class="bg-white/20 text-white px-2 py-0.5 rounded-full text-xs font-bold"
+                {{ t.admin.filters.all }} <span class="bg-white/20 text-white px-2 py-0.5 rounded-full text-xs font-bold"
                     id="badgeAll">0</span>
             </button>
             <button type="button"
                 class="filter-tab px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 shrink-0"
                 data-filter="lesson_edit">
-                Lecciones <span
+                {{ t.admin.filters.lessons }} <span
                     class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full text-xs font-bold"
                     id="badgeLessons">0</span>
             </button>
             <button type="button"
                 class="filter-tab px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 shrink-0"
                 data-filter="book_upload">
-                Libros <span
+                {{ t.admin.filters.books }} <span
                     class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full text-xs font-bold"
                     id="badgeBooks">0</span>
             </button>
@@ -115,12 +122,12 @@ scripts:
         <div class="mb-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-                    <i class="fas fa-inbox text-blue-500"></i> Solicitudes Pendientes
+                    <i class="fas fa-inbox text-blue-500"></i> {{ t.admin.requests_list.title }}
                 </h2>
                 <button type="button"
                     class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2"
                     onclick="loadRequests()">
-                    <i class="fas fa-sync-alt"></i> Actualizar
+                    <i class="fas fa-sync-alt"></i> {{ t.admin.requests_list.update }}
                 </button>
             </div>
 
@@ -135,12 +142,12 @@ scripts:
         <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
             <div class="relative w-full sm:w-96">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="lessonSearch" placeholder="Buscar por título, nivel o autor..."
+                <input type="text" id="lessonSearch" placeholder="{{ t.admin.lessons_list.search_placeholder }}"
                     class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
             <button type="button" onclick="loadPublishedLessons()"
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md flex items-center gap-2">
-                <i class="fas fa-sync-alt"></i> Recargar
+                <i class="fas fa-sync-alt"></i> {{ t.admin.lessons_list.reload }}
             </button>
         </div>
 
@@ -150,11 +157,11 @@ scripts:
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
-                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">Título</th>
-                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">Nivel</th>
-                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">Autor</th>
-                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">Actualizado</th>
-                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Acciones</th>
+                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">{{ t.admin.lessons_list.table.title }}</th>
+                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">{{ t.admin.lessons_list.table.level }}</th>
+                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">{{ t.admin.lessons_list.table.author }}</th>
+                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300">{{ t.admin.lessons_list.table.updated }}</th>
+                            <th class="p-4 font-semibold text-slate-600 dark:text-slate-300 text-right">{{ t.admin.lessons_list.table.actions }}</th>
                         </tr>
                     </thead>
                     <tbody id="lessonsTableBody">
@@ -177,10 +184,10 @@ scripts:
         class="modal-content bg-white dark:bg-slate-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-all duration-300 border border-slate-200 dark:border-slate-700">
         <div
             class="modal-header flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 sticky top-0 z-10 backdrop-blur-md">
-            <h2 id="modalTitle" class="text-xl font-bold text-slate-800 dark:text-white">Detalles de la Solicitud</h2>
+            <h2 id="modalTitle" class="text-xl font-bold text-slate-800 dark:text-white">{{ t.admin.modal.title }}</h2>
             <button type="button"
                 class="close-modal w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-red-50 hover:text-red-500 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                onclick="closeModal()"> aria-label="Cerrar"
+                onclick="closeModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -194,17 +201,17 @@ scripts:
             <button type="button"
                 class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5"
                 id="approveBtn">
-                <i class="fas fa-check"></i> Aprobar
+                <i class="fas fa-check"></i> {{ t.admin.modal.approve }}
             </button>
             <button type="button"
                 class="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5"
                 id="rejectBtn">
-                <i class="fas fa-times"></i> Rechazar
+                <i class="fas fa-times"></i> {{ t.admin.modal.reject }}
             </button>
             <button type="button"
                 class="w-full sm:w-auto px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                 onclick="closeModal()">
-                Cancelar
+                {{ t.admin.modal.cancel }}
             </button>
         </div>
     </div>
@@ -217,18 +224,17 @@ scripts:
         class="modal-content bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl transform scale-95 transition-all duration-300 border border-slate-200 dark:border-slate-700 p-0 overflow-hidden">
         <div
             class="modal-header flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-            <h2 id="confirmTitle" class="text-xl font-bold text-slate-800 dark:text-white">Confirmar Acción</h2>
+            <h2 id="confirmTitle" class="text-xl font-bold text-slate-800 dark:text-white">{{ t.admin.confirm.title }}</h2>
         </div>
 
         <div class="modal-body p-6">
             <p id="confirmMessage" class="text-slate-600 dark:text-slate-300 mb-4 text-lg"></p>
             <div class="form-group" id="reasonGroup" style="display:none;">
                 <label for="rejectionReason"
-                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Razón del rechazo
-                    (opcional):</label>
+                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ t.admin.confirm.reason_label }}</label>
                 <textarea id="rejectionReason" rows="3"
                     class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    placeholder="Explica por qué se rechaza esta solicitud..."></textarea>
+                    placeholder="{{ t.admin.confirm.reason_placeholder }}"></textarea>
             </div>
         </div>
 
@@ -236,10 +242,10 @@ scripts:
             class="modal-actions flex flex-col sm:flex-row items-center justify-end gap-3 p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
             <button type="button"
                 class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5"
-                id="confirmBtn">Confirmar</button>
+                id="confirmBtn">{{ t.admin.confirm.btn_confirm }}</button>
             <button type="button"
                 class="w-full sm:w-auto px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
-                onclick="closeConfirmModal()">Cancelar</button>
+                onclick="closeConfirmModal()">{{ t.admin.confirm.btn_cancel }}</button>
         </div>
     </div>
 </div>

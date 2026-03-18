@@ -1,0 +1,317 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Comunidad - Turkamerica",
+    "contribute": {
+      "title": "Contribuir",
+      "subtitle": "¡Ayuda a tu comunidad!",
+      "desc": "Comparte tus conocimientos creando lecciones o recomendando libros útiles.",
+      "types": {
+        "lesson": {
+          "title": "Crear Lección",
+          "desc": "Crea una lección completa con formato profesional, secciones y explicaciones."
+        },
+        "book": {
+          "title": "Compartir Libro",
+          "desc": "Comparte un enlace a un libro o recurso PDF útil para la comunidad."
+        }
+      },
+      "editor": {
+        "title": "Editor de Lección",
+        "back": "Volver",
+        "cancel": "Cancelar",
+        "submit": "Enviar Lección",
+        "fields": {
+          "title": "Título de la Lección",
+          "title_placeholder": "Ej: Presente Simple - Nivel A1",
+          "level": "Nivel",
+          "level_select": "Seleccionar nivel",
+          "difficulty": "Dificultad",
+          "difficulty_select": "Seleccionar dificultad",
+          "desc": "Descripción Breve",
+          "desc_placeholder": "Breve descripción de qué trata la lección...",
+          "content": "Contenido de la Lección",
+          "content_placeholder": "Escribe aquí el contenido de tu lección...",
+          "info": "Usa la barra de herramientas que aparece arriba para dar formato."
+        }
+      },
+      "book_form": {
+        "title": "Compartir Libro",
+        "note": "<strong>Nota:</strong> Solo compartimos enlaces a libros. No subimos archivos directamente para ahorrar espacio en el servidor.",
+        "fields": {
+          "title": "Título del Libro",
+          "title_placeholder": "Ej: Gramática Turca Completa",
+          "author": "Autor",
+          "author_placeholder": "Nombre del autor",
+          "level": "Nivel",
+          "level_select": "Seleccionar nivel",
+          "category": "Categoría",
+          "category_select": "Seleccionar categoría",
+          "url": "Enlace al Libro",
+          "url_placeholder": "https://ejemplo.com/libro.pdf",
+          "url_info": "Google Drive, Dropbox, o cualquier enlace público",
+          "format": "Formato",
+          "format_select": "Seleccionar formato",
+          "size": "Tamaño Aproximado",
+          "size_placeholder": "Ej: 5 MB",
+          "desc": "Descripción",
+          "desc_placeholder": "Describe el contenido del libro y por qué es útil...",
+          "lang": "Idioma del Libro",
+          "lang_select": "Seleccionar idioma"
+        },
+        "submit": "Enviar Propuesta"
+      },
+      "my_contributions": "Mis Contribuciones"
+    },
+    "search": {
+      "placeholder": "Buscar lecciones o libros...",
+      "filters": {
+        "type": "Tipo",
+        "level": "Nivel"
+      },
+      "types": {
+        "books": "Libros",
+        "lessons": "Lecciones"
+      }
+    },
+    "delete_modal": {
+      "title": "¿Eliminar Lección?",
+      "desc": "Esta acción no se puede deshacer. La lección se eliminará permanentemente.",
+      "cancel": "Cancelar",
+      "confirm": "Sí, Eliminar"
+    },
+    "contributors": {
+      "title": "Nuestros Contribuidores",
+      "subtitle": "Conoce a las personas que hacen posible este proyecto y a la comunidad que comparte su conocimiento.",
+      "team_title": "Equipo Principal",
+      "team": [
+        { "name": "Alejandro", "role": "Desarrollador Principal", "desc": "Creador de la plataforma, arquitectura y desarrollo full-stack." },
+        { "name": "Kübra Algan", "role": "Gramática & QA", "desc": "Supervisión gramatical, críticas constructivas y debugging." },
+        { "name": "Miguel", "role": "Beta Tester", "desc": "Pruebas exhaustivas de funcionalidad y reporte de errores." },
+        { "name": "Stefany", "role": "Publicidad & Testing", "desc": "Difusión del proyecto, marketing y pruebas de usuario." }
+      ],
+      "community_title": "Comunidad",
+      "community_desc": "Usuarios increíbles que han contribuido creando lecciones para la plataforma.",
+      "load_more": "Ver más contribuidores",
+      "empty": "Aún no hay contribuidores de la comunidad.",
+      "empty_cta": "¡Sé el primero!"
+    },
+    "lessons": {
+      "title": "Lecciones de la Comunidad",
+      "subtitle": "Lecciones creadas por usuarios para usuarios.",
+      "empty": "No se encontraron lecciones de la comunidad."
+    },
+    "cta_home": "Volver al Inicio"
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Community - Turkamerica",
+    "contribute": {
+      "title": "Contribute",
+      "subtitle": "Help your community!",
+      "desc": "Share your knowledge by creating lessons or recommending useful books.",
+      "types": {
+        "lesson": {
+          "title": "Create Lesson",
+          "desc": "Create a full lesson with professional formatting, sections, and explanations."
+        },
+        "book": {
+          "title": "Share Book",
+          "desc": "Share a link to a book or PDF resource useful for the community."
+        }
+      },
+      "editor": {
+        "title": "Lesson Editor",
+        "back": "Back",
+        "cancel": "Cancel",
+        "submit": "Send Lesson",
+        "fields": {
+          "title": "Lesson Title",
+          "title_placeholder": "Ex: Simple Present - Level A1",
+          "level": "Level",
+          "level_select": "Select level",
+          "difficulty": "Difficulty",
+          "difficulty_select": "Select difficulty",
+          "desc": "Short Description",
+          "desc_placeholder": "Brief description of what the lesson is about...",
+          "content": "Lesson Content",
+          "content_placeholder": "Write your lesson content here...",
+          "info": "Use the toolbar above for formatting."
+        }
+      },
+      "book_form": {
+        "title": "Share Book",
+        "note": "<strong>Note:</strong> We only share links to books. We don't upload files directly to save server space.",
+        "fields": {
+          "title": "Book Title",
+          "title_placeholder": "Ex: Complete Turkish Grammar",
+          "author": "Author",
+          "author_placeholder": "Author's name",
+          "level": "Level",
+          "level_select": "Select level",
+          "category": "Category",
+          "category_select": "Select category",
+          "url": "Book Link",
+          "url_placeholder": "https://example.com/book.pdf",
+          "url_info": "Google Drive, Dropbox, or any public link",
+          "format": "Format",
+          "format_select": "Select format",
+          "size": "Approximate Size",
+          "size_placeholder": "Ex: 5 MB",
+          "desc": "Description",
+          "desc_placeholder": "Describe the content of the book and why it is useful...",
+          "lang": "Book Language",
+          "lang_select": "Select language"
+        },
+        "submit": "Send Proposal"
+      },
+      "my_contributions": "My Contributions"
+    },
+    "search": {
+      "placeholder": "Search lessons or books...",
+      "filters": {
+        "type": "Type",
+        "level": "Level"
+      },
+      "types": {
+        "books": "Books",
+        "lessons": "Lessons"
+      }
+    },
+    "delete_modal": {
+      "title": "Delete Lesson?",
+      "desc": "This action cannot be undone. The lesson will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Yes, Delete"
+    },
+    "contributors": {
+      "title": "Our Contributors",
+      "subtitle": "Meet the people who make this project possible and the community that shares their knowledge.",
+      "team_title": "Core Team",
+      "team": [
+        { "name": "Alejandro", "role": "Lead Developer", "desc": "Creator of the platform, architecture, and full-stack development." },
+        { "name": "Kübra Algan", "role": "Grammar & QA", "desc": "Grammar supervision, constructive criticism, and debugging." },
+        { "name": "Miguel", "role": "Beta Tester", "desc": "Exhaustive functional testing and error reporting." },
+        { "name": "Stefany", "role": "Ads & Testing", "desc": "Project spreading, marketing, and user testing." }
+      ],
+      "community_title": "Community",
+      "community_desc": "Amazing users who have contributed by creating lessons for the platform.",
+      "load_more": "See more contributors",
+      "empty": "No community contributors yet.",
+      "empty_cta": "Be the first!"
+    },
+    "lessons": {
+      "title": "Community Lessons",
+      "subtitle": "Lessons created by users for users.",
+      "empty": "No community lessons found."
+    },
+    "cta_home": "Back to Home"
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Comunidade - Turkamerica",
+    "contribute": {
+      "title": "Contribuir",
+      "subtitle": "Ajude sua comunidade!",
+      "desc": "Compartilhe seus conhecimentos criando lições ou recomendando livros úteis.",
+      "types": {
+        "lesson": {
+          "title": "Criar Lição",
+          "desc": "Crie uma lição completa com formatação profissional, seções e explicações."
+        },
+        "book": {
+          "title": "Compartilhar Livro",
+          "desc": "Compartilhe um link para um livro ou recurso em PDF útil para a comunidade."
+        }
+      },
+      "editor": {
+        "title": "Editor de Lição",
+        "back": "Voltar",
+        "cancel": "Cancelar",
+        "submit": "Enviar Lição",
+        "fields": {
+          "title": "Título da Lição",
+          "title_placeholder": "Ex: Presente Simples - Nível A1",
+          "level": "Nível",
+          "level_select": "Selecionar nível",
+          "difficulty": "Dificuldade",
+          "difficulty_select": "Selecionar dificuldade",
+          "desc": "Descrição Curta",
+          "desc_placeholder": "Breve descrição do que trata a lição...",
+          "content": "Conteúdo da Lição",
+          "content_placeholder": "Escreva aqui o conteúdo da sua lição...",
+          "info": "Use a barra de ferramentas acima para formatar."
+        }
+      },
+      "book_form": {
+        "title": "Compartilhar Livro",
+        "note": "<strong>Nota:</strong> Apenas compartilhamos links para livros. Não fazemos upload de arquivos diretamente para economizar espaço no servidor.",
+        "fields": {
+          "title": "Título do Livro",
+          "title_placeholder": "Ex: Gramática Turca Completa",
+          "author": "Autor",
+          "author_placeholder": "Nome do autor",
+          "level": "Nível",
+          "level_select": "Selecionar nível",
+          "category": "Categoria",
+          "category_select": "Selecionar categoria",
+          "url": "Link para o Livro",
+          "url_placeholder": "https://exemplo.com/livro.pdf",
+          "url_info": "Google Drive, Dropbox ou qualquer link público",
+          "format": "Formato",
+          "format_select": "Selecionar formato",
+          "size": "Tamanho Aproximado",
+          "size_placeholder": "Ex: 5 MB",
+          "desc": "Descrição",
+          "desc_placeholder": "Descreva o conteúdo do livro e por que ele é útil...",
+          "lang": "Idioma do Livro",
+          "lang_select": "Selecionar idioma"
+        },
+        "submit": "Enviar Proposta"
+      },
+      "my_contributions": "Minhas Contribuições"
+    },
+    "search": {
+      "placeholder": "Buscar lições ou livros...",
+      "filters": {
+        "type": "Tipo",
+        "level": "Nível"
+      },
+      "types": {
+        "books": "Livros",
+        "lessons": "Lições"
+      }
+    },
+    "delete_modal": {
+      "title": "Excluir Lição?",
+      "desc": "Esta ação não pode ser desfeita. A lição será excluída permanentemente.",
+      "cancel": "Cancelar",
+      "confirm": "Sim, Excluir"
+    },
+    "contributors": {
+      "title": "Nossos Contribuidores",
+      "subtitle": "Conheça as pessoas que tornam este projeto possível e a comunidade que compartilha seu conhecimento.",
+      "team_title": "Equipe Principal",
+      "team": [
+        { "name": "Alejandro", "role": "Desenvolvedor Principal", "desc": "Criador da plataforma, arquitetura e desenvolvimento full-stack." },
+        { "name": "Kübra Algan", "role": "Gramática & QA", "desc": "Supervisão gramatical, críticas construtivas e depuração." },
+        { "name": "Miguel", "role": "Beta Tester", "desc": "Testes funcionais exaustivos e relato de erros." },
+        { "name": "Stefany", "role": "Publicidade & Testes", "desc": "Divulgação do projeto, marketing e testes de usuário." }
+      ],
+      "community_title": "Comunidade",
+      "community_desc": "Usuários incríveis que contribuíram criando lições para a plataforma.",
+      "load_more": "Ver mais contribuidores",
+      "empty": "Ainda não há contribuidores da comunidade.",
+      "empty_cta": "Seja o primeiro!"
+    },
+    "lessons": {
+      "title": "Lições da Comunidade",
+      "subtitle": "Lições criadas por usuários para usuários.",
+      "empty": "Nenhuma lição da comunidade encontrada."
+    },
+    "cta_home": "Voltar ao Início"
+  }
+]

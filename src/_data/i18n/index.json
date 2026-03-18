@@ -1,0 +1,59 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Aprende turco gratis - TurkAmerica",
+    "description": "Explora y aprende con lecciones interactivas para hispanohablantes.",
+    "hero_banner_title": "¿Quieres saber más sobre TurkAmerica?",
+    "hero_banner_desc": "Conoce el proyecto, roadmap y cómo puedes apoyar el desarrollo",
+    "hero_banner_btn": "Ver Dashboard",
+    "levels": [
+      { "id": "A1", "name": "Nivel A1", "sub": "Principiante", "btn": "Acceder al Nivel", "url": "/NivelA1/", "color": "indigo" },
+      { "id": "A2", "name": "Nivel A2", "sub": "Elemental", "btn": "Acceder al Nivel", "url": "/NivelA2/", "color": "blue" },
+      { "id": "B1", "name": "Nivel B1", "sub": "Intermedio", "btn": "Acceder al Nivel", "url": "/NivelB1/", "color": "emerald" },
+      { "id": "B2", "name": "Nivel B2", "sub": "Intermedio Alto", "btn": "Acceder al Nivel", "url": "/NivelB2/", "color": "orange" },
+      { "id": "C1", "name": "Nivel C1", "sub": "Avanzado", "btn": "Acceder al Nivel", "url": "/NivelC1/", "color": "red" }
+    ],
+    "community_title": "Comunidad",
+    "community_desc": "Explora y aprende con lecciones creadas por otros estudiantes",
+    "community_btn": "Ver Lecciones"
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Learn Turkish Free - TurkAmerica",
+    "description": "Explore and learn with interactive lessons for English speakers.",
+    "hero_banner_title": "Want to know more about TurkAmerica?",
+    "hero_banner_desc": "Know the project, roadmap and how you can support development",
+    "hero_banner_btn": "View Dashboard",
+    "levels": [
+      { "id": "A1", "name": "Level A1", "sub": "Beginner", "btn": "Access Level", "url": "/en/NivelA1/", "color": "indigo" },
+      { "id": "A2", "name": "Level A2", "sub": "Elementary", "btn": "Access Level", "url": "/en/NivelA2/", "color": "blue" },
+      { "id": "B1", "name": "Level B1", "sub": "Intermediate", "btn": "Access Level", "url": "/en/NivelB1/", "color": "emerald" },
+      { "id": "B2", "name": "Level B2", "sub": "Upper Intermediate", "btn": "Access Level", "url": "/en/NivelB2/", "color": "orange" },
+      { "id": "C1", "name": "Level C1", "sub": "Advanced", "btn": "Access Level", "url": "/en/NivelC1/", "color": "red" }
+    ],
+    "community_title": "Community",
+    "community_desc": "Explore and learn with lessons created by other students",
+    "community_btn": "View Lessons"
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Aprenda turco grátis - TurkAmerica",
+    "description": "Explore e aprenda com lições interativas para falantes de português.",
+    "hero_banner_title": "Quer saber mais sobre TurkAmerica?",
+    "hero_banner_desc": "Conheça o projeto, o roadmap e como você pode apoiar o desenvolvimento",
+    "hero_banner_btn": "Ver Dashboard",
+    "levels": [
+      { "id": "A1", "name": "Nível A1", "sub": "Principiante", "btn": "Acessar Nível", "url": "/pt/NivelA1/", "color": "indigo" },
+      { "id": "A2", "name": "Nível A2", "sub": "Elementar", "btn": "Acessar Nível", "url": "/pt/NivelA2/", "color": "blue" },
+      { "id": "B1", "name": "Nível B1", "sub": "Intermediário", "btn": "Acessar Nível", "url": "/pt/NivelB1/", "color": "emerald" },
+      { "id": "B2", "name": "Nível B2", "sub": "Intermediário Alto", "btn": "Acessar Nível", "url": "/pt/NivelB2/", "color": "orange" },
+      { "id": "C1", "name": "Nível C1", "sub": "Avançado", "btn": "Acessar Nível", "url": "/pt/NivelC1/", "color": "red" }
+    ],
+    "community_title": "Comunidade",
+    "community_desc": "Explore e aprenda com lições criadas por outros estudantes",
+    "community_btn": "Ver Lições"
+  }
+]

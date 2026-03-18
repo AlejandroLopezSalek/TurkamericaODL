@@ -1,0 +1,260 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Consejos y Horarios | Aprende Turco",
+    "schedule": {
+      "title": "Horario de Estudio Intensivo",
+      "morning": {
+        "title": "Mañana",
+        "items": [
+          ["7:30 - 8:15", "Leer un texto en turco", "İstanbul book PDF/sacar un texto de noticias", "book-open"],
+          ["8:15 - 8:45", "Practicar vocabulario", "Sozluk.gov.tr o pdfs de verbos o vocabularios", "language"],
+          ["9:00 - 9:45", "Podcast Türkçe o noticias", "Luego tomar resumen", "podcast"],
+          ["9:45 - 10:30", "Gramática", "Usar una web de gramática o texto o clases", "book"]
+        ]
+      },
+      "afternoon": {
+        "title": "Tarde",
+        "items": [
+          ["11:15 - 12:00", "Práctica de escritura", "Tema diario, pedir a AI o buscar en internet", "pen"],
+          ["13:00 - 13:45", "Leer un texto avanzado", "Tratar de reconocer patrones", "book"],
+          ["13:45 - 14:15", "Mirar video sin subtítulos", "Práctica de comprensión auditiva", "video"],
+          ["14:15 - 14:45", "Práctica de refranes", "Buscar en Sozluk.gov.tr o internet o AI", "quote-right"],
+          ["15:00 - 15:45", "Gramática avanzada", "Yunus emre o cualquiera", "graduation-cap"],
+          ["17:15 - 18:00", "Revisión general", "Escritura + recitarlo (Tema diario)", "check-circle"]
+        ]
+      }
+    },
+    "youtube": {
+      "title": "Canales de YouTube",
+      "sections": [
+        {
+          "title": "Blogs de aventura",
+          "icon": "plane",
+          "channels": [
+            ["https://www.youtube.com/@gunesinpesinde", "Güneşin Peşinde"],
+            ["https://www.youtube.com/c/sumeyracenetvideolari", "Sümeyra Çenet Videoları"],
+            ["https://www.youtube.com/@MertAktasTravel", "Mert Aktas Travel"],
+            ["https://www.youtube.com/channel/UCWpk9PSGHoJW1hZT4egxTNQ", "Ruhi Çenet"],
+            ["https://www.youtube.com/@japonhamzaa", "Japon Hamza"]
+          ]
+        },
+        {
+          "title": "Entretenimiento",
+          "icon": "tv",
+          "channels": [
+            ["https://www.youtube.com/@tepkikolik", "Tepkikolik"],
+            ["https://www.youtube.com/@muratsoner", "Murat Soner"]
+          ]
+        },
+        {
+          "title": "Noticieros",
+          "icon": "newspaper",
+          "channels": [
+            ["https://www.youtube.com/@ContextTürkçe", "Context Türkçe"],
+            ["https://www.youtube.com/@49W", "49W"],
+            ["https://www.youtube.com/cnnturk", "CNN TÜRK"]
+          ]
+        },
+        {
+          "title": "Canales de Gramática Turca",
+          "icon": "language",
+          "channels": [
+            ["https://www.youtube.com/@learnturkishlanguagesandmusic", "learnturkishwithmusic"],
+            ["https://www.youtube.com/@TurkishClass101", "Learn Turkish with TurkishClass101"],
+            ["https://www.youtube.com/@Turkishle", "Turkishle"],
+            ["https://www.youtube.com/@teacheraliyilmaz", "Teacher Ali Yılmaz"],
+            ["https://www.youtube.com/@LearnTurkishTheEasyWay", "Learn Turkish The Easy Way"],
+            ["https://www.youtube.com/@LearnTurkishwithJihan", "Learn Turkish with Jihan"],
+            ["https://www.youtube.com/@LearnTurkishWithTurkishCoffee", "Learn Turkish with Turkish Coffee"],
+            ["https://www.youtube.com/@yeeorgtr", "Yunus Emre Enstitüsü"],
+            ["https://www.youtube.com/@budapesteyunusemre", "Budapeşte Yunus Emre Enstitüsü"]
+          ]
+        },
+        {
+          "title": "Canales en Español",
+          "icon": "flag",
+          "channels": [
+            ["https://www.youtube.com/@estambulmagico", "ESTAMBUL MÁGICO vivir en TURQUÍA"],
+            ["https://www.youtube.com/@colegioturco", "Colegio Turco"],
+            ["https://www.youtube.com/@AprenderTurco", "Aprender Turco"],
+            ["https://www.youtube.com/@FabianEnTurquia", "Fabian en Turquía"]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Tips and Schedules | Learn Turkish",
+    "schedule": {
+      "title": "Intensive Study Schedule",
+      "morning": {
+        "title": "Morning",
+        "items": [
+          ["7:30 - 8:15", "Read a Turkish text", "İstanbul book PDF/get a text from news", "book-open"],
+          ["8:15 - 8:45", "Practice vocabulary", "Sozluk.gov.tr or verb/vocabulary PDFs", "language"],
+          ["9:00 - 9:45", "Podcast Türkçe or news", "Then summarize", "podcast"],
+          ["9:45 - 10:30", "Grammar", "Use a grammar website or text or classes", "book"]
+        ]
+      },
+      "afternoon": {
+        "title": "Afternoon",
+        "items": [
+          ["11:15 - 12:00", "Writing practice", "Daily theme, ask AI or search online", "pen"],
+          ["13:00 - 13:45", "Read an advanced text", "Try to recognize patterns", "book"],
+          ["13:45 - 14:15", "Watch video without subtitles", "Listening practice", "video"],
+          ["14:15 - 14:45", "Idiom practice", "Search on Sozluk.gov.tr or internet or AI", "quote-right"],
+          ["15:00 - 15:45", "Advanced grammar", "Yunus Emre or any other", "graduation-cap"],
+          ["17:15 - 18:00", "General review", "Writing + recite (Daily theme)", "check-circle"]
+        ]
+      }
+    },
+    "youtube": {
+      "title": "YouTube Channels",
+      "sections": [
+        {
+          "title": "Adventure Blogs",
+          "icon": "plane",
+          "channels": [
+            ["https://www.youtube.com/@gunesinpesinde", "Güneşin Peşinde"],
+            ["https://www.youtube.com/c/sumeyracenetvideolari", "Sümeyra Çenet Videoları"],
+            ["https://www.youtube.com/@MertAktasTravel", "Mert Aktas Travel"],
+            ["https://www.youtube.com/channel/UCWpk9PSGHoJW1hZT4egxTNQ", "Ruhi Çenet"],
+            ["https://www.youtube.com/@japonhamzaa", "Japon Hamza"]
+          ]
+        },
+        {
+          "title": "Entertainment",
+          "icon": "tv",
+          "channels": [
+            ["https://www.youtube.com/@tepkikolik", "Tepkikolik"],
+            ["https://www.youtube.com/@muratsoner", "Murat Soner"]
+          ]
+        },
+        {
+          "title": "News",
+          "icon": "newspaper",
+          "channels": [
+            ["https://www.youtube.com/@ContextTürkçe", "Context Türkçe"],
+            ["https://www.youtube.com/@49W", "49W"],
+            ["https://www.youtube.com/cnnturk", "CNN TÜRK"]
+          ]
+        },
+        {
+          "title": "Turkish Grammar Channels",
+          "icon": "language",
+          "channels": [
+            ["https://www.youtube.com/@learnturkishlanguagesandmusic", "learnturkishwithmusic"],
+            ["https://www.youtube.com/@TurkishClass101", "Learn Turkish with TurkishClass101"],
+            ["https://www.youtube.com/@Turkishle", "Turkishle"],
+            ["https://www.youtube.com/@teacheraliyilmaz", "Teacher Ali Yılmaz"],
+            ["https://www.youtube.com/@LearnTurkishTheEasyWay", "Learn Turkish The Easy Way"],
+            ["https://www.youtube.com/@LearnTurkishwithJihan", "Learn Turkish with Jihan"],
+            ["https://www.youtube.com/@LearnTurkishWithTurkishCoffee", "Learn Turkish with Turkish Coffee"],
+            ["https://www.youtube.com/@yeeorgtr", "Yunus Emre Enstitüsü"],
+            ["https://www.youtube.com/@budapesteyunusemre", "Budapeşte Yunus Emre Enstitüsü"]
+          ]
+        },
+        {
+          "title": "Spanish Channels",
+          "icon": "flag",
+          "channels": [
+            ["https://www.youtube.com/@estambulmagico", "ESTAMBUL MÁGICO vivir en TURQUÍA"],
+            ["https://www.youtube.com/@colegioturco", "Colegio Turco"],
+            ["https://www.youtube.com/@AprenderTurco", "Aprender Turco"],
+            ["https://www.youtube.com/@FabianEnTurquia", "Fabian en Turquía"]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Dicas e Horários | Aprenda Turco",
+    "schedule": {
+      "title": "Cronograma de Estudo Intensivo",
+      "morning": {
+        "title": "Manhã",
+        "items": [
+          ["7:30 - 8:15", "Ler um texto em turco", "İstanbul book PDF/extrair um texto de notícias", "book-open"],
+          ["8:15 - 8:45", "Praticar vocabulário", "Sozluk.gov.tr ou PDFs de verbos/vocabulário", "language"],
+          ["9:00 - 9:45", "Podcast Türkçe ou notícias", "Depois faça um resumo", "podcast"],
+          ["9:45 - 10:30", "Gramática", "Use um site de gramática, texto ou aulas", "book"]
+        ]
+      },
+      "afternoon": {
+        "title": "Tarde",
+        "items": [
+          ["11:15 - 12:00", "Prática de escrita", "Tema diário, peça à IA ou pesquise online", "pen"],
+          ["13:00 - 13:45", "Ler um texto avançado", "Tente reconhecer padrões", "book"],
+          ["13:45 - 14:15", "Assistir vídeo sem legendas", "Prática de compreensão auditiva", "video"],
+          ["14:15 - 14:45", "Prática de provérbios", "Pesquise no Sozluk.gov.tr ou internet/IA", "quote-right"],
+          ["15:00 - 15:45", "Gramática avançada", "Yunus Emre ou qualquer outro", "graduation-cap"],
+          ["17:15 - 18:00", "Revisão geral", "Escrita + recitação (Tema diário)", "check-circle"]
+        ]
+      }
+    },
+    "youtube": {
+      "title": "Canais do YouTube",
+      "sections": [
+        {
+          "title": "Blogs de Aventura",
+          "icon": "plane",
+          "channels": [
+            ["https://www.youtube.com/@gunesinpesinde", "Güneşin Peşinde"],
+            ["https://www.youtube.com/c/sumeyracenetvideolari", "Sümeyra Çenet Videoları"],
+            ["https://www.youtube.com/@MertAktasTravel", "Mert Aktas Travel"],
+            ["https://www.youtube.com/channel/UCWpk9PSGHoJW1hZT4egxTNQ", "Ruhi Çenet"],
+            ["https://www.youtube.com/@japonhamzaa", "Japon Hamza"]
+          ]
+        },
+        {
+          "title": "Entretenimento",
+          "icon": "tv",
+          "channels": [
+            ["https://www.youtube.com/@tepkikolik", "Tepkikolik"],
+            ["https://www.youtube.com/@muratsoner", "Murat Soner"]
+          ]
+        },
+        {
+          "title": "Noticiários",
+          "icon": "newspaper",
+          "channels": [
+            ["https://www.youtube.com/@ContextTürkçe", "Context Türkçe"],
+            ["https://www.youtube.com/@49W", "49W"],
+            ["https://www.youtube.com/cnnturk", "CNN TÜRK"]
+          ]
+        },
+        {
+          "title": "Canais de Gramática Turca",
+          "icon": "language",
+          "channels": [
+            ["https://www.youtube.com/@learnturkishlanguagesandmusic", "learnturkishwithmusic"],
+            ["https://www.youtube.com/@TurkishClass101", "Learn Turkish with TurkishClass101"],
+            ["https://www.youtube.com/@Turkishle", "Turkishle"],
+            ["https://www.youtube.com/@teacheraliyilmaz", "Teacher Ali Yılmaz"],
+            ["https://www.youtube.com/@LearnTurkishTheEasyWay", "Learn Turkish The Easy Way"],
+            ["https://www.youtube.com/@LearnTurkishwithJihan", "Learn Turkish with Jihan"],
+            ["https://www.youtube.com/@LearnTurkishWithTurkishCoffee", "Learn Turkish with Turkish Coffee"],
+            ["https://www.youtube.com/@yeeorgtr", "Yunus Emre Enstitüsü"],
+            ["https://www.youtube.com/@budapesteyunusemre", "Budapeşte Yunus Emre Enstitüsü"]
+          ]
+        },
+        {
+          "title": "Canais em Espanhol",
+          "icon": "flag",
+          "channels": [
+            ["https://www.youtube.com/@estambulmagico", "ESTAMBUL MÁGICO viver en TURQUÍA"],
+            ["https://www.youtube.com/@colegioturco", "Colegio Turco"],
+            ["https://www.youtube.com/@AprenderTurco", "Aprender Turco"],
+            ["https://www.youtube.com/@FabianEnTurquia", "Fabian em Turquía"]
+          ]
+        }
+      ]
+    }
+  }
+]

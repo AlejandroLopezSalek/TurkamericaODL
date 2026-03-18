@@ -1,0 +1,161 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "admin": {
+      "title": "Panel de Administración",
+      "subtitle": "Gestiona las contribuciones de la comunidad",
+      "stats": {
+        "pending": "Pendientes",
+        "approved": "Aprobadas",
+        "rejected": "Rechazadas",
+        "total": "Total"
+      },
+      "tabs": {
+        "requests": "Solicitudes",
+        "lessons": "Lecciones Publicadas"
+      },
+      "filters": {
+        "all": "Todas",
+        "lessons": "Lecciones",
+        "books": "Libros"
+      },
+      "requests_list": {
+        "title": "Solicitudes Pendientes",
+        "update": "Actualizar"
+      },
+      "lessons_list": {
+        "search_placeholder": "Buscar por título, nivel o autor...",
+        "reload": "Recargar",
+        "table": {
+          "title": "Título",
+          "level": "Nivel",
+          "author": "Autor",
+          "updated": "Actualizado",
+          "actions": "Acciones"
+        }
+      },
+      "modal": {
+        "title": "Detalles de la Solicitud",
+        "close": "Cerrar",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "cancel": "Cancelar"
+      },
+      "confirm": {
+        "title": "Confirmar Acción",
+        "message": "Confirmar",
+        "reason_label": "Razón del rechazo (opcional):",
+        "reason_placeholder": "Explica por qué se rechaza esta solicitud...",
+        "btn_confirm": "Confirmar",
+        "btn_cancel": "Cancelar"
+      }
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "admin": {
+      "title": "Admin Dashboard",
+      "subtitle": "Manage community contributions",
+      "stats": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "total": "Total"
+      },
+      "tabs": {
+        "requests": "Requests",
+        "lessons": "Published Lessons"
+      },
+      "filters": {
+        "all": "All",
+        "lessons": "Lessons",
+        "books": "Books"
+      },
+      "requests_list": {
+        "title": "Pending Requests",
+        "update": "Update"
+      },
+      "lessons_list": {
+        "search_placeholder": "Search by title, level or author...",
+        "reload": "Reload",
+        "table": {
+          "title": "Title",
+          "level": "Level",
+          "author": "Author",
+          "updated": "Updated",
+          "actions": "Actions"
+        }
+      },
+      "modal": {
+        "title": "Request Details",
+        "close": "Close",
+        "approve": "Approve",
+        "reject": "Reject",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "title": "Confirm Action",
+        "message": "Confirm",
+        "reason_label": "Rejection reason (optional):",
+        "reason_placeholder": "Explain why this request is being rejected...",
+        "btn_confirm": "Confirm",
+        "btn_cancel": "Cancel"
+      }
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "admin": {
+      "title": "Painel de Administração",
+      "subtitle": "Gerencie as contribuições da comunidade",
+      "stats": {
+        "pending": "Pendentes",
+        "approved": "Aprovadas",
+        "rejected": "Rejeitadas",
+        "total": "Total"
+      },
+      "tabs": {
+        "requests": "Solicitações",
+        "lessons": "Lições Publicadas"
+      },
+      "filters": {
+        "all": "Todas",
+        "lessons": "Lições",
+        "books": "Livros"
+      },
+      "requests_list": {
+        "title": "Solicitações Pendentes",
+        "update": "Atualizar"
+      },
+      "lessons_list": {
+        "search_placeholder": "Buscar por título, nível ou autor...",
+        "reload": "Recarregar",
+        "table": {
+          "title": "Título",
+          "level": "Nível",
+          "author": "Autor",
+          "updated": "Atualizado",
+          "actions": "Ações"
+        }
+      },
+      "modal": {
+        "title": "Detalhes da Solicitação",
+        "close": "Fechar",
+        "approve": "Aprovar",
+        "reject": "Rejeitar",
+        "cancel": "Cancelar"
+      },
+      "confirm": {
+        "title": "Confirmar Ação",
+        "message": "Confirmar",
+        "reason_label": "Razão da rejeição (opcional):",
+        "reason_placeholder": "Explique por que esta solicitação está sendo rejeitada...",
+        "btn_confirm": "Confirmar",
+        "btn_cancel": "Cancelar"
+      }
+    }
+  }
+]

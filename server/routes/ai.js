@@ -9,8 +9,9 @@ const striptags = require('striptags');
 const User = require('../models/User');
 const ChatLog = require('../models/ChatLog');
 const LabStory = require('../models/LabStory');
+const LabExam = require('../models/LabExam');
 const redisClient = require('../redisClient');
-// path removed
+const { authenticateToken } = require('../middleware/auth');
 
 // Load Lesson Data for Context
 let allLessons = {};
@@ -634,111 +635,216 @@ async function logChatInteraction(user, message, reply, context, lessonContentCo
 
 // GET /lab/analyze-dna
 // Usage: GET /api/chat/lab/analyze-dna?text=arabamda&lang=es
-router.get('/lab/analyze-dna', async (req, res) => {
+router.get('/lab/analyze-dna', authenticateToken, async (req, res) => {
     try {
         const { text, lang = 'es' } = req.query;
         if (!text) return res.status(400).json({ error: 'Text is required' });
 
-        const prompt = `Act as a linguistic expert in Turkish and ${lang}. 
-        Perform a "Suffix DNA" analysis of the word: "${text}".
-        
-        Analyze the word's morphology (aglutination):
-        1. Identify the root (kök).
-        2. Identify each suffix added (ekler) and their individual meanings (case, plural, possessive, etc.).
-        3. Explain how they chain together.
-        
-        Output ONLY raw JSON in this format:
-        {
-          "word": "${text}",
-          "root": { "text": "...", "meaning": "..." },
-          "suffixes": [
-            { "text": "...", "type": "...", "meaning": "..." }
-          ],
-          "overall_meaning": "..."
-        }`;
+        const user = req.user;
+        if (!user) return res.status(401).json({ error: 'Access restricted to registered users' });
 
-        const { text: rawAnalysis } = await generateText({
+        const today = new Date().toDateString();
+        if (user.stats?.labUsage?.dnaDate === today && user.role !== 'admin') {
+            return res.status(429).json({ error: 'Límite diario alcanzado: 1 análisis de ADN por día.' });
+        }
+
+        const cacheKey = `DNA:V1:TR:${text.toLowerCase()}:${lang}`;
+        const cached = await getCachedWod(cacheKey);
+        if (cached) return res.json(cached);
+
+        const { object } = await generateObject({
             model: groq.chat('moonshotai/kimi-k2-instruct'),
-            prompt,
-            temperature: 0.3,
+            schema: z.object({
+                word: z.string(),
+                root: z.object({
+                    text: z.string(),
+                    meaning: z.string()
+                }),
+                suffixes: z.array(z.object({
+                    text: z.string(),
+                    type: z.string(),
+                    meaning: z.string()
+                })),
+                overall_meaning: z.string()
+            }),
+            prompt: `Act as a linguistic expert in Turkish and ${lang}. 
+            Perform a "Suffix DNA" analysis of the word: "${text}".
+            Analyze the word's morphology (aglutination):
+            1. Identify the root (kök).
+            2. Identify each suffix added (ekler) and their individual meanings (case, plural, possessive, etc.).
+            3. Explain how they chain together in ${lang}.`,
         });
 
-        const jsonMatch = /\{[\s\S]*\}/.exec(rawAnalysis);
-        res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
+        if (user.role !== 'admin') {
+            await User.findByIdAndUpdate(user._id, { 'stats.labUsage.dnaDate': today });
+        }
+
+        await cacheWodData(cacheKey, object);
+        res.json(object);
     } catch (error) {
+        console.error('DNA Analysis Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
 // POST /lab/generate-exam
-router.post('/lab/generate-exam', async (req, res) => {
+router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
     try {
-        const { level = 'A1' } = req.body;
-        const prompt = `Generate a personalized Turkish exam for level ${level}.
-        Include 5 questions:
-        - 2 Multiple choice (Vocabulary)
-        - 2 Translate to Turkish (focus on suffix usage)
-        - 1 Explain a grammar point (e.g., vowel harmony)
-        
-        Output ONLY raw JSON:
-        {
-          "exam_id": "exam_${Date.now()}",
-          "title": "Examen de Nivel ${level}",
-          "questions": [
-            { "id": 1, "type": "multiple_choice", "question": "...", "options": ["A", "B", "C"], "correct_answer": "A" },
-            { "id": 3, "type": "translation", "question": "Translate: 'My car'", "hint": "Use possessive suffix" }
-          ]
-        }`;
+        const { level = 'A1', mode = 'classic', prompt: userPrompt, is_public, lang = 'es' } = req.body;
+        const user = req.user;
+        if (!user) return res.status(401).json({ error: 'Login required' });
 
-        const { text: rawExam } = await generateText({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
-            prompt,
-            temperature: 0.7,
+        const today = new Date().toDateString();
+        if (user.stats?.labUsage?.examDate === today && user.role !== 'admin') {
+            return res.status(429).json({ error: 'Ya realizaste tu examen diario.' });
+        }
+        
+        const counts = {
+            'A1': { listening: 3, reading: 3, writing: 2 },
+            'A2': { listening: 4, reading: 4, writing: 2 },
+            'B1': { listening: 5, reading: 5, writing: 3 },
+            'B2': { listening: 6, reading: 6, writing: 3 },
+            'C1': { listening: 8, reading: 8, writing: 4 }
+        };
+        const config = counts[level] || counts['A1'];
+        const totalQuestions = config.listening + config.reading + config.writing;
+
+        const systemPrompt = mode === 'custom' 
+            ? `Genera un examen personalizado de TURCO. Tema: ${userPrompt}. Nivel: ${level}.`
+            : `Genera un examen de Turco nivel ${level}.`;
+
+        const { object } = await generateObject({
+            model: groq.chat('llama-3.3-70b'),
+            schema: z.object({
+                exam_id: z.string(),
+                title: z.string(),
+                sections: z.array(z.object({
+                    type: z.enum(['listening', 'reading', 'writing']),
+                    instructions: z.string(),
+                    questions: z.array(z.object({
+                        id: z.string(),
+                        type: z.enum(['multiple_choice', 'translation']),
+                        question: z.string(),
+                        options: z.array(z.string()).optional(),
+                        correct_answer: z.string(),
+                        audio_text: z.string().optional(),
+                        hint: z.string().optional()
+                    }))
+                }))
+            }),
+            prompt: `${systemPrompt} 
+            All instructions and feedback MUST be in ${lang}.
+            
+            STRUCTURE:
+            1. Listening (${config.listening} questions): Focus on pronunciation. Provide "audio_text" for TTS.
+            2. Reading (${config.reading} questions): Comprehension tasks.
+            3. Writing (${config.writing} questions): Suffix usage or translation.
+            
+            Strict JSON.`
         });
 
-        const jsonMatch = /\{[\s\S]*\}/.exec(rawExam);
-        res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
+        // Persist to History
+        const savedExam = await LabExam.create({
+            userId: user._id,
+            type: mode,
+            level: level,
+            prompt: userPrompt,
+            exam_data: object
+        });
+
+        if (is_public) {
+            const Contribution = require('../models/Contribution');
+            await Contribution.create({
+                type: 'community_exam',
+                title: object.title,
+                description: `Examen IA - Nivel ${level}`,
+                data: { ...object, savedExamId: savedExam._id },
+                submittedBy: { id: user._id, username: user.username, email: user.email },
+                status: 'pending' 
+            });
+        }
+
+        if (user.role !== 'admin') {
+            await User.findByIdAndUpdate(user._id, { 'stats.labUsage.examDate': today });
+        }
+
+        res.json({ ...object, db_id: savedExam._id });
     } catch (error) {
+        console.error('Exam Generation Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
 // POST /lab/grade-exam
-router.post('/lab/grade-exam', async (req, res) => {
+router.post('/lab/grade-exam', authenticateToken, async (req, res) => {
     try {
-        const { answers, original_exam, lang = 'es' } = req.body;
-        const prompt = `Grade this Turkish exam.
-        Exam: ${JSON.stringify(original_exam)}
-        User Answers: ${JSON.stringify(answers)}
-        
-        Explain the "WHY" behind every mistake with pedagogical depth in ${lang}. Focus on suffixes and vowel harmony.
-        
-        Output ONLY raw JSON:
-        {
-          "score": 80,
-          "feedback": [
-            { "question_id": 1, "status": "correct/incorrect", "explanation": "..." }
-          ],
-          "capi_advice": "..."
-        }`;
+        const { answers, original_exam, lang = 'es', db_id } = req.body;
+        const user = req.user;
 
-        const { text: rawGrading } = await generateText({
+        const { object } = await generateObject({
             model: groq.chat('moonshotai/kimi-k2-instruct'),
-            prompt,
-            temperature: 0.3,
+            schema: z.object({
+                score: z.number(),
+                feedback: z.array(z.object({
+                    question_id: z.string(),
+                    status: z.enum(['correct', 'incorrect', 'partial']),
+                    explanation: z.string(),
+                    user_answer: z.string()
+                })),
+                capi_advice: z.string()
+            }),
+            prompt: `Grade this Turkish exam.
+            Exam: ${JSON.stringify(original_exam)}
+            User Answers: ${JSON.stringify(answers)}
+            
+            Provide feedback in ${lang}. Focus on vowel harmony and suffixes.`
         });
 
-        const jsonMatch = /\{[\s\S]*\}/.exec(rawGrading);
-        res.json(JSON.parse(jsonMatch ? jsonMatch[0] : "{}"));
+        if (db_id) {
+            await LabExam.findByIdAndUpdate(db_id, {
+                results: object.feedback,
+                capi_advice: object.capi_advice,
+                score: object.score,
+                answers: answers
+            });
+        } else if (user) {
+            // Legacy fallack
+            await LabExam.create({
+                userId: user._id,
+                examId: original_exam.exam_id,
+                level: original_exam.title.split(' ').pop(),
+                score: object.score,
+                results: object.feedback,
+                capi_advice: object.capi_advice,
+                exam_data: original_exam,
+                answers: answers
+            });
+        }
+
+        res.json(object);
+    } catch (error) {
+        console.error('Grading Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /lab/exams/history
+router.get('/lab/exams/history', authenticateToken, async (req, res) => {
+    try {
+        const user = req.user;
+        const exams = await LabExam.find({ userId: user._id })
+            .sort({ date: -1 })
+            .limit(10);
+        res.json(exams);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 // GET /lab/current-active-story
-router.get('/lab/current-active-story', async (req, res) => {
+router.get('/lab/current-active-story', authenticateToken, async (req, res) => {
     try {
-        const user = await getUserFromRequest(req);
+        const user = req.user;
         if (!user) return res.json({ active: false });
 
         const storyId = user.stats?.activeStoryId;
@@ -759,7 +865,6 @@ router.get('/lab/current-active-story', async (req, res) => {
             }
         }
 
-        // Fallback to MongoDB
         const persisted = await LabStory.findOne({ storyId, userId: user._id });
         if (persisted && persisted.history && persisted.history.length > 0) {
             return res.json({
@@ -771,7 +876,6 @@ router.get('/lab/current-active-story', async (req, res) => {
                 }
             });
         }
-
         res.status(404).json({ error: "Story not found" });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -779,62 +883,88 @@ router.get('/lab/current-active-story', async (req, res) => {
 });
 
 // GET /lab/story/:id
-router.get('/lab/story/:id', async (req, res) => {
+router.get('/lab/story/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await getUserFromRequest(req);
-        if (!user) return res.status(401).json({ error: "Unauthorized" });
+        const user = req.user;
 
         if (redisClient.isOpen && redisClient.isReady) {
             const cached = await redisClient.get(`STORY:${id}`).catch(() => null);
             if (cached) {
                 const state = JSON.parse(cached);
-                
-                // Update active story in profile when loading a past one
-                if (user.stats) {
-                    user.stats.activeStoryId = id;
-                    await user.save();
-                }
-
+                user.stats.activeStoryId = id;
+                await user.save();
                 return res.json({
                     active: true,
-                    story: {
-                        id: id,
-                        title: state.title,
-                        current_chapter: state.history[state.history.length - 1].content_data
-                    }
+                    story: { id: id, title: state.title, current_chapter: state.history[state.history.length - 1].content_data }
                 });
             }
         }
 
-        // Fallback to MongoDB
         const persisted = await LabStory.findOne({ storyId: id, userId: user._id });
         if (persisted && persisted.history && persisted.history.length > 0) {
-            if (user.stats) {
-                user.stats.activeStoryId = id;
-                await user.save();
-            }
-
+            user.stats.activeStoryId = id;
+            await user.save();
             return res.json({
                 active: true,
-                story: {
-                    id: id,
-                    title: persisted.title,
-                    current_chapter: persisted.history[persisted.history.length - 1].content_data
-                }
+                story: { id: id, title: persisted.title, current_chapter: persisted.history[persisted.history.length - 1].content_data }
             });
         }
-
         res.status(404).json({ error: "Story not found" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// DELETE /lab/active-story
-router.delete('/lab/active-story', async (req, res) => {
+// GET /lab/stories - Fetch all user stories
+router.get('/lab/stories', authenticateToken, async (req, res) => {
     try {
-        const user = await getUserFromRequest(req);
+        const user = req.user;
+        const stories = await LabStory.find({ userId: user._id })
+            .select('storyId title genre level createdAt')
+            .sort({ createdAt: -1 })
+            .limit(10);
+        
+        res.json(stories.map(s => ({
+            id: s.storyId,
+            title: s.title,
+            genre: s.genre,
+            level: s.level,
+            date: s.createdAt
+        })));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /lab/story/:id
+router.delete('/lab/story/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = req.user;
+
+        const result = await LabStory.findOneAndDelete({ storyId: id, userId: user._id });
+        if (!result) return res.status(404).json({ error: "Story not found" });
+
+        if (redisClient.isOpen && redisClient.isReady) {
+            await redisClient.del(`STORY:${id}`).catch(() => null);
+        }
+
+        if (user.stats?.activeStoryId === id) {
+            user.stats.activeStoryId = null;
+            await user.save();
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /lab/active-story
+router.delete('/lab/active-story', authenticateToken, async (req, res) => {
+    try {
+        const user = req.user;
         if (user) {
             user.stats.activeStoryId = null;
             await user.save();
@@ -846,88 +976,74 @@ router.delete('/lab/active-story', async (req, res) => {
 });
 
 // POST /lab/start-story
-router.post('/lab/start-story', async (req, res) => {
+router.post('/lab/start-story', authenticateToken, async (req, res) => {
     try {
-        const { genre = 'Aventura', charName = 'Un principiante', userPrompt = '', level = 'A1' } = req.body;
+        const { genre = 'Aventura', charName = 'Un principiante', userPrompt = '', level = 'A1', lang = 'es', is_public } = req.body;
+        const user = req.user;
+
+        const today = new Date().toISOString().split('T')[0];
+        if (user.stats?.labUsage?.storyDate === today && user.role !== 'admin') {
+            return res.status(429).json({ error: 'Límite de 1 historia diaria.' });
+        }
+
+        const { object } = await generateObject({
+            model: groq.chat('moonshotai/kimi-k2-instruct'),
+            schema: z.object({
+                title: z.string(),
+                first_chapter: z.object({
+                    text: z.string(),
+                    segments: z.array(z.object({
+                        hz: z.string(),
+                        py: z.string(),
+                        tr: z.string(),
+                        note: z.string()
+                    })),
+                    options: z.array(z.string())
+                })
+            }),
+            system: `Guía Capi de TurkAmerica. Nivel: ${level}. 
+            "text" en ${lang}. "segments" en Turco phrase-by-phrase. 
+            "py" es pronunciación para hispanohablantes.`,
+            prompt: `Inicia historia. Género: ${genre}. Protagonista: ${charName}. Extra: ${userPrompt}.`,
+        });
+
         const storyId = `story_${Date.now()}`;
         
-        const prompt = `Actúa como Capi, el guía de TurkAmerica. Genera el primer capítulo de una historia interactiva para aprender Turco.
-        Nivel del estudiante: ${level}.
-        Género: ${genre}.
-        Protagonista: ${charName}.
-        Directiva adicional: ${userPrompt || 'Ninguna'}.
-        
-        CRITICAL: 
-        1. Escribe en Español fluido.
-        2. La historia debe avanzar por segmentos. Cada segmento de texto en Turco DEBE tener su texto (tr), pronunciación aproximada para hispanohablantes (py) y traducción literal o nota (note).
-        3. Para palabras difíciles o fuera del nivel ${level}, marca una anotación.
-        4. Output ONLY raw JSON:
-        {
-          "title": "...",
-          "first_chapter": {
-            "text": "Introducción en español...",
-            "segments": [
-               { "hz": "Turkish text", "py": "pronunciation for Spanish speakers", "tr": "literal Spanish translation", "note": "Grammar or vocabulary note (optional, use if word is difficult)" }
-            ],
-            "options": ["Opción A", "Opción B", "Opción C"]
-          }
-        }`;
-
-        console.log(`[StoryLab-TR] Generating story with model kimi-k2-instruct...`);
-        const { text: rawStory } = await generateText({
-            model: groq('moonshotai/kimi-k2-instruct'),
-            prompt,
-            temperature: 0.8,
+        await LabStory.create({
+            userId: user._id,
+            storyId,
+            title: object.title,
+            genre, charName, level,
+            history: [{ role: 'assistant', content_data: object.first_chapter }]
         });
-        console.log(`[StoryLab-TR] Story generated. Length: ${rawStory.length}`);
 
-        const jsonMatch = /\{[\s\S]*\}/.exec(rawStory);
-        const storyData = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
-        
-        const responseData = {
-            id: storyId,
-            title: storyData.title || 'Historia en Turco',
-            genre: genre,
-            first_chapter: storyData.first_chapter || { text: "Error generando historia.", segments: [], options: [] }
-        };
+        user.stats.labUsage = user.stats.labUsage || {};
+        user.stats.labUsage.storyDate = today;
+        user.stats.activeStoryId = storyId;
+        await user.save();
 
-        // Store active story in user profile
-        const user = await getUserFromRequest(req);
-        if (user) {
-            user.stats.activeStoryId = storyId;
-            await user.save();
-
-            // Store in MongoDB (Permanent)
-            await LabStory.create({
-                userId: user._id,
-                storyId,
-                title: responseData.title,
-                genre,
-                charName,
-                level,
-                lang: 'tr',
-                history: [{ role: 'assistant', content_data: responseData.first_chapter }]
-            }).catch(err => console.error("MongoDB Store Error:", err));
-        }
-
-        // Store in Redis (Expire in 2 hours)
-        if (redisClient.isOpen && redisClient.isReady) {
-            console.log(`[StoryLab-TR] Storing story in Redis: ${storyId}`);
-            await redisClient.setEx(`STORY:${storyId}`, 7200, JSON.stringify({
-                title: responseData.title,
-                history: [{ role: 'assistant', content_data: responseData.first_chapter }],
-                genre,
-                charName,
-                level,
-                lang: 'tr'
-            })).catch(err => {
-                console.warn(`[StoryLab-TR] Redis store error: ${err.message}`);
+        if (is_public) {
+            const Contribution = require('../models/Contribution');
+            await Contribution.create({
+                type: 'community_story',
+                title: object.title,
+                description: `Historia interactiva IA - ${genre}`,
+                data: { storyId, ...object },
+                submittedBy: { id: user._id, username: user.username, email: user.email },
+                status: 'pending'
             });
-        } else {
-            console.log(`[StoryLab-TR] Redis not available, skipping cache.`);
         }
 
-        res.json(responseData);
+        if (redisClient.isOpen && redisClient.isReady) {
+            await redisClient.setEx(`STORY:${storyId}`, 7200, JSON.stringify({
+                userId: user._id,
+                title: object.title,
+                history: [{ role: 'assistant', content_data: object.first_chapter }],
+                genre, charName, level
+            }));
+        }
+
+        res.json({ id: storyId, ...object });
     } catch (error) {
         console.error("Start Story Error:", error);
         res.status(500).json({ error: error.message });
@@ -935,71 +1051,60 @@ router.post('/lab/start-story', async (req, res) => {
 });
 
 // POST /lab/continue-story
-router.post('/lab/continue-story', async (req, res) => {
+router.post('/lab/continue-story', authenticateToken, async (req, res) => {
     try {
-        const { story_id, option } = req.body;
-        
-        let storyState = { history: [], genre: 'Aventura', charName: 'Aventurero', level: 'A1' };
+        const { story_id, option, lang = 'es' } = req.body;
+        const user = req.user;
+
+        let storyState = null;
         if (redisClient.isOpen && redisClient.isReady) {
             const cached = await redisClient.get(`STORY:${story_id}`).catch(() => null);
             if (cached) storyState = JSON.parse(cached);
         }
+        if (!storyState) {
+            const persisted = await LabStory.findOne({ storyId: story_id, userId: user._id });
+            if (persisted) {
+                storyState = { userId: persisted.userId, title: persisted.title, history: persisted.history, genre: persisted.genre, charName: persisted.charName, level: persisted.level };
+            }
+        }
+        if (!storyState) return res.status(404).json({ error: 'Story session lost' });
 
-        const historyPrompt = storyState.history.map(h => `${h.role === 'assistant' ? 'Capi' : 'Usuario'}: ${h.content_data.text || h.content_data}`).join('\n');
+        const historyPrompt = storyState.history.slice(-3).map(h => `${h.role === 'assistant' ? 'Capi' : 'Usuario'}: ${h.content_data.text || h.content_data}`).join('\n');
 
-        const prompt = `Continúa la historia de TurkAmerica basada en la opción elegida: "${option}".
-        Nivel: ${storyState.level}.
-        Contexto previo:
-        ${historyPrompt}
-        
-        Género: ${storyState.genre}.
-        Protagonista: ${storyState.charName}.
-        
-        CRITICAL: Output ONLY raw JSON:
-        {
-          "next_chapter": {
-            "text": "...",
-            "segments": [
-               { "hz": "Turkish text", "py": "pronunciation for Spanish speakers", "tr": "literal Spanish translation", "note": "Grammar or vocabulary note (optional, use if word is difficult)" }
-            ],
-            "options": ["Opción 1", "Opción 2", "Opción 3"]
-          }
-        }`;
-
-        const { text: rawNext } = await generateText({
+        const { object } = await generateObject({
             model: groq.chat('moonshotai/kimi-k2-instruct'),
-            prompt,
-            temperature: 0.8,
+            schema: z.object({
+                next_chapter: z.object({
+                    text: z.string(),
+                    segments: z.array(z.object({
+                        hz: z.string(),
+                        py: z.string(),
+                        tr: z.string(),
+                        note: z.string()
+                    })),
+                    options: z.array(z.string())
+                })
+            }),
+            system: `Continúa historia. Nivel: ${storyState.level}. Contexto: ${historyPrompt}`,
+            prompt: `Elección: "${option}".`,
         });
 
-        const jsonMatch = /\{[\s\S]*\}/.exec(rawNext);
-        const nextData = JSON.parse(jsonMatch ? jsonMatch[0] : "{}");
-
-        // Update Redis
-        if (redisClient.isOpen && redisClient.isReady && story_id && nextData.next_chapter) {
-            storyState.history.push({ role: 'user', content_data: option });
-            storyState.history.push({ role: 'assistant', content_data: nextData.next_chapter });
-            await redisClient.setEx(`STORY:${story_id}`, 7200, JSON.stringify(storyState)).catch(() => {});
+        storyState.history.push({ role: 'user', content_data: option });
+        storyState.history.push({ role: 'assistant', content_data: object.next_chapter });
+        
+        if (redisClient.isOpen && redisClient.isReady) {
+            await redisClient.setEx(`STORY:${story_id}`, 7200, JSON.stringify(storyState));
         }
 
-        // Update MongoDB (Permanent)
-        const user = await getUserFromRequest(req);
-        if (user && story_id && nextData.next_chapter) {
-            await LabStory.findOneAndUpdate(
-                { storyId: story_id, userId: user._id },
-                { 
-                    $push: { 
-                        history: [
-                            { role: 'user', content_data: option },
-                            { role: 'assistant', content_data: nextData.next_chapter }
-                        ] 
-                    },
-                    $set: { lastUpdated: new Date() }
-                }
-            ).catch(err => console.error("MongoDB update error:", err));
-        }
+        await LabStory.findOneAndUpdate(
+            { storyId: story_id, userId: user._id },
+            { 
+                $push: { history: [ { role: 'user', content_data: option }, { role: 'assistant', content_data: object.next_chapter } ] },
+                $set: { lastUpdated: new Date() }
+            }
+        );
 
-        res.json(nextData);
+        res.json(object);
     } catch (error) {
         console.error("Continue Story Error:", error);
         res.status(500).json({ error: error.message });

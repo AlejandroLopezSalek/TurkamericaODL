@@ -1,6 +1,12 @@
-﻿---
+---
 layout: base.njk
-
+pagination:
+  data: i18n.community
+  size: 1
+  alias: t
+permalink: "{{ t.dir }}Contribute/index.html"
+eleventyComputed:
+  title: "{{ t.contribute.title }}"
 scripts:
 - lesson-editor.js
 - contribute.js
@@ -23,10 +29,8 @@ scripts:
 
             <!-- Contribution Selection (Selection Cards) -->
             <div id="selectionContainer" class="selection-container">
-                <h2 class="text-center text-2xl md:text-3xl font-bold mb-2 text-slate-800 dark:text-white">¡Ayuda a tu
-                    comunidad!</h2>
-                <p class="text-center text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">Comparte tus
-                    conocimientos creando lecciones o recomendando libros útiles.</p>
+                <h2 class="text-center text-2xl md:text-3xl font-bold mb-2 text-slate-800 dark:text-white">{{ t.contribute.subtitle }}</h2>
+                <p class="text-center text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">{{ t.contribute.desc }}</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <button type="button"
@@ -36,11 +40,8 @@ scripts:
                             class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform block">
                             <i class="fas fa-book-open"></i>
                         </span>
-                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">Crear
-                            Lección</strong>
-                        <span class="text-sm text-slate-600 dark:text-slate-300 block">Crea una lección completa con
-                            formato
-                            profesional, secciones y explicaciones.</span>
+                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">{{ t.contribute.types.lesson.title }}</strong>
+                        <span class="text-sm text-slate-600 dark:text-slate-300 block">{{ t.contribute.types.lesson.desc }}</span>
                     </button>
 
                     <button type="button"
@@ -50,11 +51,8 @@ scripts:
                             class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform block">
                             <i class="fas fa-file-pdf"></i>
                         </span>
-                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">Compartir
-                            Libro</strong>
-                        <span class="text-sm text-slate-600 dark:text-slate-300 block">Comparte un enlace a un libro o
-                            recurso
-                            PDF útil para la comunidad.</span>
+                        <strong class="text-xl font-bold text-slate-800 dark:text-white mb-2 block">{{ t.contribute.types.book.title }}</strong>
+                        <span class="text-sm text-slate-600 dark:text-slate-300 block">{{ t.contribute.types.book.desc }}</span>
                     </button>
                 </div>
             </div>
@@ -65,31 +63,31 @@ scripts:
                 <div
                     class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
                     <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
-                        <i class="fas fa-edit"></i> Editor de Lección
+                         <i class="fas fa-edit"></i> {{ t.contribute.editor.title }}
                     </h2>
                     <button type="button"
                         class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center gap-2 font-medium transition-colors"
                         onclick="showSelection()">
-                        <i class="fas fa-arrow-left"></i> Volver
+                        <i class="fas fa-arrow-left"></i> {{ t.contribute.editor.back }}
                     </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label for="lessonTitle"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Título de la Lección
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.editor.fields.title }}
                             <span class="text-red-500">*</span></label>
-                        <input type="text" id="lessonTitle" required placeholder="Ej: Presente Simple - Nivel A1"
+                        <input type="text" id="lessonTitle" required placeholder="{{ t.contribute.editor.fields.title_placeholder }}"
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all">
                     </div>
 
                     <div class="space-y-2">
                         <label for="lessonLevel"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Nivel <span
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.editor.fields.level }} <span
                                 class="text-red-500">*</span></label>
                         <select id="lessonLevel" required
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
-                            <option value="">Seleccionar nivel</option>
+                            <option value="">{{ t.contribute.editor.fields.level_select }}</option>
                             <option value="A1">A1 - Principiante</option>
                             <option value="A2">A2 - Elemental</option>
                             <option value="B1">B1 - Intermedio</option>
@@ -100,11 +98,11 @@ scripts:
 
                     <div class="space-y-2">
                         <label for="lessonBadge"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Dificultad <span
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.editor.fields.difficulty }} <span
                                 class="text-red-500">*</span></label>
                         <select id="lessonBadge" required
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
-                            <option value="">Seleccionar dificultad</option>
+                            <option value="">{{ t.contribute.editor.fields.difficulty_select }}</option>
                             <option value="Básico">Básico</option>
                             <option value="Intermedio">Intermedio</option>
                             <option value="Avanzado">Avanzado</option>
@@ -115,28 +113,25 @@ scripts:
 
                 <div class="space-y-2">
                     <label for="lessonDescription"
-                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Descripción Breve <span
+                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.editor.fields.desc }} <span
                             class="text-red-500">*</span></label>
                     <textarea id="lessonDescription" required rows="2"
-                        placeholder="Breve descripción de qué trata la lección..."
+                        placeholder="{{ t.contribute.editor.fields.desc_placeholder }}"
                         class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none"></textarea>
                 </div>
 
                 <div class="space-y-2">
-                    <div class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Contenido de la
-                        Lección <span class="text-red-500">*</span></div>
+                    <div class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{{ t.contribute.editor.fields.content }} <span
+                            class="text-red-500">*</span></div>
                     <div
                         class="lesson-editor rounded-xl border border-slate-300 dark:border-slate-600 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
                         <div id="lessonContentEditor"
                             class="min-h-[400px] p-6 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 prose dark:prose-invert max-w-none focus:outline-none">
-                            <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">Título de la
-                                Sección</h2>
-                            <p>Escribe aquí el contenido de tu lección...</p>
+                            <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">{{ t.contribute.editor.fields.content_placeholder }}</h2>
                         </div>
                     </div>
                     <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <i class="fas fa-info-circle"></i> Usa la barra de herramientas que aparece arriba para dar
-                        formato.
+                        <i class="fas fa-info-circle"></i> {{ t.contribute.editor.fields.info }}
                     </p>
                 </div>
 
@@ -144,11 +139,11 @@ scripts:
                     <button type="button"
                         class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                         onclick="showSelection()">
-                        Cancelar
+                        {{ t.contribute.editor.cancel }}
                     </button>
                     <button type="submit"
                         class="px-8 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                        <i class="fas fa-paper-plane"></i> Enviar Lección
+                        <i class="fas fa-paper-plane"></i> {{ t.contribute.editor.submit }}
                     </button>
                 </div>
             </form>
@@ -159,45 +154,44 @@ scripts:
                 <div
                     class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
                     <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
-                        <i class="fas fa-book"></i> Compartir Libro
+                        <i class="fas fa-book"></i> {{ t.contribute.book_form.title }}
                     </h2>
                     <button type="button"
                         class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center gap-2 font-medium transition-colors"
                         onclick="showSelection()">
-                        <i class="fas fa-arrow-left"></i> Volver
+                        <i class="fas fa-arrow-left"></i> {{ t.contribute.editor.back }}
                     </button>
                 </div>
 
                 <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg flex gap-3">
                     <i class="fas fa-info-circle text-blue-500 mt-1"></i>
-                    <p class="text-sm text-blue-800 dark:text-blue-200"><strong>Nota:</strong> Solo compartimos enlaces
-                        a libros. No subimos archivos directamente para ahorrar espacio en el servidor.</p>
+                    <p class="text-sm text-blue-800 dark:text-blue-200">{{ t.contribute.book_form.note | safe }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label for="bookTitle"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Título del Libro
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.title }}
                             <span class="text-red-500">*</span></label>
-                        <input type="text" id="bookTitle" required placeholder="Ej: Gramática Turca Completa"
+                        <input type="text" id="bookTitle" required placeholder="{{ t.contribute.book_form.fields.title_placeholder }}"
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
                     </div>
 
                     <div class="space-y-2">
                         <label for="bookAuthor"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Autor <span
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.author }} <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" id="bookAuthor" required placeholder="Nombre del autor"
+                        <input type="text" id="bookAuthor" required placeholder="{{ t.contribute.book_form.fields.author_placeholder }}"
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
                     </div>
 
                     <div class="space-y-2">
                         <label for="bookLevel"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Nivel <span
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.level }} <span
                                 class="text-red-500">*</span></label>
                         <select id="bookLevel" required
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
-                            <option value="">Seleccionar nivel</option>
+                            <option value="">{{ t.contribute.book_form.fields.level_select }}</option>
                             <option value="A1">A1 - Principiante</option>
                             <option value="A2">A2 - Elemental</option>
                             <option value="B1">B1 - Intermedio</option>
@@ -209,11 +203,11 @@ scripts:
 
                     <div class="space-y-2">
                         <label for="bookCategory"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Categoría <span
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.category }} <span
                                 class="text-red-500">*</span></label>
                         <select id="bookCategory" required
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
-                            <option value="">Seleccionar categoría</option>
+                            <option value="">{{ t.contribute.book_form.fields.category_select }}</option>
                             <option value="Gramática">Gramática</option>
                             <option value="Vocabulario">Vocabulario</option>
                             <option value="Lectura">Lectura</option>
@@ -225,22 +219,21 @@ scripts:
                 </div>
 
                 <div class="space-y-2">
-                    <label for="bookUrl" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Enlace
-                        al Libro <span class="text-red-500">*</span></label>
-                    <input type="url" id="bookUrl" required placeholder="https://ejemplo.com/libro.pdf"
+                    <label for="bookUrl" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.url }} <span
+                            class="text-red-500">*</span></label>
+                    <input type="url" id="bookUrl" required placeholder="{{ t.contribute.book_form.fields.url_placeholder }}"
                         class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Google Drive, Dropbox, o cualquier enlace
-                        público</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ t.contribute.book_form.fields.url_info }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label for="bookFormat"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Formato <span
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.format }} <span
                                 class="text-red-500">*</span></label>
                         <select id="bookFormat" required
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
-                            <option value="">Seleccionar formato</option>
+                            <option value="">{{ t.contribute.book_form.fields.format_select }}</option>
                             <option value="PDF">PDF</option>
                             <option value="EPUB">EPUB</option>
                             <option value="MOBI">MOBI</option>
@@ -250,29 +243,28 @@ scripts:
 
                     <div class="space-y-2">
                         <label for="bookSize"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Tamaño
-                            Aproximado</label>
-                        <input type="text" id="bookSize" placeholder="Ej: 5 MB"
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.size }}</label>
+                        <input type="text" id="bookSize" placeholder="{{ t.contribute.book_form.fields.size_placeholder }}"
                             class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all">
                     </div>
                 </div>
 
                 <div class="space-y-2">
                     <label for="bookDescription"
-                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Descripción <span
+                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.desc }} <span
                             class="text-red-500">*</span></label>
                     <textarea id="bookDescription" required rows="4"
-                        placeholder="Describe el contenido del libro y por qué es útil..."
+                        placeholder="{{ t.contribute.book_form.fields.desc_placeholder }}"
                         class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all resize-none"></textarea>
                 </div>
 
                 <div class="space-y-2">
                     <label for="bookLanguage"
-                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Idioma del Libro <span
+                        class="block text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t.contribute.book_form.fields.lang }} <span
                             class="text-red-500">*</span></label>
                     <select id="bookLanguage" required
                         class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
-                        <option value="">Seleccionar idioma</option>
+                        <option value="">{{ t.contribute.book_form.fields.lang_select }}</option>
                         <option value="Español">Español</option>
                         <option value="Turco">Turco</option>
                         <option value="Inglés">Inglés</option>
@@ -284,11 +276,11 @@ scripts:
                     <button type="button"
                         class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                         onclick="window.location.href='/'">
-                        Cancelar
+                        {{ t.contribute.editor.cancel }}
                     </button>
                     <button type="submit"
                         class="px-8 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-lg shadow-purple-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                        <i class="fas fa-paper-plane"></i> Enviar Propuesta
+                        <i class="fas fa-paper-plane"></i> {{ t.contribute.book_form.submit }}
                     </button>
                 </div>
             </form>
@@ -296,7 +288,7 @@ scripts:
             <!-- My Contributions Section -->
             <div class="my-contributions mt-12 pt-8 border-t-2 border-slate-100 dark:border-slate-700">
                 <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                    <i class="fas fa-list text-indigo-500"></i> Mis Contribuciones
+                    <i class="fas fa-list text-indigo-500"></i> {{ t.contribute.my_contributions }}
                 </h2>
                 <div id="myContributionsList" class="contributions-list grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Populated by JS -->

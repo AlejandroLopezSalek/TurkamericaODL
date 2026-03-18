@@ -1,0 +1,146 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Exámenes de IA - LabCapi",
+    "description": "Pon a prueba tu turco con exámenes adaptativos de Capi AI.",
+    "hero_title": "Centro de Evaluación",
+    "hero_desc": "Mide tu progreso o crea retos temáticos personalizados.",
+    "history_btn": "Mis Resultados",
+    "settings_title": "Ajustes de IA",
+    "format_label": "Formato del Examen",
+    "formats": {
+      "classic": {
+        "title": "Evaluación por Nivel",
+        "desc": "Vocabulario y gramática estándar."
+      },
+      "custom": {
+        "title": "Proyecto Temático",
+        "desc": "Practica situaciones específicas."
+      }
+    },
+    "level_label": "Nivel de Turco",
+    "prompt_label": "¿En qué quieres enfocarte?",
+    "prompt_placeholder": "Ej: Vocabulario de aeropuerto y sufijos de caso...",
+    "public_label": "Publicar en Comunidad",
+    "generate_btn": "GENERAR EXAMEN",
+    "limit_note": "Límite: 1 examen diario.",
+    "workspace_title": "Laboratorio de Exámenes",
+    "workspace_desc": "Configura los parámetros para que Capi prepare tus preguntas.",
+    "loading_text": "Capi está redactando tu examen...",
+    "messages": {
+      "prompt_required": "Por favor, describe en qué quieres enfocarte.",
+      "network_error": "Error al generar examen. Verifica tu conexión.",
+      "load_error": "No se pudo cargar el examen.",
+      "limit_reached": "Vuelve mañana para tu siguiente examen diario.",
+      "generic_error": "Fallo en generación.",
+      "grade_btn": "CALIFICAR",
+      "retry_btn": "REINTENTAR",
+      "score_label": "Resultado Final",
+      "correct_status": "CORRECTO",
+      "incorrect_status": "INCORRECTO",
+      "prev_btn": "ANTERIOR",
+      "next_btn": "SIGUIENTE",
+      "listening_title": "Comprensión Auditiva",
+      "reading_title": "Comprensión Lectora",
+      "writing_title": "Escritura",
+      "page_label": "Página"
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "AI Exams - LabCapi",
+    "description": "Test your Turkish with Capi AI adaptive exams.",
+    "hero_title": "Evaluation Center",
+    "hero_desc": "Measure your progress or create custom themed challenges.",
+    "history_btn": "My Records",
+    "settings_title": "AI Settings",
+    "format_label": "Exam Format",
+    "formats": {
+      "classic": {
+        "title": "Level Evaluation",
+        "desc": "Standard vocabulary and grammar."
+      },
+      "custom": {
+        "title": "Themed Project",
+        "desc": "Practice specific situations."
+      }
+    },
+    "level_label": "Turkish Level",
+    "prompt_label": "What do you want to focus on?",
+    "prompt_placeholder": "Ex: Airport vocabulary and case suffixes...",
+    "public_label": "Publish to Community",
+    "generate_btn": "GENERATE EXAM",
+    "limit_note": "Limit: 1 exam per day.",
+    "workspace_title": "Exam Laboratory",
+    "workspace_desc": "Configure parameters so Capi can prepare your questions.",
+    "loading_text": "Capi is writing your exam...",
+    "messages": {
+      "prompt_required": "Please describe what you want to focus on.",
+      "network_error": "Error generating exam. Check your connection.",
+      "load_error": "Could not load the exam.",
+      "limit_reached": "Come back tomorrow for your next daily exam.",
+      "generic_error": "Generation failed.",
+      "grade_btn": "GRADE",
+      "retry_btn": "RETRY",
+      "score_label": "Final Score",
+      "correct_status": "CORRECT",
+      "incorrect_status": "INCORRECT",
+      "prev_btn": "PREVIOUS",
+      "next_btn": "NEXT",
+      "listening_title": "Listening Comprehension",
+      "reading_title": "Reading Comprehension",
+      "writing_title": "Writing",
+      "page_label": "Page"
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Exames de IA - LabCapi",
+    "description": "Teste seu turco com os exames adaptativos da Capi AI.",
+    "hero_title": "Centro de Avaliação",
+    "hero_desc": "Meça seu progresso ou crie desafios temáticos personalizados.",
+    "history_btn": "Meus Resultados",
+    "settings_title": "Ajustes de IA",
+    "format_label": "Formato do Exame",
+    "formats": {
+      "classic": {
+        "title": "Avaliação por Nível",
+        "desc": "Vocabulário e gramática padrão."
+      },
+      "custom": {
+        "title": "Projeto Temático",
+        "desc": "Pratique situações específicas."
+      }
+    },
+    "level_label": "Nível de Turco",
+    "prompt_label": "Em que você quer focar?",
+    "prompt_placeholder": "Ex: Vocabulário de aeroporto e sufixos de caso...",
+    "public_label": "Publicar na Comunidade",
+    "generate_btn": "GERAR EXAME",
+    "limit_note": "Limite: 1 exame diário.",
+    "workspace_title": "Laboratório de Exames",
+    "workspace_desc": "Configure os parâmetros para que a Capi prepare suas perguntas.",
+    "loading_text": "A Capi está redigindo seu exame...",
+    "messages": {
+      "prompt_required": "Por favor, descreva em que você quer focar.",
+      "network_error": "Erro ao gerar exame. Verifique sua conexão.",
+      "load_error": "Não foi possível carregar o exame.",
+      "limit_reached": "Volte amanhã para seu próximo exame diário.",
+      "generic_error": "Falha na geração.",
+      "grade_btn": "CALIFICAR",
+      "retry_btn": "REINTENTAR",
+      "score_label": "Resultado Final",
+      "correct_status": "CORRETO",
+      "incorrect_status": "INCORRETO",
+      "prev_btn": "ANTERIOR",
+      "next_btn": "PRÓXIMO",
+      "listening_title": "Compreensão Auditiva",
+      "reading_title": "Compreensão Leitora",
+      "writing_title": "Escrita",
+      "page_label": "Página"
+    }
+  }
+]

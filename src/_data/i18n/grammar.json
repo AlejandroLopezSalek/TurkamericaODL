@@ -1,0 +1,86 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Gramática y Recursos - TurkAmerica",
+    "description": "Recursos de gramática, diccionarios y plataformas para aprender turco.",
+    "web_pages": "Páginas de Internet",
+    "sections": {
+      "grammar": {
+        "title": "Gramática",
+        "icon": "book-open",
+        "links": [
+          ["https://quizlet.com", "Quizlet"],
+          ["https://elon.io/", "Elon"],
+          ["https://www.turkishtextbook.com/", "TurkishTextBook"],
+          ["https://hepturkce.com/", "HepTürkçe"],
+          ["https://lms.apitwist.com/course/index.php?categoryid=4&lang=en", "Apitwist"]
+        ]
+      },
+      "dictionaries": {
+        "title": "Diccionarios",
+        "icon": "book",
+        "links": [
+          ["https://sozluk.gov.tr", "Sozluk.gov.tr (TDK)"],
+          ["https://wordreference.com", "WordReference"]
+        ]
+      }
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Grammar and Resources - TurkAmerica",
+    "description": "Grammar resources, dictionaries and platforms to learn Turkish.",
+    "web_pages": "Web Sites",
+    "sections": {
+      "grammar": {
+        "title": "Grammar",
+        "icon": "book-open",
+        "links": [
+          ["https://quizlet.com", "Quizlet"],
+          ["https://elon.io/", "Elon"],
+          ["https://www.turkishtextbook.com/", "TurkishTextBook"],
+          ["https://hepturkce.com/", "HepTürkçe"],
+          ["https://lms.apitwist.com/course/index.php?categoryid=4&lang=en", "Apitwist"]
+        ]
+      },
+      "dictionaries": {
+        "title": "Dictionaries",
+        "icon": "book",
+        "links": [
+          ["https://sozluk.gov.tr", "Sozluk.gov.tr (TDK)"],
+          ["https://wordreference.com", "WordReference"]
+        ]
+      }
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Gramática e Recursos - TurkAmerica",
+    "description": "Recursos de gramática, dicionários e plataformas para aprender turco.",
+    "web_pages": "Páginas de Internet",
+    "sections": {
+      "grammar": {
+        "title": "Gramática",
+        "icon": "book-open",
+        "links": [
+          ["https://quizlet.com", "Quizlet"],
+          ["https://elon.io/", "Elon"],
+          ["https://www.turkishtextbook.com/", "TurkishTextBook"],
+          ["https://hepturkce.com/", "HepTürkçe"],
+          ["https://lms.apitwist.com/course/index.php?categoryid=4&lang=en", "Apitwist"]
+        ]
+      },
+      "dictionaries": {
+        "title": "Dicionários",
+        "icon": "book",
+        "links": [
+          ["https://sozluk.gov.tr", "Sozluk.gov.tr (TDK)"],
+          ["https://wordreference.com", "WordReference"]
+        ]
+      }
+    }
+  }
+]

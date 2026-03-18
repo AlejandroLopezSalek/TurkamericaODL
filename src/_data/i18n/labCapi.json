@@ -1,0 +1,131 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "LabCapi - Laboratorio de Innovación",
+    "description": "Experimenta con herramientas de IA y lingüística avanzada para aprender turco de forma acelerada.",
+    "badge": "Proyectos Experimentales",
+    "hero_title": "Bienvenido a",
+    "hero_desc": "Nuestra forja tecnológica donde Capi experimenta con nuevas formas de ver, escuchar y desglosar el idioma turco. Herramientas diseñadas por lingüistas y potenciadas por IA.",
+    "tools": {
+      "cadena": {
+        "title": "Cadena de Sufijos",
+        "desc": "Entiende la aglutinación turca de forma visual. Construye palabras complejas añadiendo 'vagones' de sufijos y observa cómo cambia el significado.",
+        "link_text": "Explorar Módulo"
+      },
+      "examen": {
+        "title": "Exámenes de IA",
+        "desc": "Deja que Capi genere un examen personalizado a tu nivel. Al terminar, recibirás una corrección pedagógica profunda y consejos de estudio.",
+        "link_text": "Generar Reto"
+      },
+      "mirror": {
+        "title": "Espejo Fonético",
+        "desc": "¿Te cuesta la 'ı', 'ö' o la 'ü'? Visualiza diagramas anatómicos para colocar la lengua y los labios exactamente como un nativo de Estambul.",
+        "link_text": "Ver Guía Visual"
+      },
+      "story": {
+        "title": "Story Lab",
+        "desc": "Escribe una historia colaborativa con Capi. La IA usará tus palabras débiles para forzarte a practicarlas en un contexto narrativo real.",
+        "link_text": "Crear Historia"
+      },
+      "universe": {
+        "title": "Universo Semántico",
+        "desc": "Navega por una constelación interactiva de todas las palabras que conoces. Mira qué temas dominas y cuáles se están quedando a oscuras.",
+        "link_text": "Ver Mi Mapa"
+      },
+      "culture": {
+        "title": "Contexto Cultural",
+        "desc": "¿Por qué dicen eso? Capi te explica el 'subtexto' y los significados culturales (como el uso de Abi o Abla) que los traductores automáticos ignoran.",
+        "link_text": "Analizar Frase"
+      }
+    },
+    "footer_note": "LabCapi es una zona viva. Estamos añadiendo experimentos constantemente. ¡Propón los tuyos!",
+    "messages": {}
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "LabCapi - Innovation Lab",
+    "description": "Experiment with AI and advanced linguistic tools to learn Turkish faster.",
+    "badge": "Experimental Projects",
+    "hero_title": "Welcome to",
+    "hero_desc": "Our technological forge where Capi experiments with new ways to see, hear and break down the Turkish language. Tools designed by linguists and powered by AI.",
+    "tools": {
+      "cadena": {
+        "title": "Suffix Chain",
+        "desc": "Understand Turkish agglutination visually. Build complex words by adding suffix 'wagons' and see how the meaning changes.",
+        "link_text": "Explore Module"
+      },
+      "examen": {
+        "title": "AI Exams",
+        "desc": "Let Capi generate a personalized exam at your level. Upon completion, you'll receive deep pedagogical corrections and study tips.",
+        "link_text": "Generate Challenge"
+      },
+      "mirror": {
+        "title": "Phonetic Mirror",
+        "desc": "Struggling with 'ı', 'ö' or 'ü'? View anatomical diagrams to place your tongue and lips exactly like an Istanbul native.",
+        "link_text": "View Visual Guide"
+      },
+      "story": {
+        "title": "Story Lab",
+        "desc": "Write a collaborative story with Capi. The AI will use your weak words to force you to practice them in a real narrative context.",
+        "link_text": "Create Story"
+      },
+      "universe": {
+        "title": "Semantic Universe",
+        "desc": "Navigate an interactive constellation of all the words you know. See which topics you master and which are going dark.",
+        "link_text": "View My Map"
+      },
+      "culture": {
+        "title": "Cultural Context",
+        "desc": "Why do they say that? Capi explains the 'subtext' and cultural meanings (like the use of Abi or Abla) that automatic translators ignore.",
+        "link_text": "Analyze Phrase"
+      }
+    },
+    "footer_note": "LabCapi is a living zone. We're constantly adding experiments. Propose yours!",
+    "messages": {}
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "LabCapi - Laboratório de Inovação",
+    "description": "Experimente ferramentas de IA e linguística avançada para aprender turco de forma acelerada.",
+    "badge": "Projetos Experimentais",
+    "hero_title": "Bem-vindo ao",
+    "hero_desc": "Nossa forja tecnológica onde Capi experimenta novas formas de ver, ouvir e decompor a língua turca. Ferramentas projetadas por linguistas e potencializadas por IA.",
+    "tools": {
+      "cadena": {
+        "title": "Cadeia de Sufixos",
+        "desc": "Entenda a aglutinação turca de forma visual. Construa palavras complexas adicionando 'vagões' de sufixos e veja como o significado muda.",
+        "link_text": "Explorar Módulo"
+      },
+      "examen": {
+        "title": "Exames de IA",
+        "desc": "Deixe Capi gerar um exame personalizado para o seu nível. Ao terminar, você receberá uma correção pedagógica profunda e dicas de estudo.",
+        "link_text": "Gerar Desafio"
+      },
+      "mirror": {
+        "title": "Espelho Fonético",
+        "desc": "Dificuldade com 'ı', 'ö' ou 'ü'? Visualize diagramas anatômicos para colocar a língua e os lábios exatamente como um nativo de Istambul.",
+        "link_text": "Ver Guia Visual"
+      },
+      "story": {
+        "title": "Story Lab",
+        "desc": "Escreva uma história colaborativa com Capi. A IA usará suas palavras fracas para forçá-lo a praticá-las em um contexto narrativo real.",
+        "link_text": "Criar História"
+      },
+      "universe": {
+        "title": "Universo Semântico",
+        "desc": "Navegue por uma constelação interativa de todas as palavras que você conhece. Veja quais temas você domina e quais estão ficando às escuras.",
+        "link_text": "Ver Meu Mapa"
+      },
+      "culture": {
+        "title": "Contexto Cultural",
+        "desc": "Por que dizem isso? Capi explica o 'subtexto' e os significados culturais (como o uso de Abi ou Abla) que os tradutores automáticos ignoram.",
+        "link_text": "Analisar Frase"
+      }
+    },
+    "footer_note": "LabCapi é uma zona viva. Estamos adicionando experimentos constantemente. Proponha os seus!",
+    "messages": {}
+  }
+]

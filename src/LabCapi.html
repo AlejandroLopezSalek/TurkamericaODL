@@ -1,7 +1,10 @@
 ---
 layout: base.njk
-title: LabCapi - Laboratorio de Innovación
-description: Experimenta con herramientas de IA y lingüística avanzada para aprender turco de forma acelerada.
+pagination:
+  data: i18n.labCapi
+  size: 1
+  alias: t
+permalink: "{{ t.dir }}LabCapi/index.html"
 ---
 
 <div class="max-w-7xl mx-auto px-4 py-12">
@@ -14,15 +17,14 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
         <div class="relative z-10 text-center max-w-3xl mx-auto">
             <div
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/20 text-cyan-600 dark:text-cyan-400 text-sm font-bold uppercase tracking-widest mb-6">
-                <i class="fas fa-flask"></i> Proyectos Experimentales
+                <i class="fas fa-flask"></i> {{ t.badge }}
             </div>
             <h2 class="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
-                Bienvenido a <span
+                {{ t.hero_title }} <span
                     class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400">LabCapi</span>
             </h2>
             <p class="text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
-                Nuestra forja tecnológica donde Capi experimenta con nuevas formas de ver, escuchar y desglosar el
-                idioma turco. Herramientas diseñadas por lingüistas y potenciadas por IA.
+                {{ t.hero_desc }}
             </p>
         </div>
     </div>
@@ -39,13 +41,12 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
                 class="w-14 h-14 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-2xl flex items-center justify-center text-cyan-600 dark:text-cyan-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
                 <i class="fas fa-link"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Cadena de Sufijos</h3>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ t.tools.cadena.title }}</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                Entiende la aglutinación turca de forma visual. Construye palabras complejas añadiendo "vagones" de
-                sufijos y observa cómo cambia el significado.
+                {{ t.tools.cadena.desc }}
             </p>
             <div class="flex items-center text-cyan-600 dark:text-cyan-400 font-bold text-sm">
-                Explorar Módulo <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                {{ t.tools.cadena.link_text }} <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
         </div>
 
@@ -59,13 +60,12 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
                 class="w-14 h-14 bg-blue-500/10 dark:bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
                 <i class="fas fa-file-invoice"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Exámenes de IA</h3>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ t.tools.examen.title }}</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                Deja que Capi genere un examen personalizado a tu nivel. Al terminar, recibirás una corrección
-                pedagógica profunda y consejos de estudio.
+                {{ t.tools.examen.desc }}
             </p>
             <div class="flex items-center text-blue-600 dark:text-blue-400 font-bold text-sm">
-                Generar Reto <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                {{ t.tools.examen.link_text }} <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
         </div>
 
@@ -79,13 +79,12 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
                 class="w-14 h-14 bg-purple-500/10 dark:bg-purple-500/20 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
                 <i class="fas fa-volume-up"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Espejo Fonético</h3>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ t.tools.mirror.title }}</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                ¿Te cuesta la 'ı', 'ö' o la 'ü'? Visualiza diagramas anatómicos para colocar la lengua y los labios
-                exactamente como un nativo de Estambul.
+                {{ t.tools.mirror.desc }}
             </p>
             <div class="flex items-center text-purple-600 dark:text-purple-400 font-bold text-sm">
-                Ver Guía Visual <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                {{ t.tools.mirror.link_text }} <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
         </div>
 
@@ -99,13 +98,12 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
                 class="w-14 h-14 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
                 <i class="fas fa-feather-alt"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Story Lab</h3>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ t.tools.story.title }}</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                Escribe una historia colaborativa con Capi. La IA usará tus palabras débiles para forzarte a
-                practicarlas en un contexto narrativo real.
+                {{ t.tools.story.desc }}
             </p>
             <div class="flex items-center text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                Crear Historia <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                {{ t.tools.story.link_text }} <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
         </div>
 
@@ -119,13 +117,12 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
                 class="w-14 h-14 bg-amber-500/10 dark:bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
                 <i class="fas fa-star"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Universo Semántico</h3>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ t.tools.universe.title }}</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                Navega por una constelación interactiva de todas las palabras que conoces. Mira qué temas dominas y
-                cuáles se están quedando a oscuras.
+                {{ t.tools.universe.desc }}
             </p>
             <div class="flex items-center text-amber-600 dark:text-amber-400 font-bold text-sm">
-                Ver Mi Mapa <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                {{ t.tools.universe.link_text }} <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
         </div>
 
@@ -139,13 +136,12 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
                 class="w-14 h-14 bg-pink-500/10 dark:bg-pink-500/20 rounded-2xl flex items-center justify-center text-pink-600 dark:text-pink-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
                 <i class="fas fa-mosque"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Contexto Cultural</h3>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ t.tools.culture.title }}</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                ¿Por qué dicen eso? Capi te explica el "subtexto" y los significados culturales (como el uso de Abi o
-                Abla) que los traductores automáticos ignoran.
+                {{ t.tools.culture.desc }}
             </p>
             <div class="flex items-center text-pink-600 dark:text-pink-400 font-bold text-sm">
-                Analizar Frase <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                {{ t.tools.culture.link_text }} <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
         </div>
     </div>
@@ -153,8 +149,7 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
     <!-- Info Footer -->
     <div class="bg-indigo-900/40 rounded-3xl p-8 border border-white/10 text-center">
         <p class="text-indigo-200 font-medium">
-            <i class="fas fa-flask mr-2"></i> LabCapi es una zona viva. Estamos añadiendo experimentos constantemente.
-            ¡Propón los tuyos!
+            <i class="fas fa-flask mr-2"></i> {{ t.footer_note }}
         </p>
     </div>
 </div>
@@ -166,4 +161,4 @@ description: Experimenta con herramientas de IA y lingüística avanzada para ap
     }
 </style>
 
-<script src="/js/lab-hub.js"></script>
+<script src="/js/lab/lab-hub.js"></script>

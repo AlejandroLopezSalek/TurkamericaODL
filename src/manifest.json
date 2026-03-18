@@ -95,7 +95,7 @@
       "name": "Gramática",
       "short_name": "Gramática",
       "description": "Recursos de gramática",
-      "url": "/Gramatica.html",
+      "url": "/Gramatica/",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",
@@ -107,7 +107,7 @@
       "name": "Mi Perfil",
       "short_name": "Perfil",
       "description": "Ver tu perfil y racha",
-      "url": "/Perfil.html",
+      "url": "/Perfil/",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",

@@ -1,0 +1,122 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Política de Privacidad | Aprende Turco",
+    "desc": "Política de privacidad y uso de cookies de Turco para Latinos.",
+    "privacy": {
+      "title": "Política de Privacidad",
+      "intro": "La privacidad de nuestros visitantes es de extrema importancia para nosotros. Este documento de política de privacidad describe los tipos de información personal que se reciben y recopilan y cómo se utilizan.",
+      "log_files": {
+        "title": "Archivos de registro",
+        "content": "Al igual que muchos otros sitios web, este sitio utiliza archivos de registro. La información dentro de los archivos de registro incluye direcciones de protocolo de Internet (IP), tipo de navegador, proveedor de servicios de Internet (ISP), fecha y hora, páginas de referencia/salida y número de clics para analizar tendencias, administrar el sitio, rastrear el movimiento del usuario alrededor del sitio y recopilar información demográfica. Las direcciones IP y otra información similar no están vinculadas a ninguna información que sea personalmente identificable."
+      },
+      "cookies": {
+        "title": "Cookies y Web Beacons",
+        "content": "Este sitio utiliza cookies para almacenar información sobre las preferencias de los visitantes, registrar información específica del usuario sobre las páginas a las que el usuario accede o visita, personalizar el contenido de la página web según el tipo de navegador de los visitantes u otra información que el visitante envíe a través de su navegador."
+      },
+      "dart": {
+        "title": "Cookie DoubleClick DART",
+        "items": [
+          "Google, como proveedor asociado, utiliza cookies para publicar anuncios en este sitio.",
+          "El uso de la cookie DART por parte de Google le permite servir anuncios a los usuarios basados en su visita a este sitio y a otros sitios en Internet.",
+          "Los usuarios pueden inhabilitar el uso de la cookie de DART visitando la política de privacidad de la red de contenido y anuncios de Google en la siguiente URL:"
+        ]
+      },
+      "partners": {
+        "title": "Nuestros socios publicitarios",
+        "content": "Algunos de nuestros socios publicitarios pueden utilizar cookies y web beacons en nuestro sitio. Nuestro socio publicitario incluye:",
+        "footer": "Estos servidores de anuncios de terceros o redes publicitarias utilizan tecnología para los anuncios y enlaces que aparecen en este sitio y que se envían directamente a su navegador. Reciben automáticamente su dirección IP cuando esto ocurre. Otras tecnologías (como cookies, JavaScript o Web Beacons) también pueden ser utilizadas por las redes publicitarias de terceros para medir la efectividad de sus anuncios y / o para personalizar el contenido publicitario que usted ve.",
+        "control": "Este sitio no tiene acceso ni control sobre estas cookies que son utilizadas por anunciantes de terceros."
+      },
+      "consent": {
+        "title": "Consentimiento",
+        "content": "Al utilizar nuestro sitio web, usted acepta nuestra política de privacidad y acepta sus términos."
+      },
+      "update": {
+        "title": "Actualización",
+        "content": "Esta Política de Privacidad fue actualizada por última vez el: 16 de Enero de 2026."
+      }
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Privacy Policy | Learn Turkish",
+    "desc": "Privacy policy and cookies usage for Turkish for Latinos.",
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "The privacy of our visitors is extremely important to us. This privacy policy document outlines the types of personal information received and collected and how it is used.",
+      "log_files": {
+        "title": "Log Files",
+        "content": "Like many other websites, this site uses log files. The information inside the log files includes internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time, referring/exit pages, and number of clicks to analyze trends, administer the site, track user movement around the site, and gather demographic information. IP addresses and other similar information are not linked to any information that is personally identifiable."
+      },
+      "cookies": {
+        "title": "Cookies and Web Beacons",
+        "content": "This site uses cookies to store information about visitors' preferences, record user-specific information on which pages the user accesses or visits, customize web page content based on visitors' browser type, or other information that the visitor sends via their browser."
+      },
+      "dart": {
+        "title": "DoubleClick DART Cookie",
+        "items": [
+          "Google, as a third-party vendor, uses cookies to serve ads on this site.",
+          "Google's use of the DART cookie enables it to serve ads to users based on their visit to this site and other sites on the Internet.",
+          "Users may opt out of the use of the DART cookie by visiting the Google ad and content network privacy policy at the following URL:"
+        ]
+      },
+      "partners": {
+        "title": "Our Advertising Partners",
+        "content": "Some of our advertising partners may use cookies and web beacons on our site. Our advertising partner includes:",
+        "footer": "These third-party ad servers or ad networks use technology for the ads and links that appear on this site and are sent directly to your browser. They automatically receive your IP address when this happens. Other technologies (such as cookies, JavaScript, or Web Beacons) may also be used by third-party ad networks to measure the effectiveness of their ads and/or to personalize the advertising content you see.",
+        "control": "This site has no access to or control over these cookies that are used by third-party advertisers."
+      },
+      "consent": {
+        "title": "Consent",
+        "content": "By using our website, you agree to our privacy policy and its terms."
+      },
+      "update": {
+        "title": "Update",
+        "content": "This Privacy Policy was last updated on: January 16, 2026."
+      }
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Política de Privacidade | Aprenda Turco",
+    "desc": "Política de privacidade e uso de cookies do Turco para Latinos.",
+    "privacy": {
+      "title": "Política de Privacidade",
+      "intro": "A privacidade dos nossos visitantes é de extrema importância para nós. Este documento de política de privacidade descreve os tipos de informações pessoais que são recebidas e coletadas e como são utilizadas.",
+      "log_files": {
+        "title": "Arquivos de LOG",
+        "content": "Como muitos outros sites, este site utiliza arquivos de log. As informações contidas nos arquivos de log incluem endereços de protocolo de Internet (IP), tipo de navegador, provedor de serviços de Internet (ISP), data e hora, páginas de referência/saída e número de cliques para analisar tendências, administrar o site, rastrear o movimento do usuário pelo site e coletar informações demográficas. Endereços IP e outras informações semelhantes não estão vinculados a nenhuma informação que seja pessoalmente identificável."
+      },
+      "cookies": {
+        "title": "Cookies e Web Beacons",
+        "content": "Este site utiliza cookies para armazenar informações sobre as preferências dos visitantes, registrar informações específicas do usuário sobre as páginas que o usuário acessa ou visita, personalizar o conteúdo da página web com base no tipo de navegador dos visitantes ou outras informações que o visitante envia através do seu navegador."
+      },
+      "dart": {
+        "title": "Cookie DoubleClick DART",
+        "items": [
+          "O Google, como fornecedor associado, utiliza cookies para exibir anúncios neste site.",
+          "O uso do cookie DART pelo Google permite que ele sirva anúncios aos usuários com base em sua visita a este site e a outros sites na Internet.",
+          "Os usuários podem desativar o uso do cookie DART visitando a política de privacidade da rede de conteúdo e anúncios do Google no seguinte URL:"
+        ]
+      },
+      "partners": {
+        "title": "Nossos Parceiros de Publicidade",
+        "content": "Alguns de nossos parceiros de publicidade podem usar cookies e web beacons em nosso site. Nosso parceiro de publicidade inclui:",
+        "footer": "Esses servidores de anúncios de terceiros ou redes de publicidade usam tecnologia para os anúncios e links que aparecem neste site e que são enviados diretamente para o seu navegador. Eles recebem automaticamente o seu endereço IP quando isso ocorre. Outras tecnologias (como cookies, JavaScript ou Web Beacons) também podem ser usadas pelas redes de publicidade de terceiros para medir a eficácia de seus anúncios e/ou para personalizar o conteúdo publicitário que você vê.",
+        "control": "Este site não tem acesso ou controle sobre esses cookies que são usados por anunciantes de terceiros."
+      },
+      "consent": {
+        "title": "Consentimento",
+        "content": "Ao utilizar nosso site, você concorda com nossa política de privacidade e aceita seus termos."
+      },
+      "update": {
+        "title": "Atualização",
+        "content": "Esta Política de Privacidade foi atualizada pela última vez em: 16 de Janeiro de 2026."
+      }
+    }
+  }
+]

@@ -1,0 +1,134 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Mi Perfil - Turkamerica",
+    "description": "Gestiona tu cuenta, racha y preferencias en Turkamerica.",
+    "header": {
+      "change_photo": "Click para cambiar foto",
+      "loading": "Cargando...",
+      "level_label": "Nivel"
+    },
+    "streak": {
+      "title": "Tu Racha",
+      "current": "días actuales",
+      "record": "Récord",
+      "total": "Total días",
+      "last_activity": "Última actividad",
+      "today": "Hoy"
+    },
+    "preferences": {
+      "title": "Preferencias",
+      "dark_mode": { "title": "Tema Oscuro", "subtitle": "Modo nocturno" },
+      "notifications": { "title": "Notificaciones", "subtitle": "Recordatorios" },
+      "sound": { "title": "Sonido", "subtitle": "Efectos de audio" },
+      "font_size": { 
+        "title": "Fuente", "subtitle": "Tamaño",
+        "options": [
+          { "value": "small", "label": "Pequeño" },
+          { "value": "medium", "label": "Medio" },
+          { "value": "large", "label": "Grande" }
+        ]
+      },
+      "daily_goal": { "title": "Meta Diaria", "subtitle": "Minutos" },
+      "btn_save": "Guardar Preferencias"
+    },
+    "admin": {
+      "title": "Panel de Administrador",
+      "contributions": { "title": "Contribuciones", "subtitle": "Revisar lecciones" }
+    },
+    "account": {
+      "title": "Cuenta",
+      "btn_password": "Cambiar Contraseña",
+      "btn_logout": "Cerrar Sesión"
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "My Profile - Turkamerica",
+    "description": "Manage your account, streak, and preferences on Turkamerica.",
+    "header": {
+      "change_photo": "Click to change photo",
+      "loading": "Loading...",
+      "level_label": "Level"
+    },
+    "streak": {
+      "title": "Your Streak",
+      "current": "current days",
+      "record": "Record",
+      "total": "Total days",
+      "last_activity": "Last activity",
+      "today": "Today"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "dark_mode": { "title": "Dark Theme", "subtitle": "Night mode" },
+      "notifications": { "title": "Notifications", "subtitle": "Reminders" },
+      "sound": { "title": "Sound", "subtitle": "Audio effects" },
+      "font_size": { 
+        "title": "Font", "subtitle": "Size",
+        "options": [
+          { "value": "small", "label": "Small" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "large", "label": "Large" }
+        ]
+      },
+      "daily_goal": { "title": "Daily Goal", "subtitle": "Minutes" },
+      "btn_save": "Save Preferences"
+    },
+    "admin": {
+      "title": "Admin Panel",
+      "contributions": { "title": "Contributions", "subtitle": "Review lessons" }
+    },
+    "account": {
+      "title": "Account",
+      "btn_password": "Change Password",
+      "btn_logout": "Sign Out"
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Meu Perfil - Turkamerica",
+    "description": "Gerencie sua conta, racha e preferências no Turkamerica.",
+    "header": {
+      "change_photo": "Clique para alterar a foto",
+      "loading": "Carregando...",
+      "level_label": "Nível"
+    },
+    "streak": {
+      "title": "Seu Racha",
+      "current": "dias atuais",
+      "record": "Recorde",
+      "total": "Total de dias",
+      "last_activity": "Última atividade",
+      "today": "Hoje"
+    },
+    "preferences": {
+      "title": "Preferências",
+      "dark_mode": { "title": "Tema Escuro", "subtitle": "Modo noturno" },
+      "notifications": { "title": "Notificações", "subtitle": "Lembretes" },
+      "sound": { "title": "Som", "subtitle": "Efeitos de áudio" },
+      "font_size": { 
+        "title": "Fonte", "subtitle": "Tamanho",
+        "options": [
+          { "value": "small", "label": "Pequeño" },
+          { "value": "medium", "label": "Médio" },
+          { "value": "large", "label": "Grande" }
+        ]
+      },
+      "daily_goal": { "title": "Meta Diária", "subtitle": "Minutos" },
+      "btn_save": "Salvar Preferências"
+    },
+    "admin": {
+      "title": "Painel de Administrador",
+      "contributions": { "title": "Contribuições", "subtitle": "Revisar lições" }
+    },
+    "account": {
+      "title": "Conta",
+      "btn_password": "Alterar Senha",
+      "btn_logout": "Sair"
+    }
+  }
+]

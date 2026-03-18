@@ -1,0 +1,449 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "search_placeholder": "Buscar por tema...",
+    "search_title": "Buscar Temas",
+    "edit_lesson": "Editar Lección",
+    "lesson_title": "Título de la Lección",
+    "description_label": "Descripción (opcional)",
+    "content_label": "Contenido de la Lección",
+    "save_changes": "Guardar Cambios",
+    "create_lesson": "Crear Nueva Lección",
+    "levels": {
+      "A1": {
+        "title": "Nivel A1 - Turco Básico",
+        "description": "Recursos de aprendizaje de Turco Nivel A1.",
+        "tools_title": "Herramientas Recomendadas para A1",
+        "affiliate": {
+          "title": "italki",
+          "description": "No esperes a ser 'fluido'. Encuentra un profesor paciente y empieza a hablar hoy mismo.",
+          "btn": "Encontrar Profesor"
+        },
+        "grammar": [
+          ["Türk Alfabeti", "Básico", "Las 29 letras del alfabeto turco con sus sonidos específicos.", "alfabeto"],
+          ["Caso Locativo da,de /ta,te", "Básico", "Equivalente de la preposición 'en'.", "preposicion"],
+          ["Var y Yok - Existencia", "Básico", "Expresa la presencia o ausencia de algo con 'var' (hay/existe) y 'yok' (no hay/no existe).", "var-yok"],
+          ["Orden de Oraciones (SOV)", "Básico", "Comprende el orden típico Turco: Sujeto + Objeto + Verbo, a diferencia del Español SVO.", "orden"],
+          ["Preguntas Básicas", "Básico", "Interrogativos fundamentales: nerede, ne zaman, neden, ne kadar, kaç, nerelisin, nere(ye).", "preguntas-basicas"],
+          ["Demostrativos: Bu • Şu • O", "Básico", "Indica proximidad: bu (cerca del hablante), şu (cerca del oyente), o (lejos de ambos).", "demostrativos"],
+          ["Çoğul eki (-lAr)", "Básico", "Sufijo plural aplicando armonía vocálica: -lar / -ler.", "plural"],
+          ["Soru eki (mi/mı/mu/mü)", "Básico", "Enclítico interrogativo ajustado a la vocal precedente.", "sufijo-pregunta"],
+          ["Presente Simple (Şimdiki Zaman)", "Básico", "Raíz verbal + -yor + terminaciones personales.", "tiempo-presente"],
+          ["Casos Locativos (-yA / -DAn)", "Básico", "-yA para dirección (a), -DAn para origen (de).", "casos"],
+          ["-mAk istemek", "Básico", "Infinitivo + istemek para expresar deseo o intención.", "deseo"],
+          ["Ilişki Ekleri", "Básico", "Sufijos de posesión (-ın/-in) y ubicación (-de/-da).", "relacion"],
+          ["Países y Gentilicios", "Básico", "Nombres de países y lenguas: Türkiye, İspanya, İngilizce, vs.", "paises"],
+          ["Kendi & Hep", "Básico", "Palabras de énfasis: kendi (propio), hep (siempre).", "enfasis"],
+          ["Intervalos de Tiempo", "Básico", "-DAn hasta -(y)A kadar, antes/después y desde hace.", "tiempo-intervalos"]
+        ]
+      },
+      "A2": {
+        "title": "Nivel A2 - Turco Elemental",
+        "description": "Recursos de aprendizaje de Turco Nivel A2.",
+        "tools_title": "Potencia tu nivel A2",
+        "affiliate": {
+          "title": "italki",
+          "description": "Mejora tu fluidez conversando con nativos. Rompe el miedo a hablar.",
+          "btn": "Practicar Conversación"
+        },
+        "grammar": [
+          ["Modo Imperativo (Emir Kipi)", "Intermedio", "Órdenes y comandos: gel, gelin, gelsin.", "imperativo"],
+          ["Modo Optativo (İstek Kipi)", "Intermedio", "Expresar deseos y sugerencias: gidelim, alayım.", "optativo"],
+          ["Sufijos Derivativos (-lI, -sIz, -lIk)", "Intermedio", "Crear adjetivos y sustantivos: tuzlu, tuzsuz, güzellik.", "derivativos"],
+          ["Pasado Simple (-DI)", "Intermedio", "Eventos pasados confirmados: geldim, geldin, geldi.", "pasado-simple"],
+          ["Pasado del Verbo 'Ser/Estar' (idi)", "Intermedio", "Estados pasados: öğrenciydim, hastaydı.", "pasado-ser"],
+          ["Conjunciones Causales", "Intermedio", "Conectores: çünkü, bu sebeple, bu yüzden, bu nedenle.", "conjunciones"],
+          ["Posposición 'ile' (con)", "Intermedio", "Compañía e instrumento: benimle, kalemle.", "ile"],
+          ["Tiempo Futuro (-AcAk)", "Intermedio", "Acciones futuras: geleceğim, yapacak, olacaksınız.", "futuro"],
+          ["Comparaciones (gibi, kadar)", "Intermedio", "Similitud e igualdad: senin gibi, benim kadar.", "comparaciones"],
+          ["Pasado Reportado (-mIş)", "Intermedio", "Información indirecta: gelmiş, yapmış, varmış.", "pasado-reportado"],
+          ["Adjetivos Intensivos", "Intermedio", "Reduplicación: kıpkırmızı, bembeyaz, sapsarı.", "intensivos"],
+          ["Sufijos Diminutivos (-CIk, -CA)", "Intermedio", "Tamaño y manera: küçücük, yavaşça.", "diminutivos"],
+          ["Discurso Directo (diye)", "Intermedio", "Citas directas: 'Merhaba' diye söyledi.", "discurso-directo"],
+          ["Conjunciones Dobles", "Intermedio", "Pares correlativas: hem...hem, ne...ne, ya...ya.", "conjunciones-dobles"],
+          ["Presente Habitual (Geniş Zaman)", "Intermedio", "Acciones habituales: gelir, yapar, içerim.", "presente-habitual"],
+          ["Sufijo -DIr (énfasis)", "Intermedio", "Énfasis y suposición: gelecektir, öğrencidir.", "dir-sufijo"],
+          ["Modal de Habilidad (-Abil/-Ebil)", "Intermedio", "Capacidad y posibilidad: gelebilir, yapabilir.", "habilidad"],
+          ["Gerundios (-(y)Ip, -mAdAn)", "Intermedio", "Acciones consecutivas: gidip, okumadan.", "gerundios"]
+        ]
+      },
+      "B1": {
+        "title": "Nivel B1 - Turco Intermedio",
+        "description": "Recursos de aprendizaje de Turco Nivel B1.",
+        "tools_title": "Para Nivel Intermedio B1",
+        "affiliate": {
+          "title": "italki",
+          "description": "Perfecciona tu acento y fluidez hablando sobre temas complejos con hablantes nativos.",
+          "btn": "Practicar Conversación"
+        },
+        "grammar": [
+          ["Zarf-Fiiller (-(y)ArAk, -(y)A)", "Intermedio", "Adverbios verbales que indican el modo o la manera en que se realiza una acción ('haciendo').", "zarf-fiil-arak"],
+          ["Şimdiki Zamanın Hikâyesi", "Intermedio", "Tiempo pasado continuo ('estaba haciendo'). Se usa para acciones en progreso en el pasado.", "simdiki-zaman-hikayesi"],
+          ["Zarf-Fiiller (-(y)ken)", "Intermedio", "Adverbio verbal que significa 'mientras' o 'cuando', indicando simultaneidad.", "zarf-fiil-ken"],
+          ["İsim-Fiil Ekleri (-mAk, -mA)", "Intermedio", "Sufijos de nominalización (verbal nouns) para formar infinitivos y sustantivos de acción.", "isim-fiil-mak-ma"],
+          ["İsim-Fiil Ekleri (-(y)Iş)", "Intermedio", "Sufijo de nominalización que indica la 'manera de hacer' algo (ej. yürüyüş - caminata).", "isim-fiil-is"],
+          ["Emir Kipinde Dolaylı Anlatım", "Intermedio", "Estilo indirecto para reportar órdenes o peticiones ('dijo que hiciera...').", "dolayli-anlatim"],
+          ["Gereklilik Kipi (-mAlI)", "Intermedio", "Modo de necesidad ('deber', 'tener que'). También se usa para suposiciones ('debe de estar...').", "gereklilik-kipi"],
+          ["Gereklilik (Gerek / Lazım / Zorunda)", "Intermedio", "Otras formas de expresar necesidad (lazım/gerek) y obligación (zorunda/mecbur).", "gereklilik-kullanimlari"],
+          ["Gereklilik Kipinin Hikâyesi (-mAlIydı)", "Intermedio", "Expresa arrepentimiento o necesidad pasada no cumplida ('debería haber hecho...').", "gereklilik-kipi-hikayesi"],
+          ["Zarf-Fiiller (Amaç: -mAk için / üzere)", "Intermedio", "Adverbios verbales que indican propósito ('para hacer...').", "zarf-fiil-mak-icin"],
+          ["Zarf-Fiiller (-mAktAnsA / -mA rağmen)", "Intermedio", "Expresan preferencia ('en lugar de...') y concesión ('a pesar de...').", "zarf-fiil-maktansa-ragmen"],
+          ["Zarf-Fiiller (-A rağmen / -sA bile)", "Intermedio", "Otras formas de expresar concesión ('a pesar de...' / 'incluso si...').", "zarf-fiil-a-ragmen-sa-bile"],
+          ["Dilek Kipi (-sA)", "Intermedio", "Modo de deseo ('Ojalá...') y condicional simple ('Si...').", "dilek-kipi"],
+          ["Dilek Kipinin Hikâyesi (-sAydı)", "Intermedio", "Deseo pasado no cumplido ('Ojalá hubiera...') y condicional irreal pasado ('Si hubiera...').", "dilek-kipi-hikayesi"],
+          ["Şart Kipi (Koşul: -(y)sA)", "Intermedio", "Forma condicional ('Si...') aplicada a diferentes tiempos verbales.", "sart-kipi"],
+          ["İşteş Çatılı Fiiller (-(I)ş / -lAş)", "Intermedio", "Voz recíproca ('el uno al otro') o colectiva ('juntos').", "istes-catili-fiiller"],
+          ["Zarf-Fiiller (-(y)IncA / -Ir -mAz)", "Intermedio", "Adverbios verbales de tiempo: 'cuando...' (-(y)IncA) y 'tan pronto como...' (-Ir -mAz).", "zarf-fiil-inca-ir-maz"],
+          ["Zarf-Fiiller (-DIğIndAn beri / -(y)AlI)", "Intermedio", "Adverbios verbales que indican duración ('desde que...').", "zarf-fiil-digindan-beri"]
+        ]
+      },
+      "B2": {
+        "title": "Nivel B2 - Turco Intermedio Alto",
+        "description": "Recursos de aprendizaje de Turco Nivel B2.",
+        "tools_title": "Domina la Fluidez (B2)",
+        "affiliate": {
+          "title": "italki",
+          "description": "En este nivel, necesitas práctica real. Encuentra hablantes nativos para perfeccionar tu acento y dialecto.",
+          "btn": "Conectar con Nativos"
+        },
+        "grammar": [
+          ["Bildirme Ekleri (-DIr) (Presente)", "Avanzado", "Expresar hechos, verdades generales y suposiciones (probablemente).", "bildirme-eki-present"],
+          ["Zarf-Fiiller (-IncAyA kadar, -dIkçA)", "Avanzado", "Expresar 'hasta que...' y 'a medida que...'.", "zarf-fiil-kadar-dikce"],
+          ["Sıfat-Fiiller (Ortaçlar) - Parte 1", "Avanzado", "Participios adjetivales (que hace): -An, -AsI, -mAz, -Ar.", "sifat-fiiller-1"],
+          ["Sıfat-Fiiller (Ortaçlar) - Parte 2", "Avanzado", "Participios adjetivales (que hizo/hará): -DIk, -AcAk, -mIş.", "sifat-fiiller-2"],
+          ["Edilgen Çatı (Voz Pasiva)", "Avanzado", "Expresar acciones donde el sujeto recibe la acción ('ser hecho').", "edilgen-cati"],
+          ["Ettirgen Çatı (Causativa) - Parte 1", "Avanzado", "Hacer que alguien haga algo (Sufijos: -dIr, -t).", "ettirgen-cati-1"],
+          ["Ettirgen Çatı (Causativa) - Parte 2", "Avanzado", "Hacer que alguien haga algo (Sufijos: -Ir, -Ar, -Er, -It).", "ettirgen-cati-2"],
+          ["Oldurgan Çatı (Factitiva)", "Avanzado", "Convertir verbos intransitivos en transitivos (ej. dormir -> hacer dormir).", "oldurgan-cati"],
+          ["Zarf-Fiiller (-mAdAn önce, -dIktAn sonra)", "Avanzado", "Secuenciación de tiempo: 'antes de...' y 'después de...'.", "zarf-fiil-sonra-once"],
+          ["Zarf-Fiiller (Modo/Secuencia - Repaso)", "Intermedio", "Repaso de B1: -(y)Ip (y), -(y)A...-(y)A (repetición), -(y)ArAk (modo).", "zarf-fiil-ip-arak"],
+          ["Bağlaçlar (Conjunciones: ki, diye, vb.)", "Avanzado", "Uso de conjunciones clave: ki (que), diye (diciendo/para), bu yüzden (por eso).", "baglaclar-ki-diye"],
+          ["Dolaylı Anlatım (Estilo Indirecto) - Afirmativas", "Avanzado", "Reportar lo que alguien dijo ('Dijo que...'): -DIğI, -AcAğI.", "dolayli-anlatim-duz"],
+          ["Dolaylı Anlatım (Estilo Indirecto) - Preguntas", "Avanzado", "Reportar preguntas ('Preguntó si...'): -DIğInI, -AcAğInI.", "dolayli-anlatim-soru"],
+          ["Dolaylı Anlatım (Estilo Indirecto) - Imperativo", "Avanzado", "Reportar órdenes ('Dijo que hiciera...'): -mAsInI.", "dolayli-anlatim-emir"],
+          ["Zarf-Fiiller (Repaso: -Ir -mAz, -(y)AlI)", "Intermedio", "Repaso de B1: 'tan pronto como...' y 'desde que...'.", "zarf-fiil-irmaz-ali"],
+          ["İsim Cümleleri (Cláusulas: -mAsI, -DIğI)", "Avanzado", "Cláusulas sustantivas: 'El hecho de que...' y 'Que (alguien) haga...'.", "isim-cumleleri-masi-digi"],
+          ["Bağlaçlar (Repaso: hem... hem, ne... ne)", "Intermedio", "Repaso de conjunciones dobles: 'tanto... como...', 'ni... ni...', 'o... o...'.", "baglaclar-hem-ne-ya"]
+        ]
+      },
+      "C1": {
+        "title": "Nivel C1 - Turco Avanzado",
+        "description": "Recursos de aprendizaje de Turco Nivel C1.",
+        "tools_title": "Perfeccionamiento (C1+)",
+        "affiliate": {
+          "title": "italki",
+          "description": "Mantén tu nivel alto. Conversa sobre política, cultura y literatura con expertos.",
+          "btn": "Debates Avanzados"
+        },
+        "grammar": [
+          ["İsim Cümleleri (Avanzado)", "Avanzado", "Oraciones Nominales combinadas con tiempos compuestos (idi, imiş, ise) y modales.", "isim-cumleleri-c1"],
+          ["Zarf-Fiiller (-DIkçA / -sIn diye)", "Avanzado", "Adverbios verbales: 'cuanto más...' (-DIkçA) y 'para que...' (-sIn diye).", "zarf-fiil-dikca-diye"],
+          ["Yeterlilik Fiili (Avanzado)", "Avanzado", "Verbo de Capacidad (Poder): -(y)Abilmek y su negativo irregular -(y)AmAmAk.", "yeterlilik-fiili-c1"],
+          ["Sıfat-Fiiller (Participios)", "Avanzado", "Cláusulas relativas con -An (sujeto), -DIğI (objeto) y -(y)AcAk (objeto futuro).", "sifat-fiiller-c1"],
+          ["Bağlaçlar (Causa)", "Avanzado", "Conjunciones: çünkü, zira (porque), bu yüzden, dolayısıyla (por eso), nitekim (de hecho).", "baglaclar-c1-zaman"],
+          ["Bağlaçlar (Contraste)", "Avanzado", "Conjunciones: ama, fakat (pero), oysa, halbuki (mientras que), ne var ki (lo que pasa es que).", "baglaclar-c1-karsilastirma"],
+          ["Bağlaçlar (Conjunciones Dobles)", "Avanzado", "hem... hem (tanto... como), ne... ne (ni... ni), ya... ya (o... o), ister... ister (ya sea...).", "baglaclar-c1-ciftli"]
+        ]
+      }
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "search_placeholder": "Search by topic...",
+    "search_title": "Search Topics",
+    "edit_lesson": "Edit Lesson",
+    "lesson_title": "Lesson Title",
+    "description_label": "Description (optional)",
+    "content_label": "Lesson Content",
+    "save_changes": "Save Changes",
+    "create_lesson": "Create New Lesson",
+    "levels": {
+      "A1": {
+        "title": "Level A1 - Basic Turkish",
+        "description": "Learning resources for Turkish Level A1.",
+        "tools_title": "Recommended Tools for A1",
+        "affiliate": {
+          "title": "italki",
+          "description": "Don't wait to be 'fluent'. Find a patient teacher and start speaking today.",
+          "btn": "Find a Teacher"
+        },
+        "grammar": [
+          ["Turkish Alphabet", "Basic", "The 29 letters of the Turkish alphabet with their specific sounds.", "alfabeto"],
+          ["Locative Case da,de /ta,te", "Basic", "Equivalent of the preposition 'in'.", "preposicion"],
+          ["Var & Yok - Existence", "Basic", "Expresses presence or absence with 'var' (there is) and 'yok' (there isn't).", "var-yok"],
+          ["Word Order (SOV)", "Basic", "Subject + Object + Verb order, unlike English SVO.", "orden"],
+          ["Basic Questions", "Basic", "Fundamental interrogatives: nerede, ne zaman, neden, kaç, etc.", "preguntas-basicas"],
+          ["Demonstratives: Bu • Şu • O", "Basic", "Indicates proximity: close, far, very far.", "demostrativos"],
+          ["Plural Suffix (-lAr)", "Basic", "Plural suffix following vowel harmony: -lar / -ler.", "plural"],
+          ["Question Suffix (mi/mı/mu/mü)", "Basic", "Interrogative enclitic adjusted to the preceding vowel.", "sufijo-pregunta"],
+          ["Present Continuous (Şimdiki Zaman)", "Basic", "Verb root + -yor + personal endings.", "tiempo-presente"],
+          ["Locative Cases (-yA / -DAn)", "Basic", "-yA for direction (to), -DAn for origin (from).", "casos"],
+          ["-mAk istemek", "Basic", "Infinitive + istemek to express desire or intention.", "deseo"],
+          ["Relational Suffixes", "Basic", "Possession (-ın/-in) and location (-de/-da) suffixes.", "relacion"],
+          ["Countries & Nationalities", "Basic", "Names of countries and languages: Türkiye, Spain, English, etc.", "paises"],
+          ["Kendi & Hep", "Basic", "Emphasis words: kendi (own), hep (always).", "enfasis"],
+          ["Time Intervals", "Basic", "-DAn until -(y)A kadar, before/after, and for/since.", "tiempo-intervalos"]
+        ]
+      },
+      "A2": {
+        "title": "Level A2 - Elementary Turkish",
+        "description": "Learning resources for Turkish Level A2.",
+        "tools_title": "Boost your A2 level",
+        "affiliate": {
+          "title": "italki",
+          "description": "Improve your fluency by chatting with natives. Break the fear of speaking.",
+          "btn": "Practice Conversation"
+        },
+        "grammar": [
+          ["Imperative Mood (Emir Kipi)", "Intermediate", "Orders and commands: gel, gelin, gelsin.", "imperativo"],
+          ["Optative Mood (İstek Kipi)", "Intermediate", "Expressing desires and suggestions: gidelim, alayım.", "optativo"],
+          ["Derivative Suffixes (-lI, -sIz, -lIk)", "Intermediate", "Creating adjectives and nouns: salty, saltless, beauty.", "derivativos"],
+          ["Simple Past (-DI)", "Intermediate", "Confirmed past events: came, went, did.", "pasado-simple"],
+          ["Past of 'To Be' (idi)", "Intermediate", "Past states: I was a student, he was sick.", "pasado-ser"],
+          ["Causal Conjunctions", "Intermediate", "Connectors: because, for this reason, therefore.", "conjunciones"],
+          ["Postposition 'ile' (with)", "Intermediate", "Company and instrument: with me, with a pen.", "ile"],
+          ["Future Tense (-AcAk)", "Intermediate", "Future actions: I will come, he will do.", "futuro"],
+          ["Comparisons (gibi, kadar)", "Intermediate", "Similarity and equality: like you, as much as me.", "comparaciones"],
+          ["Reported Past (-mIş)", "Intermediate", "Indirect information: apparently he came, allegedly.", "pasado-reportado"],
+          ["Intensive Adjectives", "Intermediate", "Reduplication: deep red, snow white.", "intensivos"],
+          ["Diminutive Suffixes (-CIk, -CA)", "Intermediate", "Size and manner: tiny, slowly.", "diminutivos"],
+          ["Direct Speech (diye)", "Intermediate", "Direct quotes: He said 'Hello'.", "discurso-directo"],
+          ["Double Conjunctions", "Intermediate", "Correlative pairs: both...and, neither...nor.", "conjunciones-dobles"],
+          ["Habitual Present (Geniş Zaman)", "Intermediate", "Habitual actions: comes, does, I drink.", "presente-habitual"],
+          ["Suffix -DIr (emphasis)", "Intermediate", "Emphasis and supposition: surely, probably.", "dir-sufijo"],
+          ["Ability Modal (-Abil/-Ebil)", "Intermediate", "Capability and possibility: can come, can do.", "habilidad"],
+          ["Gerunds (-(y)Ip, -mAdAn)", "Intermediate", "Consecutive actions: going and..., without reading.", "gerundios"]
+        ]
+      },
+      "B1": {
+        "title": "Level B1 - Intermediate Turkish",
+        "description": "Learning resources for Turkish Level B1.",
+        "tools_title": "For Intermediate Level B1",
+        "affiliate": {
+          "title": "italki",
+          "description": "Perfect your accent and fluency by talking about complex topics with native speakers.",
+          "btn": "Practice Conversation"
+        },
+        "grammar": [
+          ["Zarf-Fiiller (-(y)ArAk, -(y)A)", "Intermediate", "Verbal adverbs indicating the way an action is performed ('by doing').", "zarf-fiil-arak"],
+          ["Past Continuous Tense", "Intermediate", "Past continuous ('was doing'). Used for actions in progress in the past.", "simdiki-zaman-hikayesi"],
+          ["Zarf-Fiiller (-(y)ken)", "Intermediate", "Verbal adverb meaning 'while' or 'when', indicating simultaneity.", "zarf-fiil-ken"],
+          ["Noun-Verb Suffixes (-mAk, -mA)", "Intermediate", "Nominalization suffixes for forming infinitives and action nouns.", "isim-fiil-mak-ma"],
+          ["Noun-Verb Suffixes (-(y)Iş)", "Intermediate", "Suffix indicating the 'manner of doing' (e.g., walking).", "isim-fiil-is"],
+          ["Indirect Speech in Imperative", "Intermediate", "Reported style for orders or requests ('said to do...').", "dolayli-anlatim"],
+          ["Necessity Mood (-mAlI)", "Intermediate", "Necessity mode ('should', 'must'). Also used for suppositions.", "gereklilik-kipi"],
+          ["Necessity (Gerek / Lazım / Zorunda)", "Intermediate", "Other ways to express necessity and obligation.", "gereklilik-kullanimlari"],
+          ["Past Necessity (-mAlIydı)", "Intermediate", "Expresses regret or unfulfilled past necessity ('should have done...').", "gereklilik-kipi-hikayesi"],
+          ["Zarf-Fiiller (Purpose: -mAk için / üzere)", "Intermediate", "Verbal adverbs indicating purpose ('in order to...').", "zarf-fiil-mak-icin"],
+          ["Zarf-Fiiller (-mAktAnsA / -mA rağmen)", "Intermediate", "Expressing preference ('rather than...') and concession ('despite...').", "zarf-fiil-maktansa-ragmen"],
+          ["Zarf-Fiiller (-A rağmen / -sA bile)", "Intermediate", "Other forms of concession ('despite...' / 'even if...').", "zarf-fiil-a-ragmen-sa-bile"],
+          ["Desire Mood (-sA)", "Intermediate", "Desire mode ('I wish...') and simple conditional ('If...').", "dilek-kipi"],
+          ["Past Desire (-sAydı)", "Intermediate", "Unfulfilled past desire and past unreal conditional.", "dilek-kipi-hikayesi"],
+          ["Conditionality (-(y)sA)", "Intermediate", "Conditional form applied to different tenses.", "sart-kipi"],
+          ["Reciprocal Verbs (-(I)ş / -lAş)", "Intermediate", "Reciprocal voice ('each other') or collective ('together').", "istes-catili-fiiller"],
+          ["Zarf-Fiiller (-(y)IncA / -Ir -mAz)", "Intermediate", "Verbal adverbs of time: 'when...' and 'as soon as...'.", "zarf-fiil-inca-ir-maz"],
+          ["Zarf-Fiiller (-DIğIndAn beri / -(y)AlI)", "Intermediate", "Verbal adverbs indicating duration ('since...').", "zarf-fiil-digindan-beri"]
+        ]
+      },
+      "B2": {
+        "title": "Level B2 - Upper Intermediate Turkish",
+        "description": "Learning resources for Turkish Level B2.",
+        "tools_title": "Master Fluency (B2)",
+        "affiliate": {
+          "title": "italki",
+          "description": "At this level, you need real practice. Find native speakers to perfect your accent and dialect.",
+          "btn": "Connect with Natives"
+        },
+        "grammar": [
+          ["Bildirme Ekleri (-DIr) (Present)", "Advanced", "Expressing facts, general truths, and suppositions (probably).", "bildirme-eki-present"],
+          ["Zarf-Fiiller (-IncAyA kadar, -dIkçA)", "Advanced", "Expressing 'until...' and 'as...'.", "zarf-fiil-kadar-dikce"],
+          ["Adjectival Participles - Part 1", "Advanced", "Participles (who does): -An, -AsI, -mAz, -Ar.", "sifat-fiiller-1"],
+          ["Adjectival Participles - Part 2", "Advanced", "Participles (who did/will do): -DIk, -AcAk, -mIş.", "sifat-fiiller-2"],
+          ["Passive Voice", "Advanced", "Expressing actions where the subject receives the action ('to be done').", "edilgen-cati"],
+          ["Causative Voice - Part 1", "Advanced", "Making someone do something (Suffixes: -dIr, -t).", "ettirgen-cati-1"],
+          ["Causative Voice - Part 2", "Advanced", "Making someone do something (Suffixes: -Ir, -Ar, -Er, -It).", "ettirgen-cati-2"],
+          ["Factitive Voice", "Advanced", "Turning intransitive verbs into transitive (e.g., sleep -> make sleep).", "oldurgan-cati"],
+          ["Zarf-Fiiller (-mAdAn önce, -dIktAn sonra)", "Advanced", "Time sequencing: 'before...' and 'after...'.", "zarf-fiil-sonra-once"],
+          ["Zarf-Fiiller (Review)", "Intermediate", "Review of B1: -(y)Ip (and), -(y)A...-(y)A (repetition), -(y)ArAk (mode).", "zarf-fiil-ip-arak"],
+          ["Conjunctions (ki, diye, etc.)", "Advanced", "Use of key conjunctions: ki (that), diye (saying/for), etc.", "baglaclar-ki-diye"],
+          ["Indirect Speech - Affirmative", "Advanced", "Reporting what someone said: -DIğI, -AcAğI.", "dolayli-anlatim-duz"],
+          ["Indirect Speech - Questions", "Advanced", "Reporting questions: -DIğInI, -AcAğInI.", "dolayli-anlatim-soru"],
+          ["Indirect Speech - Imperative", "Advanced", "Reporting orders: -mAsInI.", "dolayli-anlatim-emir"],
+          ["Zarf-Fiiller Review (B1)", "Intermediate", "Review of B1: 'as soon as...' and 'since...'.", "zarf-fiil-irmaz-ali"],
+          ["Noun Clauses (-mAsI, -DIğI)", "Advanced", "The fact that... and that (someone) does...", "isim-cumleleri-masi-digi"],
+          ["Conjunctions Review (B1)", "Intermediate", "Review of double conjunctions: both...and, neither...nor.", "baglaclar-hem-ne-ya"]
+        ]
+      },
+      "C1": {
+        "title": "Level C1 - Advanced Turkish",
+        "description": "Learning resources for Turkish Level C1.",
+        "tools_title": "Refinement (C1+)",
+        "affiliate": {
+          "title": "italki",
+          "description": "Keep your level high. Talk about politics, culture, and literature with experts.",
+          "btn": "Advanced Debates"
+        },
+        "grammar": [
+          ["Advanced Noun Clauses", "Advanced", "Noun sentences combined with compound tenses and modals.", "isim-cumleleri-c1"],
+          ["Zarf-Fiiller (-DIkçA / -sIn diye)", "Advanced", "Verbal adverbs: 'the more...' and 'so that...'.", "zarf-fiil-dikca-diye"],
+          ["Advanced Capability Verb", "Advanced", "Ability Verb (Can): -(y)Abilmek and irregular negative.", "yeterlilik-fiili-c1"],
+          ["Adjectival Participles", "Advanced", "Relative clauses with -An, -DIğI, and -(y)AcAk.", "sifat-fiiller-c1"],
+          ["Conjunctions (Cause)", "Advanced", "Connectors: because, for this reason, therefore, thus.", "baglaclar-c1-zaman"],
+          ["Conjunctions (Contrast)", "Advanced", "Connectors: but, however, whereas, yet.", "baglaclar-c1-karsilastirma"],
+          ["Double Conjunctions", "Advanced", "Both...and, neither...nor, either...or, whether...or.", "baglaclar-c1-ciftli"]
+        ]
+      }
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "search_placeholder": "Pesquisar por tema...",
+    "search_title": "Pesquisar Temas",
+    "edit_lesson": "Editar Lição",
+    "lesson_title": "Título da Lição",
+    "description_label": "Descrição (opcional)",
+    "content_label": "Conteúdo da Lição",
+    "save_changes": "Salvar Alterações",
+    "create_lesson": "Criar Nova Lição",
+    "levels": {
+      "A1": {
+        "title": "Nível A1 - Turco Básico",
+        "description": "Recursos de aprendizagem de Turco Nível A1.",
+        "tools_title": "Ferramentas Recomendadas para A1",
+        "affiliate": {
+          "title": "italki",
+          "description": "Não espere ficar 'fluente'. Encontre um professor paciente e comece a falar hoje mesmo.",
+          "btn": "Encontrar Professor"
+        },
+        "grammar": [
+          ["Alfabeto Turco", "Básico", "As 29 letras do alfabeto turco com seus sons específicos.", "alfabeto"],
+          ["Caso Locativo da,de /ta,te", "Básico", "Equivalente da preposição 'em'.", "preposicion"],
+          ["Var e Yok - Existência", "Básico", "Expressa a presença ou ausência de algo com 'var' (tem/existe) e 'yok' (não tem/não existe).", "var-yok"],
+          ["Ordem das Frases (SOV)", "Básico", "Compreende a ordem típica Turca: Sujeito + Objeto + Verbo.", "orden"],
+          ["Perguntas Básicas", "Básico", "Interrogativos fundamentais: nerede, ne zaman, neden, kaç, etc.", "preguntas-basicas"],
+          ["Demonstrativos: Bu • Şu • O", "Básico", "Indica proximidade: perto, médio, longe.", "demostrativos"],
+          ["Sufixo Plural (-lAr)", "Básico", "Sufixo plural aplicando harmonia vocálica: -lar / -ler.", "plural"],
+          ["Sufixo de Pergunta (mi/mı/mu/mü)", "Básico", "Enclítico interrogativo ajustado à vogal precedente.", "sufijo-pregunta"],
+          ["Presente Contínuo (Şimdiki Zaman)", "Básico", "Raiz verbal + -yor + terminações pessoais.", "tiempo-presente"],
+          ["Casos Locativos (-yA / -DAn)", "Básico", "-yA para direção (para), -DAn para origem (de/desde).", "casos"],
+          ["-mAk istemek", "Básico", "Infinitivo + istemek para expressar desejo ou intenção.", "deseo"],
+          ["Sufixos Relacionais", "Básico", "Sufixos de posse (-ın/-in) e localização (-de/-da).", "relacion"],
+          ["Países e Gentílicos", "Básico", "Nomes de países e línguas: Turquia, Espanha, Inglês, vs.", "paises"],
+          ["Kendi e Hep", "Básico", "Palavras de ênfase: kendi (próprio), hep (sempre).", "enfasis"],
+          ["Intervalos de Tempo", "Básico", "-DAn até -(y)A kadar, antes/depois e há/desde.", "tiempo-intervalos"]
+        ]
+      },
+      "A2": {
+        "title": "Nível A2 - Turco Elemental",
+        "description": "Recursos de aprendizagem de Turco Nivel A2.",
+        "tools_title": "Potencialize seu nível A2",
+        "affiliate": {
+          "title": "italki",
+          "description": "Melhore sua fluidez conversando com nativos. Perca o medo de falar.",
+          "btn": "Praticar Conversação"
+        },
+        "grammar": [
+          ["Modo Imperativo (Emir Kipi)", "Intermediário", "Ordens e comandos: gel, gelin, gelsin.", "imperativo"],
+          ["Modo Optativo (İstek Kipi)", "Intermediário", "Expressar desejos e sugestões: gidelim, alayım.", "optativo"],
+          ["Sufixos Derivativos (-lI, -sIz, -lIk)", "Intermediário", "Criar adjetivos e substantivos: salgado, sem sal, beleza.", "derivativos"],
+          ["Passado Simples (-DI)", "Intermediário", "Eventos passados confirmados: vim, foi, fez.", "pasado-simple"],
+          ["Passado do Verbo 'Ser/Estar' (idi)", "Intermediário", "Estados passados: eu era estudante, ele estava doente.", "pasado-ser"],
+          ["Conjunções Causais", "Intermediário", "Conectores: porque, por este motivo, portanto.", "conjunciones"],
+          ["Posposição 'ile' (com)", "Intermediário", "Companhia e instrumento: comigo, com uma caneta.", "ile"],
+          ["Tempo Futuro (-AcAk)", "Intermediário", "Ações futuras: eu virei, ele fará.", "futuro"],
+          ["Comparações (gibi, kadar)", "Intermediário", "Similitude e igualdade: como você, tanto quanto eu.", "comparaciones"],
+          ["Passado Reportado (-mIş)", "Intermediário", "Informação indireta: aparentemente ele veio, ouvi dizer.", "pasado-reportado"],
+          ["Adjetivos Intensivos", "Intermediário", "Reduplicação: vermelhíssimo, branquíssimo.", "intensivos"],
+          ["Sufixos Diminutivos (-CIk, -CA)", "Intermediário", "Tamanho e maneira: pequenininho, devagarzinho.", "diminutivos"],
+          ["Discurso Direto (diye)", "Intermediário", "Citações diretas: Ele disse 'Olá'.", "discurso-directo"],
+          ["Conjunções Dobradas", "Intermediário", "Pares correlativos: tanto...quanto, nem...nem.", "conjunciones-dobles"],
+          ["Presente Habitual (Geniş Zaman)", "Intermediário", "Ações habituais: vem, faz, eu bebo.", "presente-habitual"],
+          ["Sufixo -DIr (ênfase)", "Intermediário", "Ênfase e suposição: certamente, provavelmente.", "dir-sufijo"],
+          ["Modal de Habilidade (-Abil/-Ebil)", "Intermediário", "Capacidade e possibilidade: pode vir, pode fazer.", "habilidad"],
+          ["Gerúndios (-(y)Ip, -mAdAn)", "Intermediário", "Ações consecutivas: indo e..., sem ler.", "gerundios"]
+        ]
+      },
+      "B1": {
+        "title": "Nível B1 - Turco Intermediário",
+        "description": "Recursos de aprendizagem de Turco Nível B1.",
+        "tools_title": "Para Nível Intermediário B1",
+        "affiliate": {
+          "title": "italki",
+          "description": "Aperfeiçoe seu sotaque e fluidez falando sobre temas complexos com falantes nativos.",
+          "btn": "Praticar Conversação"
+        },
+        "grammar": [
+          ["Zarf-Fiiller (-(y)ArAk, -(y)A)", "Intermediário", "Advérbios verbais que indicam o modo ou a maneira da ação ('fazendo').", "zarf-fiil-arak"],
+          ["Pretérito Imperfeito (Passado Contínuo)", "Intermediário", "Tempo passado contínuo ('estava fazendo').", "simdiki-zaman-hikayesi"],
+          ["Zarf-Fiiller (-(y)ken)", "Intermediário", "Advérbio verbal que significa 'enquanto' ou 'quando'.", "zarf-fiil-ken"],
+          ["Sufixos Nome-Verbo (-mAk, -mA)", "Intermediário", "Sufixos de nominalização para formar infinitivos e substantivos de ação.", "isim-fiil-mak-ma"],
+          ["Sufixos Nome-Verbo (-(y)Iş)", "Intermediário", "Sufixo que indica a 'maneira de fazer' algo (ex: caminhada).", "isim-fiil-is"],
+          ["Estilo Indireto no Imperativo", "Intermediário", "Reportar ordens ou pedidos ('disse para fazer...').", "dolayli-anlatim"],
+          ["Modo de Necessidade (-mAlI)", "Intermediário", "Modo de necessidade ('dever', 'ter que').", "gereklilik-kipi"],
+          ["Necessidade (Gerek / Lazım / Zorunda)", "Intermediário", "Outras formas de expressar necessidade e obrigação.", "gereklilik-kullanimlari"],
+          ["Necessidade Passada (-mAlIydı)", "Intermediário", "Expressa arrependimento ou necessidade passada não cumprida.", "gereklilik-kipi-hikayesi"],
+          ["Zarf-Fiiller (Propósito: -mAk için / üzere)", "Intermediário", "Advérbios verbais que indicam propósito ('para fazer...').", "zarf-fiil-mak-icin"],
+          ["Zarf-Fiiller (-mAktAnsA / -mA rağmen)", "Intermediário", "Expressam preferência ('em vez de...') e concessão ('apesar de...').", "zarf-fiil-maktansa-ragmen"],
+          ["Zarf-Fiiller (-A rağmen / -sA bile)", "Intermediário", "Outras formas de expressar concessão ('apesar de...' / 'mesmo se...').", "zarf-fiil-a-ragmen-sa-bile"],
+          ["Modo de Desejo (-sA)", "Intermediário", "Modo de desejo ('Tomara...') e condicional simples ('Se...').", "dilek-kipi"],
+          ["Desejo Passado (-sAydı)", "Intermediário", "Desejo passado não cumprido e condicional irreal passado.", "dilek-kipi-hikayesi"],
+          ["Condicional (-(y)sA)", "Intermediário", "Forma condicional aplicada a diferentes tempos verbais.", "sart-kipi"],
+          ["Verbos Recíprocos (-(I)ş / -lAş)", "Intermediário", "Voz recíproca ('um ao outro') ou coletiva ('juntos').", "istes-catili-fiiller"],
+          ["Zarf-Fiiller (-(y)IncA / -Ir -mAz)", "Intermediário", "Advérbios verbais de tempo: 'quando...' e 'assim que...'.", "zarf-fiil-inca-ir-maz"],
+          ["Zarf-Fiiller (-DIğIndAn beri / -(y)AlI)", "Intermediário", "Advérbios verbais que indicam duração ('desde que...').", "zarf-fiil-digindan-beri"]
+        ]
+      },
+      "B2": {
+        "title": "Nível B2 - Turco Intermediário Superior",
+        "description": "Recursos de aprendizagem de Turco Nível B2.",
+        "tools_title": "Domine a Fluidez (B2)",
+        "affiliate": {
+          "title": "italki",
+          "description": "Neste nível, você precisa de prática real. Encontre falantes nativos para aperfeiçoar seu sotaque.",
+          "btn": "Conectar com Nativos"
+        },
+        "grammar": [
+          ["Bildirme Ekleri (-DIr) (Presente)", "Avançado", "Expressar fatos, verdades gerais e suposições (provavelmente).", "bildirme-eki-present"],
+          ["Zarf-Fiiller (-IncAyA kadar, -dIkçA)", "Avançado", "Expressar 'até que...' e 'à medida que...'.", "zarf-fiil-kadar-dikce"],
+          ["Particípios Adjetivais - Parte 1", "Avançado", "Particípios (que faz): -An, -AsI, -mAz, -Ar.", "sifat-fiiller-1"],
+          ["Particípios Adjetivais - Parte 2", "Avançado", "Particípios (que fez/fará): -DIk, -AcAk, -mIş.", "sifat-fiiller-2"],
+          ["Voz Passiva", "Avançado", "Expressar ações onde o sujeito recebe a ação ('ser feito').", "edilgen-cati"],
+          ["Voz Causativa - Parte 1", "Avançado", "Fazer com que alguém faça algo (Sufixos: -dIr, -t).", "ettirgen-cati-1"],
+          ["Voz Causativa - Parte 2", "Avançado", "Fazer com que alguém faça algo (Sufixos: -Ir, -Ar, -Er, -It).", "ettirgen-cati-2"],
+          ["Voz Factitiva", "Avançado", "Converter verbos intransitivos em transitivos (ex: dormir -> fazer dormir).", "oldurgan-cati"],
+          ["Zarf-Fiiller (-mAdAn önce, -dIktAn sonra)", "Avançado", "Sequenciamento de tempo: 'antes de...' e 'depois de...'.", "zarf-fiil-sonra-once"],
+          ["Zarf-Fiiller (Revisão)", "Intermediário", "Revisão de B1: -(y)Ip (e), -(y)A...-(y)A (repetição), -(y)ArAk (modo).", "zarf-fiil-ip-arak"],
+          ["Conjunções (ki, diye, etc.)", "Avançado", "Uso de conjunções chave: ki (que), diye (dizendo/para), etc.", "baglaclar-ki-diye"],
+          ["Estilo Indireto - Afirmativas", "Avançado", "Reportar o que alguém disse: -DIğI, -AcAğI.", "dolayli-anlatim-duz"],
+          ["Estilo Indireto - Perguntas", "Avançado", "Reportar perguntas: -DIğInI, -AcAğInI.", "dolayli-anlatim-soru"],
+          ["Estilo Indireto - Imperativo", "Avançado", "Reportar ordens: -mAsInI.", "dolayli-anlatim-emir"],
+          ["Zarf-Fiiller Revisão (B1)", "Intermediário", "Revisão de B1: 'assim que...' e 'desde que...'.", "zarf-fiil-irmaz-ali"],
+          ["Orações Substantivas (-mAsI, -DIğI)", "Avançado", "O fato de que... e que (alguém) faça...", "isim-cumleleri-masi-digi"],
+          ["Conjunções Revisão (B1)", "Intermediário", "Revisão de conjunções dobradas: tanto...quanto, nem...nem.", "baglaclar-hem-ne-ya"]
+        ]
+      },
+      "C1": {
+        "title": "Nivel C1 - Turco Avançado",
+        "description": "Recursos de aprendizagem de Turco Nivel C1.",
+        "tools_title": "Aperfeiçoamento (C1+)",
+        "affiliate": {
+          "title": "italki",
+          "description": "Mantenha seu nível alto. Converse sobre política, cultura e literatura com especialistas.",
+          "btn": "Debates Avançados"
+        },
+        "grammar": [
+          ["Orações Substantivas (Avançado)", "Avançado", "Orações Nominais combinadas com tempos compostos e modais.", "isim-cumleleri-c1"],
+          ["Zarf-Fiiller (-DIkçA / -sIn diye)", "Avançado", "Advérbios verbais: 'quanto mais...' e 'para que...'.", "zarf-fiil-dikca-diye"],
+          ["Verbo de Capacidade (Avançado)", "Avançado", "Verbo de Capacidade (Poder): -(y)Abilmek e seu negativo irregular.", "yeterlilik-fiili-c1"],
+          ["Particípios Adjetivais", "Avançado", "Cláusulas relativas com -An, -DIğI e -(y)AcAk.", "sifat-fiiller-c1"],
+          ["Conjunções (Causa)", "Avançado", "Conjunções: porque, portanto, assim, consequentemente.", "baglaclar-c1-zaman"],
+          ["Conjunções (Contraste)", "Avançado", "Conjunções: mas, porém, enquanto que, no entanto.", "baglaclar-c1-karsilastirma"],
+          ["Conjunções Dobradas", "Avançado", "Tanto... quanto, nem... nem, ou... ou, seja... seja.", "baglaclar-c1-ciftli"]
+        ]
+      }
+    }
+  }
+]

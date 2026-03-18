@@ -1,0 +1,56 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Contexto Cultural - Turkamerica",
+    "description": "Analiza frases y descubre el contexto cultural e idiomático.",
+    "subtitle": "Análisis de Contexto",
+    "desc": "Profundiza en el significado real de cualquier frase turca, sus modismos y matices culturales.",
+    "placeholder": "Ingresa una frase turca...",
+    "btn_text": "ANALIZAR CONTEXTO",
+    "limit_note": "Límite: 5 análisis por hora.",
+    "loading": "Consultando con Capi...",
+    "res_global": "Traducción Contextual",
+    "res_notes": "Notas Culturales",
+    "messages": {
+      "error_input": "Por favor, ingresa una frase.",
+      "error_gen": "Error al realizar el análisis."
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Cultural Context - Turkamerica",
+    "description": "Analyze phrases and discover cultural and idiomatic context.",
+    "subtitle": "Context Analysis",
+    "desc": "Deepen your understanding of any Turkish phrase, its idioms, and cultural nuances.",
+    "placeholder": "Enter a Turkish phrase...",
+    "btn_text": "ANALYZE CONTEXT",
+    "limit_note": "Limit: 5 analyses per hour.",
+    "loading": "Consulting with Capi...",
+    "res_global": "Contextual Translation",
+    "res_notes": "Cultural Notes",
+    "messages": {
+      "error_input": "Please enter a phrase.",
+      "error_gen": "Error performing analysis."
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Contexto Cultural - Turkamerica",
+    "description": "Analise frases e descubra o contexto cultural e idiomático.",
+    "subtitle": "Análise de Contexto",
+    "desc": "Aprofunde seu entendimento de qualquer frase turca, seus modismos e nuances culturais.",
+    "placeholder": "Insira uma frase turca...",
+    "btn_text": "ANALISAR CONTEXTO",
+    "limit_note": "Limite: 5 análises por hora.",
+    "loading": "Consultando a Capi...",
+    "res_global": "Tradução Contextual",
+    "res_notes": "Notas Culturais",
+    "messages": {
+      "error_input": "Por favor, insira uma frase.",
+      "error_gen": "Erro ao realizar a análise."
+    }
+  }
+]

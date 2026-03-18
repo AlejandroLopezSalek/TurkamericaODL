@@ -1,0 +1,101 @@
+[
+  {
+    "code": "es",
+    "dir": "",
+    "title": "Registro - Turkamerica",
+    "description": "Crea tu cuenta en Turkamerica para empezar a aprender turco hoy mismo.",
+    "header": {
+      "title": "Únete a Turkamerica",
+      "subtitle": "La mayor comunidad de hispanohablantes aprendiendo turco"
+    },
+    "form": {
+      "username_label": "Nombre de Usuario",
+      "username_placeholder": "ej. turco_viajero",
+      "email_label": "Correo Electrónico",
+      "email_placeholder": "tu@email.com",
+      "password_label": "Contraseña",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirmar Contraseña",
+      "confirm_password_placeholder": "••••••••",
+      "submit_btn": "Crear Cuenta",
+      "has_account": "¿Ya tienes una cuenta?",
+      "login_link": "Inicia Sesión",
+      "back_to_home": "Volver al inicio",
+      "strength_label": "Fuerza:",
+      "strength_empty": "Vacía",
+      "req_length": "Mínimo 8 caracteres",
+      "req_safe": "Número o símbolo recomendado",
+      "or_register_with": "O regístrate con"
+    },
+    "messages": {
+      "register_success": "¡Cuenta creada con éxito! Bienvenido.",
+      "passwords_dont_match": "Las contraseñas no coinciden."
+    }
+  },
+  {
+    "code": "en",
+    "dir": "en/",
+    "title": "Register - Turkamerica",
+    "description": "Create your Turkamerica account to start learning Turkish today.",
+    "header": {
+      "title": "Join Turkamerica",
+      "subtitle": "The largest community of English speakers learning Turkish"
+    },
+    "form": {
+      "username_label": "Username",
+      "username_placeholder": "ex. turkish_traveler",
+      "email_label": "Email",
+      "email_placeholder": "you@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirm Password",
+      "confirm_password_placeholder": "••••••••",
+      "submit_btn": "Create Account",
+      "has_account": "Already have an account?",
+      "login_link": "Log In",
+      "back_to_home": "Back to Home",
+      "strength_label": "Strength:",
+      "strength_empty": "Empty",
+      "req_length": "Min 8 characters",
+      "req_safe": "Number or symbol recommended",
+      "or_register_with": "Or register with"
+    },
+    "messages": {
+      "register_success": "Account created successfully! Welcome.",
+      "passwords_dont_match": "Passwords do not match."
+    }
+  },
+  {
+    "code": "pt",
+    "dir": "pt/",
+    "title": "Registro - Turkamerica",
+    "description": "Crie sua conta no Turkamerica para começar a aprender turco hoje mesmo.",
+    "header": {
+      "title": "Junte-se ao Turkamerica",
+      "subtitle": "A maior comunidade de falantes de português aprendendo turco"
+    },
+    "form": {
+      "username_label": "Nome de Usuário",
+      "username_placeholder": "ex. viajante_turco",
+      "email_label": "E-mail",
+      "email_placeholder": "voce@email.com",
+      "password_label": "Senha",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirmar Senha",
+      "confirm_password_placeholder": "••••••••",
+      "submit_btn": "Criar Conta",
+      "has_account": "Já tem uma conta?",
+      "login_link": "Faça Login",
+      "back_to_home": "Voltar ao início",
+      "strength_label": "Força:",
+      "strength_empty": "Vazia",
+      "req_length": "Mínimo 8 caracteres",
+      "req_safe": "Número ou símbolo recomendado",
+      "or_register_with": "Ou registre-se com"
+    },
+    "messages": {
+      "register_success": "Conta criada com sucesso! Bem-vindo.",
+      "passwords_dont_match": "As senhas não coincidem."
+    }
+  }
+]
