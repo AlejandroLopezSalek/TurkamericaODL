@@ -724,11 +724,17 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
             - B1: Intermediate grammar, moderate sentence complexity.
             - B2/C1: STRICT ADVANCED DIFFICULTY. Use complex academic or literary vocabulary, idiomatic expressions, and advanced grammar (converbiums, complex sub-clauses). Questions MUST be challenging and require deep comprehension.
             
-            STRUCTURE:
-            1. Listening: ${config.listening} questions. Generate ONE "listening_passage" (a detailed conversation or monologue in Turkish, ~1 minute of speech) for this section. Questions MUST refer to this passage.
+            STRUCTURE & LANGUAGE RULES:
+            1. Listening: ${config.listening} questions. Generate ONE "listening_passage" (detailed conversation or monologue in Turkish, ~1 minute of speech).
             2. Reading: ${config.reading} questions. Generate ONE "reading_passage" (an article or story).
-            3. Writing: ${config.writing} questions (Advanced grammar transformation or essay-style questions for B2+).
+            3. Writing: ${config.writing} questions (Grammar transformation or essay-style).
             
+            STRICT IMMERSION RULES:
+            - A1: Questions in ${languageName}, Options in Turkish.
+            - A2, B1, B2, C1: ALL Questions and Options MUST be in Turkish (No native translations).
+            - Reading & Listening Passages: MUST be 100% in Turkish (No native translation) for ALL LEVELS.
+            - Instructions and Section titles: ALWAYS in ${languageName}.
+
             Complexity MUST match Turkish Level ${level}.
             Output JSON with schema: { 
                 "exam_id": string, 
