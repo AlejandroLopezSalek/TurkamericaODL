@@ -5,6 +5,10 @@ pagination:
   size: 1
   alias: t
 permalink: "{{ t.dir }}StoryLab/index.html"
+styles:
+- lab.css
+scripts:
+- lab/lab-story.js
 ---
 <script id="i18n-messages" type="application/json">{{ t.messages | dump | safe }}</script>
 <script>
@@ -125,7 +129,6 @@ permalink: "{{ t.dir }}StoryLab/index.html"
                             <div class="p-2 space-y-1">
                                 <div class="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ t.visualization }}</div>
                                 <button data-mode="hz" class="mode-btn w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50 dark:hover:bg-white/5">{{ t.mode_hz }}</button>
-                                <button data-mode="py" class="mode-btn w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50 dark:hover:bg-white/5">{{ t.mode_py }}</button>
                                 <button data-mode="full" class="mode-btn w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50 dark:hover:bg-white/5">{{ t.mode_full }}</button>
                                 <div class="h-px bg-slate-100 dark:bg-slate-700 my-1 mx-2"></div>
                                 <button id="toggle-text-btn" class="w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50 dark:hover:bg-white/5">
@@ -186,4 +189,3 @@ permalink: "{{ t.dir }}StoryLab/index.html"
     </div>
 </div>
 
-<script src="/js/lab/lab-story.js"></script>

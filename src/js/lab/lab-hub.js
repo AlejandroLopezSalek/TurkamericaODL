@@ -42,7 +42,8 @@ class LabHub {
             return;
         }
 
-        const tool = dataTool || title.toLowerCase();
+        const tool = (dataTool || title).toLowerCase();
+        console.log("LabHub: Tool clicked ->", tool);
 
         if (tool.includes("cadena") || tool.includes("adn")) {
             window.location.href = `${langPrefix}/ADN/`;

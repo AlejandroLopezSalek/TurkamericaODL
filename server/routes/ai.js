@@ -185,7 +185,10 @@ async function cacheWodData(key, data) {
 
 router.get('/word-of-day', async (req, res) => {
     try {
-        if (!process.env.GROQ_API_KEY) return res.status(503).json({ error: 'AI service not configured' });
+        if (!process.env.GROQ_API_KEY) {
+            console.warn('[WoD] GROQ_API_KEY missing, using fallback.');
+            return res.json(getFallbackWod(req.query.lang));
+        }
 
         const lang = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
         const languageName = (lang === 'en') ? 'English' : (lang === 'tr' ? 'Turkish' : 'Spanish');
@@ -303,7 +306,7 @@ FORMAT:
 }${avoidPrompt}`;
 
     const { text } = await generateText({
-        model: groq.chat('moonshotai/kimi-k2-instruct'),
+        model: groq.chat('llama-3.3-70b-versatile'),
         prompt,
         temperature: 0.7,
     });
@@ -328,7 +331,7 @@ CRITICAL: "exampleTranslation" MUST keep the word "${existingData.word}" untrans
 Output ONLY raw JSON.`;
 
     const { text } = await generateText({
-        model: groq.chat('moonshotai/kimi-k2-instruct'),
+        model: groq.chat('llama-3.3-70b-versatile'),
         prompt,
         temperature: 0.3,
     });
@@ -423,7 +426,7 @@ Student's Turkish translation: "${user_translation}"
 Evaluate this translation strictly but fairly, and output the grading JSON object.`;
 
         const { text: gradeRaw } = await generateText({
-            model: groq.chat('moonshotai/kimi-k2-instruct-0905'),
+            model: groq.chat('llama-3.3-70b-versatile'),
             system: systemInstructions,
             prompt: gradingPrompt,
             temperature: 0.2,
@@ -551,7 +554,7 @@ router.post('/', async (req, res) => {
         if (req.body.stream) {
             // New Streaming Text Approach for Real-time UX
             const result = streamText({
-                model: groq.chat('moonshotai/kimi-k2-instruct'),
+                model: groq.chat('llama-3.3-70b-versatile'),
                 messages: messages,
                 temperature: 0.6,
                 maxTokens: 1024,
@@ -567,7 +570,7 @@ router.post('/', async (req, res) => {
 
         // Fallback for non-streaming requests (Original implementation style)
         const { text } = await generateText({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
+            model: groq.chat('llama-3.3-70b-versatile'),
             messages: messages,
             temperature: 0.6,
             maxTokens: 1024,
@@ -652,28 +655,22 @@ router.get('/lab/analyze-dna', authenticateToken, async (req, res) => {
         const cached = await getCachedWod(cacheKey);
         if (cached) return res.json(cached);
 
-        const { object } = await generateObject({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
-            schema: z.object({
-                word: z.string(),
-                root: z.object({
-                    text: z.string(),
-                    meaning: z.string()
-                }),
-                suffixes: z.array(z.object({
-                    text: z.string(),
-                    type: z.string(),
-                    meaning: z.string()
-                })),
-                overall_meaning: z.string()
-            }),
+        const { text: dnaRaw } = await generateText({
+            model: groq.chat('llama-3.3-70b-versatile'),
+            responseFormat: { type: 'json' },
             prompt: `Act as a linguistic expert in Turkish and ${lang}. 
             Perform a "Suffix DNA" analysis of the word: "${text}".
             Analyze the word's morphology (aglutination):
             1. Identify the root (kök).
             2. Identify each suffix added (ekler) and their individual meanings (case, plural, possessive, etc.).
-            3. Explain how they chain together in ${lang}.`,
+            3. Explain how they chain together in ${lang}.
+            
+            Output MUST be valid JSON matching this schema:
+            { "word": string, "root": { "text": string, "meaning": string }, "suffixes": [{ "text": string, "type": string, "meaning": string }], "overall_meaning": string }`,
         });
+        const jsonMatch = dnaRaw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI did not return valid JSON for DNA');
+        const object = JSON.parse(jsonMatch[0]);
 
         if (user.role !== 'admin') {
             await User.findByIdAndUpdate(user._id, { 'stats.labUsage.dnaDate': today });
@@ -713,35 +710,46 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
             ? `Genera un examen personalizado de TURCO. Tema: ${userPrompt}. Nivel: ${level}.`
             : `Genera un examen de Turco nivel ${level}.`;
 
-        const { object } = await generateObject({
-            model: groq.chat('llama-3.3-70b'),
-            schema: z.object({
-                exam_id: z.string(),
-                title: z.string(),
-                sections: z.array(z.object({
-                    type: z.enum(['listening', 'reading', 'writing']),
-                    instructions: z.string(),
-                    questions: z.array(z.object({
-                        id: z.string(),
-                        type: z.enum(['multiple_choice', 'translation']),
-                        question: z.string(),
-                        options: z.array(z.string()).optional(),
-                        correct_answer: z.string(),
-                        audio_text: z.string().optional(),
-                        hint: z.string().optional()
-                    }))
-                }))
-            }),
+        const { text: examRaw } = await generateText({
+            model: groq.chat('llama-3.3-70b-versatile'),
+            responseFormat: { type: 'json' },
             prompt: `${systemPrompt} 
             All instructions and feedback MUST be in ${lang}.
             
-            STRUCTURE:
-            1. Listening (${config.listening} questions): Focus on pronunciation. Provide "audio_text" for TTS.
-            2. Reading (${config.reading} questions): Comprehension tasks.
-            3. Writing (${config.writing} questions): Suffix usage or translation.
+            DIFFICULTY RULES:
+            - A1/A2: Simple vocabulary, basic suffixes, direct questions.
+            - B1: Intermediate grammar, moderate sentence complexity.
+            - B2/C1: STRICT ADVANCED DIFFICULTY. Use complex academic or literary vocabulary, idiomatic expressions, and advanced grammar (converbiums, complex sub-clauses). Questions MUST be challenging and require deep comprehension.
             
-            Strict JSON.`
+            STRUCTURE:
+            1. Listening: ${config.listening} questions. Generate ONE "listening_passage" (a detailed conversation or monologue in Turkish, ~1 minute of speech) for this section. Questions MUST refer to this passage.
+            2. Reading: ${config.reading} questions. Generate ONE "reading_passage" (an article or story).
+            3. Writing: ${config.writing} questions (Advanced grammar transformation or essay-style questions for B2+).
+            
+            Complexity MUST match Turkish Level ${level}.
+            Output JSON with schema: { 
+                "exam_id": string, 
+                "title": string, 
+                "sections": [{ 
+                    "type": "listening"|"reading"|"writing", 
+                    "instructions": string, 
+                    "reading_passage": string,
+                    "listening_passage": string, 
+                    "questions": [{ 
+                        "id": string, 
+                        "type": "multiple_choice"|"translation", 
+                        "question": string, 
+                        "options": string[], 
+                        "correct_answer": string, 
+                        "audio_text": string (only if not using listening_passage), 
+                        "hint": string 
+                    }] 
+                }] 
+            }`
         });
+        const jsonMatch = examRaw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI did not return valid JSON for Exam');
+        const object = JSON.parse(jsonMatch[0]);
 
         // Persist to History
         const savedExam = await LabExam.create({
@@ -781,24 +789,18 @@ router.post('/lab/grade-exam', authenticateToken, async (req, res) => {
         const { answers, original_exam, lang = 'es', db_id } = req.body;
         const user = req.user;
 
-        const { object } = await generateObject({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
-            schema: z.object({
-                score: z.number(),
-                feedback: z.array(z.object({
-                    question_id: z.string(),
-                    status: z.enum(['correct', 'incorrect', 'partial']),
-                    explanation: z.string(),
-                    user_answer: z.string()
-                })),
-                capi_advice: z.string()
-            }),
-            prompt: `Grade this Turkish exam.
+        const { text: gradeRaw } = await generateText({
+            model: groq.chat('llama-3.3-70b-versatile'),
+            responseFormat: { type: 'json' },
+            prompt: `Grade this Turkish exam for Level ${original_exam.level || 'A1'}.
             Exam: ${JSON.stringify(original_exam)}
             User Answers: ${JSON.stringify(answers)}
             
-            Provide feedback in ${lang}. Focus on vowel harmony and suffixes.`
+            Feedback in ${lang}. Schema: { "score": number, "feedback": [{ "question_id": string, "status": "correct"|"incorrect"|"partial", "explanation": string, "user_answer": string }], "capi_advice": string }`
         });
+        const jsonMatch = gradeRaw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI did not return valid JSON for Grading');
+        const object = JSON.parse(jsonMatch[0]);
 
         if (db_id) {
             await LabExam.findByIdAndUpdate(db_id, {
@@ -896,7 +898,7 @@ router.get('/lab/story/:id', authenticateToken, async (req, res) => {
                 await user.save();
                 return res.json({
                     active: true,
-                    story: { id: id, title: state.title, current_chapter: state.history[state.history.length - 1].content_data }
+                    story: { id: id, title: state.title, history: state.history, current_chapter: state.history[state.history.length - 1].content_data }
                 });
             }
         }
@@ -907,7 +909,7 @@ router.get('/lab/story/:id', authenticateToken, async (req, res) => {
             await user.save();
             return res.json({
                 active: true,
-                story: { id: id, title: persisted.title, current_chapter: persisted.history[persisted.history.length - 1].content_data }
+                story: { id: id, title: persisted.title, history: persisted.history, current_chapter: persisted.history[persisted.history.length - 1].content_data }
             });
         }
         res.status(404).json({ error: "Story not found" });
@@ -986,26 +988,20 @@ router.post('/lab/start-story', authenticateToken, async (req, res) => {
             return res.status(429).json({ error: 'Límite de 1 historia diaria.' });
         }
 
-        const { object } = await generateObject({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
-            schema: z.object({
-                title: z.string(),
-                first_chapter: z.object({
-                    text: z.string(),
-                    segments: z.array(z.object({
-                        hz: z.string(),
-                        py: z.string(),
-                        tr: z.string(),
-                        note: z.string()
-                    })),
-                    options: z.array(z.string())
-                })
-            }),
+        const { text: storyRaw } = await generateText({
+            model: groq.chat('llama-3.3-70b-versatile'),
+            responseFormat: { type: 'json' },
             system: `Guía Capi de TurkAmerica. Nivel: ${level}. 
-            "text" en ${lang}. "segments" en Turco phrase-by-phrase. 
-            "py" es pronunciación para hispanohablantes.`,
-            prompt: `Inicia historia. Género: ${genre}. Protagonista: ${charName}. Extra: ${userPrompt}.`,
+            Historias interactivas. La longitud y complejidad gramatical DEBE aumentar progresivamente según el nivel (${level}).
+            Máximo 6 capítulos por aventura.
+            "text" en ${lang}. "segments" en Turco phrase-by-phrase. "tr" es el significado.`,
+            prompt: `Inicia historia. Género: ${genre}. Protagonista: ${charName}. Extra: ${userPrompt}.
+            
+            Output JSON: { "title": string, "first_chapter": { "text": string, "segments": [{ "hz": string, "py": string, "tr": string, "note": string }], "options": string[] } }`,
         });
+        const jsonMatch = storyRaw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI did not return valid JSON for Story');
+        const object = JSON.parse(jsonMatch[0]);
 
         const storyId = `story_${Date.now()}`;
         
@@ -1071,23 +1067,19 @@ router.post('/lab/continue-story', authenticateToken, async (req, res) => {
 
         const historyPrompt = storyState.history.slice(-3).map(h => `${h.role === 'assistant' ? 'Capi' : 'Usuario'}: ${h.content_data.text || h.content_data}`).join('\n');
 
-        const { object } = await generateObject({
-            model: groq.chat('moonshotai/kimi-k2-instruct'),
-            schema: z.object({
-                next_chapter: z.object({
-                    text: z.string(),
-                    segments: z.array(z.object({
-                        hz: z.string(),
-                        py: z.string(),
-                        tr: z.string(),
-                        note: z.string()
-                    })),
-                    options: z.array(z.string())
-                })
-            }),
-            system: `Continúa historia. Nivel: ${storyState.level}. Contexto: ${historyPrompt}`,
-            prompt: `Elección: "${option}".`,
+        const { text: nextRaw } = await generateText({
+            model: groq.chat('llama-3.3-70b-versatile'),
+            responseFormat: { type: 'json' },
+            system: `Continúa historia interactiva. Nivel: ${storyState.level}. 
+            Contexto: ${historyPrompt}. Aumenta el drama y vocabulario según el nivel.
+            Si el historial tiene 6 capítulos, concluye la historia épicamente y no des más opciones.`,
+            prompt: `Elección: "${option}".
+            
+            Output JSON: { "next_chapter": { "text": string, "segments": [{ "hz": string, "py": string, "tr": string, "note": string }], "options": string[] } }`,
         });
+        const jsonMatch = nextRaw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI did not return valid JSON for Continue');
+        const object = JSON.parse(jsonMatch[0]);
 
         storyState.history.push({ role: 'user', content_data: option });
         storyState.history.push({ role: 'assistant', content_data: object.next_chapter });

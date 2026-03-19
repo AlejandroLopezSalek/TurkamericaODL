@@ -11,7 +11,7 @@
       { "id": "A1", "name": "Nivel A1", "sub": "Principiante", "btn": "Acceder al Nivel", "url": "/NivelA1/", "color": "indigo" },
       { "id": "A2", "name": "Nivel A2", "sub": "Elemental", "btn": "Acceder al Nivel", "url": "/NivelA2/", "color": "blue" },
       { "id": "B1", "name": "Nivel B1", "sub": "Intermedio", "btn": "Acceder al Nivel", "url": "/NivelB1/", "color": "emerald" },
-      { "id": "B2", "name": "Nivel B2", "sub": "Intermedio Alto", "btn": "Acceder al Nivel", "url": "/NivelB2/", "color": "orange" },
+      { "id": "B2", "name": "Nivel B2", "sub": "Intermedio Alto", "btn": "Acceder al Nivel", "url": "/NivelB2/", "color": "amber" },
       { "id": "C1", "name": "Nivel C1", "sub": "Avanzado", "btn": "Acceder al Nivel", "url": "/NivelC1/", "color": "red" }
     ],
     "community_title": "Comunidad",
@@ -30,7 +30,7 @@
       { "id": "A1", "name": "Level A1", "sub": "Beginner", "btn": "Access Level", "url": "/en/NivelA1/", "color": "indigo" },
       { "id": "A2", "name": "Level A2", "sub": "Elementary", "btn": "Access Level", "url": "/en/NivelA2/", "color": "blue" },
       { "id": "B1", "name": "Level B1", "sub": "Intermediate", "btn": "Access Level", "url": "/en/NivelB1/", "color": "emerald" },
-      { "id": "B2", "name": "Level B2", "sub": "Upper Intermediate", "btn": "Access Level", "url": "/en/NivelB2/", "color": "orange" },
+      { "id": "B2", "name": "Level B2", "sub": "Upper Intermediate", "btn": "Access Level", "url": "/en/NivelB2/", "color": "amber" },
       { "id": "C1", "name": "Level C1", "sub": "Advanced", "btn": "Access Level", "url": "/en/NivelC1/", "color": "red" }
     ],
     "community_title": "Community",
@@ -49,7 +49,7 @@
       { "id": "A1", "name": "Nível A1", "sub": "Principiante", "btn": "Acessar Nível", "url": "/pt/NivelA1/", "color": "indigo" },
       { "id": "A2", "name": "Nível A2", "sub": "Elementar", "btn": "Acessar Nível", "url": "/pt/NivelA2/", "color": "blue" },
       { "id": "B1", "name": "Nível B1", "sub": "Intermediário", "btn": "Acessar Nível", "url": "/pt/NivelB1/", "color": "emerald" },
-      { "id": "B2", "name": "Nível B2", "sub": "Intermediário Alto", "btn": "Acessar Nível", "url": "/pt/NivelB2/", "color": "orange" },
+      { "id": "B2", "name": "Nível B2", "sub": "Intermediário Alto", "btn": "Acessar Nível", "url": "/pt/NivelB2/", "color": "amber" },
       { "id": "C1", "name": "Nível C1", "sub": "Avançado", "btn": "Acessar Nível", "url": "/pt/NivelC1/", "color": "red" }
     ],
     "community_title": "Comunidade",

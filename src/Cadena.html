@@ -5,6 +5,10 @@ pagination:
   size: 1
   alias: t
 permalink: "{{ t.dir }}ADN/index.html"
+styles:
+- lab.css
+scripts:
+- lab/lab-dna.js
 ---
 <script id="i18n-messages" type="application/json">{{ t.messages | dump | safe }}</script>
 <script>
@@ -88,22 +92,5 @@ permalink: "{{ t.dir }}ADN/index.html"
     </div>
 </template>
 
-<style>
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
 
-    .animate-slideUp {
-        animation: slideUp 0.5s ease-out forwards;
-    }
-</style>
-
-<script src="/js/lab/lab-dna.js"></script>

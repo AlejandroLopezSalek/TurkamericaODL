@@ -119,7 +119,9 @@ class LabStory {
 
             const data = await response.json();
             this.currentStory = data;
-            this.isBookMode = false;
+            this.storyHistory = [data.first_chapter];
+            this.currentChapterIndex = 0;
+            this.isBookMode = true; // Enable pagination for the current session
             this.renderChapter(data.first_chapter);
             localStorage.setItem('last_story_capi_date', new Date().toDateString());
             this.fetchHistory(); 
@@ -137,9 +139,11 @@ class LabStory {
         document.getElementById('story-controls').classList.remove('hidden');
 
         const pag = document.getElementById('story-pagination');
-        if (this.isBookMode && this.storyHistory.length > 1) {
+        if (this.storyHistory.length > 1) {
             pag.classList.remove('hidden');
-            document.getElementById('chapter-number').innerText = `Página ${this.currentChapterIndex + 1} de ${this.storyHistory.length}`;
+            const total = this.storyHistory.length;
+            const current = this.currentChapterIndex + 1;
+            document.getElementById('chapter-number').innerText = `Capítulo ${current} de ${total}`;
             document.getElementById('prev-chapter-btn').disabled = this.currentChapterIndex === 0;
             document.getElementById('next-chapter-btn').disabled = this.currentChapterIndex === this.storyHistory.length - 1;
         } else {
@@ -161,7 +165,17 @@ class LabStory {
         chineseContainer.innerHTML = '';
         if (chapter.segments && Array.isArray(chapter.segments)) {
             chapter.segments.forEach(seg => {
-                chineseContainer.innerHTML += this.formatSegment(seg);
+                const segEl = document.createElement('div');
+                segEl.className = 'inline-block';
+                segEl.innerHTML = this.formatSegment(seg);
+                
+                // Add click handler for mobile/detailed view
+                segEl.onclick = (e) => {
+                    if (e.target.closest('.tts-btn')) return;
+                    this.showWordDetail(seg);
+                };
+                
+                chineseContainer.appendChild(segEl);
             });
         }
         
@@ -184,7 +198,7 @@ class LabStory {
 
     formatSegment(seg) {
         const mode = this.currentDisplayMode;
-        const ttsBtn = `<button onclick="globalThis.labStory.playTTS(this.closest('.segment-container').dataset.text)" class="ml-2 text-slate-300 hover:text-blue-500 transition-colors text-xs">
+        const ttsBtn = `<button onclick="event.stopPropagation(); globalThis.labStory.playTTS(this.closest('.segment-container').dataset.text)" class="tts-btn ml-2 text-slate-300 hover:text-blue-500 transition-colors text-xs">
             <i class="fas fa-volume-up"></i>
         </button>`;
 
@@ -209,11 +223,10 @@ class LabStory {
                 </div>`;
         }
         return `
-            <div class="segment-container inline-flex items-center group relative cursor-help border-b-2 border-dotted border-blue-400 pb-0.5 mr-4 mb-2" data-text="${seg.hz}">
-                <ruby class="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white">
+            <div class="segment-container inline-flex items-center group relative cursor-help border-b-2 border-dotted border-blue-400 pb-0.5 mr-4 mb-2 active:bg-blue-500/10 rounded-lg transition-all" data-text="${seg.hz}">
+                <span class="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white">
                     ${seg.hz}
-                    <rt class="text-[10px] md:text-xs text-blue-500 font-bold mb-1">${seg.py.trim()}</rt>
-                </ruby>
+                </span>
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/10 rounded-xl shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50">
                     <div class="text-[9px] font-bold text-blue-600 mb-1 uppercase tracking-widest">${seg.tr}</div>
                     ${seg.note ? `<div class="text-[10px] text-slate-500 leading-tight">${seg.note}</div>` : ''}
@@ -223,21 +236,19 @@ class LabStory {
             </div>`;
     }
 
+    showWordDetail(seg) {
+        // Simple implementation of a detail view
+        this.notify(`Word: ${seg.hz} (${seg.py})\nMeaning: ${seg.tr}${seg.note ? '\nNote: ' + seg.note : ''}`, 'info');
+    }
+
     async playTTS(text) {
         if (!text) return;
         try {
-            if (!('speechSynthesis' in window)) throw new Error('Not supported');
-            window.speechSynthesis.cancel();
-            const ut = new SpeechSynthesisUtterance(text);
-            const voices = window.speechSynthesis.getVoices();
-            const tr = voices.find(v => v.lang.includes('tr-TR')) || voices.find(v => v.lang.includes('tr'));
-            if (tr) ut.voice = tr;
-            ut.lang = 'tr-TR';
-            ut.rate = 0.85;
-            window.speechSynthesis.speak(ut);
+            // Use server-side Google TTS for better quality
+            const audio = new Audio(`/api/chat/tts?text=${encodeURIComponent(text)}`);
+            await audio.play();
         } catch (e) {
             console.warn('TTS failed:', e);
-            new Audio(`/api/chat/tts?text=${encodeURIComponent(text)}`).play().catch(() => {});
         }
     }
 
@@ -277,11 +288,13 @@ class LabStory {
             const data = await res.json();
             if (data.active) {
                 this.currentStory = { id: data.story.id, title: data.story.title };
+                // Map the full history correctly
                 this.storyHistory = data.story.history
                     .filter(h => h.role === 'assistant')
                     .map(h => h.content_data);
-                this.isBookMode = true;
+                
                 this.currentChapterIndex = this.storyHistory.length - 1;
+                this.isBookMode = true;
                 this.renderChapter(this.storyHistory[this.currentChapterIndex]);
             } else {
                 this.notify("No se pudo encontrar la historia.");
@@ -317,6 +330,8 @@ class LabStory {
                 this.setState('content');
                 return;
             }
+            this.storyHistory.push(data.next_chapter);
+            this.currentChapterIndex = this.storyHistory.length - 1;
             this.renderChapter(data.next_chapter);
         } catch (e) {
             this.notify("Error al continuar.", "error");
@@ -363,10 +378,14 @@ class LabStory {
              const div = document.createElement('div');
              div.innerHTML = `
                 <div class="flex justify-between items-center group/item p-2 hover:bg-blue-500/10 rounded-xl cursor-pointer">
-                    <div>
-                        <div class="font-bold text-xs truncate">${h.title}</div>
-                        <div class="text-[9px] text-slate-500">${new Date(h.date).toLocaleDateString()}</div>
+                    <div class="flex-1 min-w-0 mr-2">
+                        <div class="font-bold text-xs truncate text-slate-800 dark:text-white">${h.title}</div>
+                        <p class="text-[9px] text-slate-500 font-medium uppercase tracking-widest">${new Date(h.date).toLocaleDateString()}</p>
                     </div>
+                    <button onclick="event.stopPropagation(); globalThis.labStory.deleteStoryFromHistory('${h.id}')"
+                            class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-500/10 text-red-500 opacity-0 group-hover/item:opacity-100 transition-all flex items-center justify-center hover:bg-red-500 hover:text-white flex-shrink-0">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
                 </div>
             `;
              div.onclick = (e) => this.loadStory(h.id);

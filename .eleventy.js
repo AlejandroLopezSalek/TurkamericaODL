@@ -37,6 +37,11 @@ module.exports = function eleventyConfigSetup(eleventyConfig) {
         return value;
     });
 
+    eleventyConfig.addFilter("trim_slashes", function (value) {
+        if (!value) return "";
+        return value.replace(/^\/+|\/+$/g, "");
+    });
+
     // Filter to get locale suffix for layouts
     eleventyConfig.addFilter("localeSuffix", function (locale) {
         return (locale && locale !== 'es') ? '_' + locale : '';

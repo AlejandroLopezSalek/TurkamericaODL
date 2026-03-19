@@ -1,7 +1,7 @@
 const index = require("./i18n/index.json");
 const labCapi = require("./i18n/labCapi.json");
 const exams = require("./i18n/exams.json");
-const story = require("./i18n/story.json");
+const story = require("./i18n/storyLab.json");
 const dna = require("./i18n/dna.json");
 const analysis = require("./i18n/analysis.json");
 const levels = require("./i18n/levels.json");
@@ -12,7 +12,7 @@ const login = require("./i18n/login.json");
 const register = require("./i18n/register.json");
 const dashboard = require("./i18n/dashboard.json");
 const profile = require("./i18n/profile.json");
-const storyLab = require("./i18n/story.json");
+const storyLab = require("./i18n/storyLab.json");
 const community = require("./i18n/community.json");
 const resources = require("./i18n/resources.json");
 const privacy = require("./i18n/privacy.json");

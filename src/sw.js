@@ -24,9 +24,9 @@ const STATIC_CACHE_URLS = [
     '/Perfil.html',
     '/css/styles.css',
     '/css/darkmode.css',
-    '/js/config.js',
-    '/js/general.js',
-    '/js/auth.js',
+    '/js/core/config.js',
+    '/js/core/general.js',
+    '/js/auth/auth.js',
     '/manifest.json'
 ];
 
