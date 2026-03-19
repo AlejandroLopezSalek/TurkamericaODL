@@ -22,11 +22,11 @@ module.exports = {
     'lesson-edit-btn',
     'lesson-delete-btn',
     // Dynamic Level Colors
-    { pattern: /bg-(indigo|blue|emerald|orange|red)-(100|400|600|900\/30)/ },
-    { pattern: /to-(indigo|blue|emerald|orange|red)-(400|600)/ },
-    { pattern: /text-(indigo|blue|emerald|orange|red)-(400|600)/ },
-    { pattern: /hover:shadow-(indigo|blue|emerald|orange|red)-500\/30/ },
-    { pattern: /dark:bg-(indigo|blue|emerald|orange|red)-900\/30/ }
+    { pattern: /bg-(indigo|blue|emerald|amber|red|cyan)-(100|400|500|600|700|900\/30)/ },
+    { pattern: /to-(indigo|blue|emerald|amber|red|cyan)-(400|500|600|700)/ },
+    { pattern: /text-(indigo|blue|emerald|amber|red|cyan)-(400|500|600|700)/ },
+    { pattern: /hover:shadow-(indigo|blue|emerald|amber|red|cyan)-500\/30/ },
+    { pattern: /dark:bg-(indigo|blue|emerald|amber|red|cyan)-900\/30/ }
   ],
   darkMode: ['class', '.dark-mode'], // Use .dark-mode class instead of .dark
   corePlugins: {
