@@ -706,6 +706,9 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
         const config = counts[level] || counts['A1'];
         const totalQuestions = config.listening + config.reading + config.writing;
 
+        const languageMap = { 'es': 'Spanish', 'en': 'English', 'pt': 'Portuguese' };
+        const languageName = languageMap[lang] || 'Spanish';
+
         const systemPrompt = mode === 'custom' 
             ? `Genera un examen personalizado de TURCO. Tema: ${userPrompt}. Nivel: ${level}.`
             : `Genera un examen de Turco nivel ${level}.`;
@@ -714,7 +717,7 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
             model: groq.chat('llama-3.3-70b-versatile'),
             responseFormat: { type: 'json' },
             prompt: `${systemPrompt} 
-            All instructions and feedback MUST be in ${lang}.
+            All instructions and feedback MUST be in ${languageName}.
             
             DIFFICULTY RULES:
             - A1/A2: Simple vocabulary, basic suffixes, direct questions.
@@ -789,6 +792,9 @@ router.post('/lab/grade-exam', authenticateToken, async (req, res) => {
         const { answers, original_exam, lang = 'es', db_id } = req.body;
         const user = req.user;
 
+        const languageMap = { 'es': 'Spanish', 'en': 'English', 'pt': 'Portuguese' };
+        const languageName = languageMap[lang] || 'Spanish';
+
         const { text: gradeRaw } = await generateText({
             model: groq.chat('llama-3.3-70b-versatile'),
             responseFormat: { type: 'json' },
@@ -796,7 +802,7 @@ router.post('/lab/grade-exam', authenticateToken, async (req, res) => {
             Exam: ${JSON.stringify(original_exam)}
             User Answers: ${JSON.stringify(answers)}
             
-            Feedback in ${lang}. Schema: { "score": number, "feedback": [{ "question_id": string, "status": "correct"|"incorrect"|"partial", "explanation": string, "user_answer": string }], "capi_advice": string }`
+            Feedback and advice in ${languageName}. Schema: { "score": number, "feedback": [{ "question_id": string, "status": "correct"|"incorrect"|"partial", "explanation": string, "user_answer": string }], "capi_advice": string }`
         });
         const jsonMatch = gradeRaw.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('AI did not return valid JSON for Grading');
