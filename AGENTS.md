@@ -10,6 +10,15 @@ Turkamerica uses a hybrid, high-performance architecture:
 - **Database**: MongoDB with Mongoose (`server/models/`).
 - **Authentication**: JWT & OAuth2 (Google).
 - **AI Core**: Vercel AI SDK (`@ai-sdk/openai`) configured with Groq API. Models: `moonshotai/kimi-k2-instruct` (Kimi) and `llama-3.3-70b`. Features: Chat, Word of the Day, DNA (Suffix) analysis, Exams.
+- **AI Content Generation Rules (Critical)**:
+  1. **Turkish Integrity**: Ensure suffixes and vowel harmony are respected.
+  2. **Format Persistence**: `exampleTranslation` MUST include the target word (e.g., "I see my Anne").
+  3. **Unicode Support**: Use proper Turkish characters (ç, ğ, ı, ö, ş, ü).
+  4. **One-Shot Guard**: Always provide a JSON example in the messages array to anchor the expected output structure.
+  5. **Groq JSON Strategy**: MUST use `generateText` with `responseFormat: 'json'`.
+- **Rate Limiting & Testing**:
+  - Daily limits for DNA and Exams are enforced in `server/routes/ai.js`.
+  - **Developer Bypass**: Set `BYPASS_LAB_LIMITS=true` in `.env` to ignore these limits during development/testing.
 - **Exam Architecture (Updated)**: Exams feature 3 sections (Listening, Reading, Writing) with level-specific question counts.
   - **Listening**: Uses a single `listening_passage` (long conversation/monologue) for all section questions.
   - **Reading**: Uses a `reading_passage` displayed in a dedicated modal.
@@ -49,9 +58,34 @@ The project is fully integrated with the **Vercel AI SDK**:
 - **Groq JSON Strategy**: MUST use `generateText` with `responseFormat: 'json'` and manual JSON extraction via Regex (`.match(/\{[\s\S]*\}/)`) to ensure compatibility. `generateObject` is deprecated for Groq routes due to periodic schema validation failures.
 - `streamText` for faster real-time UX in the AI Chat (`/server/routes/ai.js`).
 
-## Persistence & Context Rule
-> [!IMPORTANT]
-> ANY change to the project's core architecture, tech stack, or rules MUST be reflected in this file (`AGENTS.md`) and saved to Engram immediately. Documentation is the source of truth for all AI agents.
+## MongoDB Setup for WSL Ubuntu
+
+When migrating from Windows to WSL Ubuntu, MongoDB needs to be properly installed and configured:
+
+### Installation Steps:
+1. Add MongoDB repository:
+   ```bash
+   sudo apt-get install -y gnupg curl
+   curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
+   echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+   ```
+
+2. Install MongoDB:
+   ```bash
+   sudo apt-get update && sudo apt-get install -y mongodb-org
+   ```
+
+3. Start and enable MongoDB service:
+   ```bash
+   sudo systemctl start mongod
+   sudo systemctl enable mongod
+   ```
+
+### Environment Variables:
+Ensure `.env` file has correct MongoDB URI:
+```
+MONGO_URI=mongodb://127.0.0.1:27017/turkamerica
+```
 
 ## Agent Protocol
 
@@ -62,3 +96,10 @@ The project is fully integrated with the **Vercel AI SDK**:
 
 ### Memory
 - Engram is active. Use `engram stats` and `engram save` directly in the terminal to manage architectural knowledge.
+
+## Server Health Monitoring
+Useful commands for troubleshooting the Oracle Cloud 2GB RAM environment:
+- **PM2**: `pm2 status`, `pm2 monit`, `pm2 logs`
+- **Redis**: `redis-cli ping`
+- **MongoDB**: `mongosh --eval "db.adminCommand('ping')"`
+- **System**: `free -h` (check swap/RAM), `htop`, `df -h`

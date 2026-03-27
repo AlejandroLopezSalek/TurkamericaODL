@@ -43,6 +43,19 @@ const groq = createOpenAI({
     compatibility: 'compatible',
 });
 
+const getMaxChapters = (level, role) => {
+    if (role === 'admin') return 99;
+    let limit = 3; // Límite base para usuario normal
+    if (level.includes('1') || level.includes('2')) limit = Math.min(limit, 2);
+    else if (level.includes('3') || level.includes('4')) limit = Math.min(limit, 3);
+    else if (level.includes('5') || level.includes('6')) limit = 4;
+    
+    if (role !== 'premium' && role !== 'admin') {
+        limit = Math.min(limit, 3);
+    }
+    return limit;
+};
+
 
 // Helper to get user from token
 const getUserFromRequest = async (req) => {
@@ -185,17 +198,16 @@ async function cacheWodData(key, data) {
 
 router.get('/word-of-day', async (req, res) => {
     try {
-        if (!process.env.GROQ_API_KEY) {
-            console.warn('[WoD] GROQ_API_KEY missing, using fallback.');
-            return res.json(getFallbackWod(req.query.lang));
-        }
+        if (!process.env.GROQ_API_KEY) return res.status(503).json({ error: 'AI service not configured' });
 
         const lang = ['en', 'tr'].includes(req.query.lang) ? req.query.lang : 'es';
-        const languageName = (lang === 'en') ? 'English' : (lang === 'tr' ? 'Turkish' : 'Spanish');
+        let languageName = 'Spanish';
+        if (lang === 'en') languageName = 'English';
+        else if (lang === 'tr') languageName = 'Turkish';
 
         const now = new Date();
         const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        const redisKey = `WOD:V2:${todayStr}:${lang}`;
+        const redisKey = `TURK:WOD:V2:${todayStr}:${lang}`;
 
         // 1. Cache Check
         const cached = await getCachedWod(redisKey);
@@ -204,44 +216,25 @@ router.get('/word-of-day', async (req, res) => {
         // 2. Database Check
         let dailyDoc = await DailyWord.findOne({ date: { $regex: '^' + todayStr } });
 
-        if (dailyDoc?.translations?.get?.(lang)) {
-            const data = dailyDoc.translations.get(lang);
+        let data = null;
+        if (dailyDoc?.translations) {
+            if (typeof dailyDoc.translations.get === 'function') {
+                data = dailyDoc.translations.get(lang);
+            } else {
+                data = dailyDoc.translations[lang];
+            }
+        }
+
+        if (data) {
             await cacheWodData(redisKey, data);
             return res.json(data);
         }
 
-        // 3. Logic to either Translate existing or Generate new
-        let wordData = null;
-        let existingData = null;
-        
-        if (dailyDoc) {
-            if (dailyDoc.translations?.get) {
-                existingData = dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || Array.from(dailyDoc.translations.values())[0];
-            } else {
-                existingData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
-            }
-        }
-
-        if (existingData?.word) {
-            console.log(`[WOD] Translating "${existingData.word}" to ${languageName}`);
-            wordData = await generateWodTranslation(existingData, languageName, lang);
-        } else {
-            console.log(`[WOD] Generating brand new word for ${todayStr} (${languageName})`);
-            const recent = await DailyWord.find({}).sort({ date: -1 }).limit(30).lean();
-            const recentWords = recent.map(r => {
-                if (r.translations) return (r.translations instanceof Map ? r.translations.get('es') : r.translations['es'])?.word;
-                return r.data?.word;
-            }).filter(Boolean);
-            
-            wordData = await generateNewWod(languageName, lang, recentWords);
-        }
-
+        // 3. Generation (Sync from ChinoStandardS robust logic)
+        const wordData = await getOrGenerateWodData(dailyDoc, todayStr, lang, languageName);
         if (!wordData) throw new Error("Failed to generate or translate word data");
 
-        // 4. Persistence & Migration
-        await persistWodData(dailyDoc, todayStr, lang, wordData);
-
-        // 5. Cache & Return
+        // 4. Cache and return
         await cacheWodData(redisKey, wordData);
         res.json(wordData);
 
@@ -250,6 +243,44 @@ router.get('/word-of-day', async (req, res) => {
         res.json(getFallbackWod(req.query.lang));
     }
 });
+
+async function getOrGenerateWodData(dailyDoc, todayStr, lang, languageName) {
+    let existingData = null;
+    if (dailyDoc) {
+        if (dailyDoc.translations) {
+            if (typeof dailyDoc.translations.get === 'function') {
+                existingData = dailyDoc.translations.get('es') || dailyDoc.translations.get('en') || dailyDoc.translations.get('tr') || Array.from(dailyDoc.translations.values())[0];
+            } else {
+                existingData = dailyDoc.translations['es'] || dailyDoc.translations['en'] || dailyDoc.translations['tr'] || Object.values(dailyDoc.translations)[0];
+            }
+        }
+        
+        if (!existingData) {
+            existingData = dailyDoc.data || dailyDoc._doc?.data;
+        }
+    }
+
+    if (existingData?.word) {
+        console.log(`[WOD] Translating "${existingData.word}" to ${languageName}`);
+        const translatedData = await generateWodTranslation(existingData, languageName, lang);
+        await persistWodData(dailyDoc, todayStr, lang, translatedData);
+        return translatedData;
+    }
+
+    console.log(`[WOD] Generating brand new word for ${todayStr} (${languageName})`);
+    const recent = await DailyWord.find({}).sort({ date: -1 }).limit(30).lean();
+    const recentWords = recent.map(r => {
+        const trans = r.translations instanceof Map ? r.translations.get('es') : r.translations?.es;
+        return trans?.word || r.data?.word;
+    }).filter(Boolean);
+
+    const wordData = await generateNewWod(languageName, lang, recentWords);
+    
+    // Persist to database
+    await persistWodData(dailyDoc, todayStr, lang, wordData);
+    
+    return wordData;
+}
 
 async function persistWodData(dailyDoc, todayStr, lang, wordData) {
     if (!dailyDoc) {
@@ -265,11 +296,26 @@ async function persistWodData(dailyDoc, todayStr, lang, wordData) {
     }
 
     if (dailyDoc) {
-        if (!dailyDoc.translations?.set) {
-            const oldData = dailyDoc.data || (dailyDoc._doc && dailyDoc._doc.data);
+        // Handle legacy "data" field or migration from Object to Map
+        if (!dailyDoc.translations || typeof dailyDoc.translations.set !== 'function') {
+            const oldTranslations = dailyDoc.translations || {};
+            const oldData = dailyDoc.data || dailyDoc._doc?.data;
+            
             dailyDoc.translations = new Map();
-            if (oldData) dailyDoc.translations.set('es', oldData);
+            
+            // Re-populate from old translations object
+            if (oldTranslations && typeof oldTranslations === 'object') {
+                for (const [k, v] of Object.entries(oldTranslations)) {
+                    dailyDoc.translations.set(k, v);
+                }
+            }
+            
+            // Re-populate from legacy .data property
+            if (oldData && !dailyDoc.translations.has('es')) {
+                dailyDoc.translations.set('es', oldData);
+            }
         }
+        
         dailyDoc.translations.set(lang, wordData);
         dailyDoc.date = todayStr;
         await dailyDoc.save();
@@ -646,8 +692,9 @@ router.get('/lab/analyze-dna', authenticateToken, async (req, res) => {
         const user = req.user;
         if (!user) return res.status(401).json({ error: 'Access restricted to registered users' });
 
-        const today = new Date().toDateString();
-        if (user.stats?.labUsage?.dnaDate === today && user.role !== 'admin') {
+        const today = new Date().toISOString().split('T')[0];
+        const bypass = process.env.BYPASS_LAB_LIMITS === 'true' && user.role === 'admin';
+        if (!bypass && user.stats?.labUsage?.dnaDate === today && user.role !== 'admin') {
             return res.status(429).json({ error: 'Límite diario alcanzado: 1 análisis de ADN por día.' });
         }
 
@@ -691,8 +738,9 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
         const user = req.user;
         if (!user) return res.status(401).json({ error: 'Login required' });
 
-        const today = new Date().toDateString();
-        if (user.stats?.labUsage?.examDate === today && user.role !== 'admin') {
+        const today = new Date().toISOString().split('T')[0];
+        const bypass = process.env.BYPASS_LAB_LIMITS === 'true' && user.role === 'admin';
+        if (!bypass && user.stats?.labUsage?.examDate === today && user.role !== 'admin') {
             return res.status(429).json({ error: 'Ya realizaste tu examen diario.' });
         }
         
@@ -868,14 +916,20 @@ router.get('/lab/current-active-story', authenticateToken, async (req, res) => {
             const cached = await redisClient.get(`STORY:${storyId}`).catch(() => null);
             if (cached) {
                 const state = JSON.parse(cached);
-                return res.json({
-                    active: true,
-                    story: {
-                        id: storyId,
-                        title: state.title,
-                        current_chapter: state.history[state.history.length - 1].content_data
-                    }
-                });
+                
+                // Ownership check for Redis cache
+                if (state.userId && String(state.userId) !== String(user._id)) {
+                    console.log(`[active-story] Ownership mismatch for story ${storyId}`);
+                } else {
+                    return res.json({
+                        active: true,
+                        story: {
+                            id: storyId,
+                            title: state.title,
+                            current_chapter: state.history[state.history.length - 1].content_data
+                        }
+                    });
+                }
             }
         }
 
@@ -906,6 +960,12 @@ router.get('/lab/story/:id', authenticateToken, async (req, res) => {
             const cached = await redisClient.get(`STORY:${id}`).catch(() => null);
             if (cached) {
                 const state = JSON.parse(cached);
+                
+                // Ownership check for Redis cache
+                if (state.userId && String(state.userId) !== String(user._id)) {
+                    return res.status(403).json({ error: "Access denied to this story" });
+                }
+
                 user.stats.activeStoryId = id;
                 await user.save();
                 return res.json({
@@ -996,7 +1056,8 @@ router.post('/lab/start-story', authenticateToken, async (req, res) => {
         const user = req.user;
 
         const today = new Date().toISOString().split('T')[0];
-        if (user.stats?.labUsage?.storyDate === today && user.role !== 'admin') {
+        const bypass = process.env.BYPASS_LAB_LIMITS === 'true' && user.role === 'admin';
+        if (!bypass && user.stats?.labUsage?.storyDate === today && user.role !== 'admin') {
             return res.status(429).json({ error: 'Límite de 1 historia diaria.' });
         }
 
@@ -1069,13 +1130,18 @@ router.post('/lab/continue-story', authenticateToken, async (req, res) => {
             const cached = await redisClient.get(`STORY:${story_id}`).catch(() => null);
             if (cached) storyState = JSON.parse(cached);
         }
-        if (!storyState) {
-            const persisted = await LabStory.findOne({ storyId: story_id, userId: user._id });
-            if (persisted) {
-                storyState = { userId: persisted.userId, title: persisted.title, history: persisted.history, genre: persisted.genre, charName: persisted.charName, level: persisted.level };
-            }
-        }
         if (!storyState) return res.status(404).json({ error: 'Story session lost' });
+
+        const maxChapters = getMaxChapters(storyState.level, user?.role);
+        const userChoices = storyState.history.filter(h => h.role === 'user').length;
+
+        // Si el usuario ya hizo (maxChapters - 1) elecciones, ya llegó al límite.
+        if (userChoices >= (maxChapters - 1)) {
+            return res.status(403).json({ 
+                error: 'Story limit reached', 
+                message: `Has alcanzado el límite de ${maxChapters} capítulos para este nivel (${storyState.level}).` 
+            });
+        }
 
         const historyPrompt = storyState.history.slice(-3).map(h => `${h.role === 'assistant' ? 'Capi' : 'Usuario'}: ${h.content_data.text || h.content_data}`).join('\n');
 
@@ -1115,5 +1181,34 @@ router.post('/lab/continue-story', authenticateToken, async (req, res) => {
     }
 });
 
-module.exports = router;
+// Exportable: Pre-generate WOD for all languages
+async function preGenerateWod() {
+    console.log('[Cron] Starting TurkAmerica Word of the Day pre-generation at', new Date().toISOString());
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    try {
+        let dailyDoc = await DailyWord.findOne({ date: { $regex: '^' + todayStr } });
+        const languages = [
+            { code: 'es', name: 'Spanish' },
+            { code: 'en', name: 'English' },
+            { code: 'tr', name: 'Turkish' }
+        ];
+
+        for (const { code, name } of languages) {
+            console.log(`[Cron] Preparing Turkish WoD for ${name}...`);
+            await getOrGenerateWodData(dailyDoc, todayStr, code, name);
+            // Re-fetch to keep the same doc instance updated
+            dailyDoc = await DailyWord.findOne({ date: { $regex: '^' + todayStr } });
+        }
+        console.log('[Cron] TurkAmerica WoD pre-generation completed.');
+    } catch (err) {
+        console.error('[Cron Error]:', err.message);
+    }
+}
+
+module.exports = {
+    router,
+    preGenerateWod
+};
 // Models: kimi-k2-instruct-0905 (WoD, grade) | kimi-k2-instruct (chat)

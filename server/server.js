@@ -8,6 +8,7 @@ const path = require('node:path');
 const compression = require('compression'); // New optimization
 const mongoSanitize = require('mongo-sanitize');
 const xss = require('xss-clean');
+const cron = require('node-cron');
 
 // Import database connection
 const { connectDB } = require('./config/database'); // <- CORRECCIÓN APLICADA AQUÍ
@@ -192,7 +193,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contributions', require('./routes/contributions'));
 app.use('/api/lessons', require('./routes/lessons'));
 app.use('/api/progress', require('./routes/progress')); // Progress Tracking
-app.use('/api/chat', require('./routes/ai')); // AI Mascot Route
+const { router: aiRoutes, preGenerateWod } = require('./routes/ai');
+app.use('/api/chat', aiRoutes); // AI Mascot Route
 app.use('/api/wod', require('./routes/wod')); // Word of the day stats
 app.use('/api/notifications', require('./routes/notifications')); // Push Notifications
 app.use('/api/analytics', require('./routes/analytics')); // Analytics Route (stops 404s)
@@ -362,6 +364,15 @@ const startServer = async () => {
       mongoose.connection.once('error', (err) => { clearTimeout(timeout); reject(err); });
     });
     console.log(` MongoDB: ${mongoose.connection.name}`);
+
+    // Pre-generate WoD for the first time
+    console.log('[Startup] Triggering initial Word of the Day pre-generation...');
+    preGenerateWod().catch(err => console.error('[Startup WoD Error]:', err.message));
+
+    // Setup Daily Cron Job (Midnight)
+    cron.schedule('0 0 * * *', () => {
+      preGenerateWod().catch(err => console.error('[Cron WoD Error]:', err.message));
+    });
   } catch (error) {
     // Log but don't crash — mongoose will keep retrying in background
     console.error(' MongoDB initial connect failed (will retry):', error.message);

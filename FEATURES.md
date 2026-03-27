@@ -50,8 +50,9 @@ Widget interactivo generado con IA (Groq / LLaMA 3.3 70B):
 | Revelar | Botón para ver la traducción si no se sabe |
 | Tip | Consejo de aprendizaje específico para esa palabra |
 
-- Se regenera automáticamente cada 24 horas
-- Caché en servidor (sin llamadas repetidas a la API)
+- Se pre-genera automáticamente cada medianoche vía Cron
+- Generación inicial al arrancar el servidor
+- Caché en Redis con prefijo único `TURK:` para evitar colisiones
 - Fallback a "Merhaba" si la IA falla
 
 ---
@@ -65,13 +66,32 @@ Widget interactivo generado con IA (Groq / LLaMA 3.3 70B):
 
 ---
 
-## 🤖 Chat con IA (`/Dashboard/` o integrado en lecciones)
-
 - Chat con asistente de turco basado en **Groq / LLaMA 3.3 70B**
 - Contexto de las lecciones cargadas (A1–C1) para respuestas relevantes
 - Historial de conversación en sesión
 - **Rate limiting**: 50 peticiones por hora por IP para prevenir abuso
 - Logging de interacciones (solo para usuarios autenticados)
+
+---
+
+## 🧪 Laboratorio de IA (`/Lab/`)
+
+Experimentos avanzados de aprendizaje personalizados:
+
+### 🧬 ADN de Sufijos
+- Análisis morfológico profundo de palabras turcas (aglutinación).
+- Descomposición en raíz y cadena de sufijos con sus significados.
+- Explicación de la armonía vocálica y cambios fonéticos.
+
+### 📚 Story Lab
+- Segmentación frase por frase con traducción y notas gramaticales.
+- Límites de capítulos dinámicos según nivel (A1/A2 restringidos a 2-3 capítulos para estabilidad).
+- El usuario toma decisiones que afectan el curso de la historia.
+
+### 📝 Exam Lab
+- Generación automática de exámenes de turco niveles A1-C1.
+- Tres secciones críticas: Escucha (con audio IA), Lectura y Escritura.
+- Calificación automática y feedback pedagógico del asistente Capi.
 
 ---
 
@@ -162,9 +182,10 @@ Acceso exclusivo para administradores autenticados:
 - Autenticación JWT con verificación en cada petición protegida
 - Rate limiting en todas las rutas de IA (50 req/hora por IP)
 - Sanitización de inputs contra inyección NoSQL (MongoDB)
+- Validación de propiedad de sesiones de historias en Redis/MongoDB
 - Escape de HTML en todas las plantillas de inserción dinámica (`escHtml`)
 - `Content-Security-Policy`, `CORS`, `Helmet` en el servidor
-- Sin credenciales hardcodeadas en el código
+- Bypass de límites del Laboratorio para administradores
 
 ---
 
@@ -175,7 +196,20 @@ Acceso exclusivo para administradores autenticados:
 | Frontend | HTML + Vanilla JS + Tailwind CSS |
 | SSG | Eleventy (11ty) |
 | Backend | Node.js + Express |
-| Base de datos | MongoDB (Mongoose) |
-| IA | Groq SDK (LLaMA 3.3 70B) |
-| Auth | JWT |
-| Hosting | Servidor propio / VPS |
+| Base de datos | MongoDB (Mongoose) + Redis (Cache) |
+| IA | Groq / Vercel AI SDK (LLaMA 3.3) |
+| Vector DB | Qdrant (Docker) |
+| Auth | JWT & Google OAuth2 |
+| Hosting | Oracle Cloud (2GB RAM) + PM2 (1 instance) + Nginx |
+
+---
+
+## 🏗️ Workflows y DevOps
+
+Infraestructura robusta para escalabilidad y mantenimiento:
+
+- **VM Setup**: Guía de instalación automatizada para dependencias (Node, Mongo, Redis).
+- **Optimización de Recursos**: Configuración PM2 ajustada a 1 instancia para maximizar la estabilidad en entornos de 2GB RAM.
+- **Redis Prefixing**: Aislamiento de sesiones y caché mediante prefijos (`TURK:`) para permitir múltiples apps en un mismo servidor.
+- **RAG Capability**: Sistema de recuperación de información basado en vectores (Qdrant).
+- **WSL Connectivity**: Flujo de trabajo optimizado para desarrollo en Windows/WSL2.
