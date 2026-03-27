@@ -42,14 +42,14 @@ AI responses are cached in MongoDB (`DailyWord` collection) and Redis.
 
 ## 3. Common Pitfalls & What NOT To Do
 
-- **‚ùå DO NOT use `redisClient.isOpen` alone**: In development, if Redis is down, `isOpen` might return `true` while the client is still in a "reconnecting" loop. Any `await redisClient.get()` will **hang the entire request** indefinitely.
-    - **‚úÖ Fix**: Always check `if (redisClient.isOpen && redisClient.isReady)`.
-- **‚ùå DO NOT let nodemon watch everything**: If nodemon watches the build output folder (like `_site/`), every time the frontend builds, the server will restart. This creates an infinite loop.
-    - **‚úÖ Fix**: Use a `nodemon.json` to `ignore` the build folder and only `watch` the `server/` directory.
-- **‚ùå DO NOT ignore "Phantom" processes**: If you change the `PORT` in `.env` and the server still behaves like the old version (or returns 503 without logging anything), an old Node process might be "zombie" blocking the port.
-    - **‚úÖ Fix**: Run `taskkill /f /im node.exe` in a terminal to clear all stale processes and restart.
-- **‚ùå DO NOT use generic `generateObject`**: Some Groq models claim JSON support but time out or fail with complex schemas.
-    - **‚úÖ Fix**: Use `generateText` with a strict system prompt and regex extraction: `text.match(/\{[\s\S]*\}/)`. This is much more reliable across different models.
+- **‚ DO NOT use `redisClient.isOpen` alone**: In development, if Redis is down, `isOpen` might return `true` while the client is still in a "reconnecting" loop. Any `await redisClient.get()` will **hang the entire request** indefinitely.
+    - **‚ Fix**: Always check `if (redisClient.isOpen && redisClient.isReady)`.
+- **‚ DO NOT let nodemon watch everything**: If nodemon watches the build output folder (like `_site/`), every time the frontend builds, the server will restart. This creates an infinite loop.
+    - **‚ Fix**: Use a `nodemon.json` to `ignore` the build folder and only `watch` the `server/` directory.
+- **‚ DO NOT ignore "Phantom" processes**: If you change the `PORT` in `.env` and the server still behaves like the old version (or returns 503 without logging anything), an old Node process might be "zombie" blocking the port.
+    - **‚ Fix**: Run `taskkill /f /im node.exe` in a terminal to clear all stale processes and restart.
+- **‚ DO NOT use generic `generateObject`**: Some Groq models claim JSON support but time out or fail with complex schemas.
+    - **‚ Fix**: Use `generateText` with a strict system prompt and regex extraction: `text.match(/\{[\s\S]*\}/)`. This is much more reliable across different models.
 
 ---
 

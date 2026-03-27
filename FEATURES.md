@@ -1,20 +1,20 @@
-# TurkAmerica — Características de la Plataforma
+# TurkAmerica � Características de la Plataforma
 
 > Plataforma educativa de turco para hispanohablantes, desarrollada por **ODL (Organización de Desarrollo Latino)**.
 > URL: [odl-turquia.club](https://odl-turquia.club)
 
 ---
 
-## 🏠 Página Principal
+## � Página Principal
 
-- **Tarjetas de nivel** (A1 → C1) con acceso directo a cada nivel de aprendizaje
+- **Tarjetas de nivel** (A1 � C1) con acceso directo a cada nivel de aprendizaje
 - **Carrusel en móvil**: las tarjetas se deslizan horizontalmente con indicadores táctiles
 - **Acceso rápido a la comunidad**: tarjeta destacada que lleva a las lecciones de la comunidad
 - **Banner informativo**: enlace al dashboard del proyecto y hoja de ruta
 
 ---
 
-## 📚 Niveles de Aprendizaje (A1 / A2 / B1 / B2 / C1)
+## � Niveles de Aprendizaje (A1 / A2 / B1 / B2 / C1)
 
 Cada nivel tiene su propia página con:
 
@@ -26,10 +26,10 @@ Cada nivel tiene su propia página con:
 
 ---
 
-## 👥 Lecciones de la Comunidad (`/Community-Lessons/`)
+## � Lecciones de la Comunidad (`/Community-Lessons/`)
 
 - **Búsqueda en tiempo real** con debounce de 300 ms (sin flash en cada tecla)
-- **Filtros de tipo**: Todos | 📚 Libros | 📝 Lecciones
+- **Filtros de tipo**: Todos | � Libros | � Lecciones
 - **Filtros de nivel**: Todas / A1 / A2 / B1 / B2 / C1
 - **Paginación** estilo HuggingFace (6 ítems por página, para libros y lecciones por separado)
 - **Libros PDF** compartidos por la comunidad con metadatos (nivel, idioma, formato)
@@ -37,13 +37,13 @@ Cada nivel tiene su propia página con:
 
 ---
 
-## 🌟 Palabra del Día (`/Gramatica/`)
+## � Palabra del Día (`/Gramatica/`)
 
 Widget interactivo generado con IA (Groq / LLaMA 3.3 70B):
 
 | Campo | Descripción |
 |-------|-------------|
-| Palabra turca | Término del día con nivel (A1–C1) |
+| Palabra turca | Término del día con nivel (A1�C1) |
 | Pronunciación | Guía fonética en español |
 | Ejemplo | Frase de uso en turco + traducción |
 | Quiz | El usuario escribe la traducción y recibe feedback inmediato |
@@ -57,7 +57,7 @@ Widget interactivo generado con IA (Groq / LLaMA 3.3 70B):
 
 ---
 
-## 📖 Gramática (`/Gramatica/`)
+## � Gramática (`/Gramatica/`)
 
 - **Palabra del Día widget** (ver arriba)
 - **Recursos gramaticales** externos organizados por categoría:
@@ -67,42 +67,42 @@ Widget interactivo generado con IA (Groq / LLaMA 3.3 70B):
 ---
 
 - Chat con asistente de turco basado en **Groq / LLaMA 3.3 70B**
-- Contexto de las lecciones cargadas (A1–C1) para respuestas relevantes
+- Contexto de las lecciones cargadas (A1�C1) para respuestas relevantes
 - Historial de conversación en sesión
 - **Rate limiting**: 50 peticiones por hora por IP para prevenir abuso
 - Logging de interacciones (solo para usuarios autenticados)
 
 ---
 
-## 🧪 Laboratorio de IA (`/Lab/`)
+## � Laboratorio de IA (`/Lab/`)
 
 Experimentos avanzados de aprendizaje personalizados:
 
-### 🧬 ADN de Sufijos
+### � ADN de Sufijos
 - Análisis morfológico profundo de palabras turcas (aglutinación).
 - Descomposición en raíz y cadena de sufijos con sus significados.
 - Explicación de la armonía vocálica y cambios fonéticos.
 
-### 📚 Story Lab
+### � Story Lab
 - Segmentación frase por frase con traducción y notas gramaticales.
 - Límites de capítulos dinámicos según nivel (A1/A2 restringidos a 2-3 capítulos para estabilidad).
 - El usuario toma decisiones que afectan el curso de la historia.
 
-### 📝 Exam Lab
+### � Exam Lab
 - Generación automática de exámenes de turco niveles A1-C1.
 - Tres secciones críticas: Escucha (con audio IA), Lectura y Escritura.
 - Calificación automática y feedback pedagógico del asistente Capi.
 
 ---
 
-## ✏️ Editor de Lecciones (`/Contribute/`)
+## �� Editor de Lecciones (`/Contribute/`)
 
 Editor de texto enriquecido para crear y editar lecciones:
 
 | Herramienta | Función |
 |-------------|---------|
 | Negritas / Cursiva / Subrayado | Formato básico |
-| Encabezados H1–H3 | Estructura del contenido |
+| Encabezados H1�H3 | Estructura del contenido |
 | Listas | Ordenadas y sin orden |
 | Tablas | Filas/columnas configurables |
 | Código | Bloque de código monoespacio |
@@ -115,7 +115,7 @@ Editor de texto enriquecido para crear y editar lecciones:
 
 ---
 
-## 📤 Contribuciones (`/Contribute/`)
+## � Contribuciones (`/Contribute/`)
 
 Flujo para que usuarios registrados aporten contenido:
 
@@ -129,7 +129,7 @@ También se pueden compartir **libros en PDF** con enlace externo.
 
 ---
 
-## 🛡️ Panel de Administración (`/Admin-Contributions/`)
+## �� Panel de Administración (`/Admin-Contributions/`)
 
 Acceso exclusivo para administradores autenticados:
 
@@ -143,7 +143,7 @@ Acceso exclusivo para administradores autenticados:
 
 ---
 
-## 👤 Cuenta de Usuario
+## � Cuenta de Usuario
 
 ### Registro (`/register/`)
 - Formulario con validación de nombre de usuario, email y contraseña
@@ -160,14 +160,14 @@ Acceso exclusivo para administradores autenticados:
 
 ---
 
-## 🌐 Recursos Externos (`/Recursos/`)
+## � Recursos Externos (`/Recursos/`)
 
-- **italki**: enlace destacado para clases con profesores nativos de turco (válido para todos los niveles A1–C1)
+- **italki**: enlace destacado para clases con profesores nativos de turco (válido para todos los niveles A1�C1)
 - Sección con nota sobre ODL y próximas integraciones (Babel, Preply)
 
 ---
 
-## 🔔 Notificaciones y UX
+## � Notificaciones y UX
 
 - **Progressive Web App (PWA)**: instalable en móvil y escritorio
 - **Service Worker**: caché offline para recursos estáticos
@@ -177,7 +177,7 @@ Acceso exclusivo para administradores autenticados:
 
 ---
 
-## 🔒 Seguridad
+## � Seguridad
 
 - Autenticación JWT con verificación en cada petición protegida
 - Rate limiting en todas las rutas de IA (50 req/hora por IP)
@@ -189,7 +189,7 @@ Acceso exclusivo para administradores autenticados:
 
 ---
 
-## 🛠️ Stack Técnico
+## �� Stack Técnico
 
 | Capa | Tecnología |
 |------|-----------|
@@ -204,7 +204,7 @@ Acceso exclusivo para administradores autenticados:
 
 ---
 
-## 🏗️ Workflows y DevOps
+## �� Workflows y DevOps
 
 Infraestructura robusta para escalabilidad y mantenimiento:
 

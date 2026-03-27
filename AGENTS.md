@@ -13,7 +13,7 @@ Turkamerica uses a hybrid, high-performance architecture:
 - **AI Content Generation Rules (Critical)**:
   1. **Turkish Integrity**: Ensure suffixes and vowel harmony are respected.
   2. **Format Persistence**: `exampleTranslation` MUST include the target word (e.g., "I see my Anne").
-  3. **Unicode Support**: Use proper Turkish characters (ç, ğ, ı, ö, ş, ü).
+  3. **Unicode Support**: Use proper Turkish characters (ç, �, ı, ö, �, ü).
   4. **One-Shot Guard**: Always provide a JSON example in the messages array to anchor the expected output structure.
   5. **Groq JSON Strategy**: MUST use `generateText` with `responseFormat: 'json'`.
 - **Rate Limiting & Testing**:
