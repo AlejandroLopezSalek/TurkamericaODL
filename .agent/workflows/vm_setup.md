@@ -60,7 +60,21 @@ sudo mkdir -p /var/www/turkamerica
 sudo chown -R $USER:$USER /var/www/turkamerica
 ```
 
-## 5. Monitorización y Salud del Sistema
+## 5. Configuración de SWAP (Memoria Virtual)
+Esencial para máquinas con 1GB o 2GB de RAM para evitar crasheos (OOM):
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+# Persistencia en reinicios:
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+# Optimización de swappiness (opcional):
+sudo sysctl vm.swappiness=10
+echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+```
+
+## 6. Monitorización y Salud del Sistema
 
 Comandos esenciales para verificar que todo funcione correctamente:
 

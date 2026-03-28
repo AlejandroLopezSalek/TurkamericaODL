@@ -1,41 +1,45 @@
 #!/bin/bash
 
-# TurkAmerica Deployment Script
+# TurkAmerica Deployment Script (Optimized for 1GB RAM)
 # Usage: ./deploy.sh
 
-# Stop on error
 set -e
 
 echo "🚀 Starting deployment..."
 
-# 1. Pull latest changes (Force Reset to avoid conflicts)
+# 0. Optimization: Limit Node Memory for Build
+# This prevents OOM (Out Of Memory) crashes during Tailwind/Eleventy builds
+export NODE_OPTIONS="--max-old-space-size=512"
+
+# 1. Pull latest changes
 echo "📥 Pulling latest code..."
 git fetch origin main
 git reset --hard origin/main
 
-# Load NVM (Node Version Manager) if it exists, because SSH non-interactive shells might not have 'npm' in PATH
+# Load NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-# 2. Install dependencies (only production)
+# 2. Install dependencies (Full install needed for build tools)
 echo "📦 Installing dependencies..."
-npm ci --only=production
+# We use 'npm install' because build tools (Tailwind, 11ty) are devDependencies
+npm install
 
 # 3. Build Frontend (Eleventy + Tailwind)
 echo "🏗️  Building frontend..."
-# Ensure devDependencies are available for build if needed, or if npm ci removed them
-# If build tools are in devDependencies, we might need 'npm install' instead of 'npm ci --production'
-# Checking package.json... Tailwind and Eleventy are in devDependencies.
-# So we need full install for build phase.
-npm install
 npm run build
 
-# 4. Restart Server with PM2
+# 4. Cleanup: Remove devDependencies to save disk/RAM at runtime
+# (Optional, but recommended for clean environments)
+# echo "🧹 Cleaning up development dependencies..."
+# npm prune --production
+
+# 5. Restart Server with PM2
 echo "🔄 Reloading PM2..."
-# Check if app is running, if so reload, else start
 if pm2 list | grep -q "turkamerica"; then
     pm2 reload turkamerica
 else
+    # First time start
     npm run start:prod
 fi
 
