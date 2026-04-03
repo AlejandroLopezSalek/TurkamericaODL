@@ -13,6 +13,18 @@ const LabExam = require('../models/LabExam');
 const redisClient = require('../redisClient');
 const { authenticateToken, getUserFromRequest } = require('../middleware/auth');
 
+// Foolproof check for getUserFromRequest to prevent ReferenceError in case of export failure
+const getUser = getUserFromRequest || (async (req) => {
+    try {
+        const authHeader = req.header('Authorization');
+        const token = authHeader?.split(' ')[1];
+        if (!token) return null;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        return await User.findById(decoded.userId).select('-password');
+    } catch (error) { return null; }
+});
+
+
 // Load Lesson Data for Context
 let allLessons = {};
 try {
@@ -513,7 +525,7 @@ router.post('/', async (req, res) => {
 
     try {
         const { message, context, history, lang } = req.body;
-        const user = await getUserFromRequest(req);
+        const user = await getUser(req);
 
         if (!process.env.GROQ_API_KEY) {
             console.error('SERVER ERROR: GROQ_API_KEY is missing in .env');
