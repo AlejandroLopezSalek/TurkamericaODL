@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
 // GET single lesson by ID
 router.get('/:id', async (req, res) => {
     try {
-        // Validate and sanitize ID to prevent NoSQL injection
         const lessonId = String(req.params.id);
         if (!lessonId || lessonId.length > 100) {
             return res.status(400).json({ error: 'Invalid lesson ID' });
@@ -38,7 +37,6 @@ router.get('/:id', async (req, res) => {
 // DELETE lesson (Admin only)
 router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Validate and sanitize ID to prevent NoSQL injection
         const lessonId = String(req.params.id);
         if (!lessonId || lessonId.length > 100) {
             return res.status(400).json({ error: 'Invalid lesson ID' });
@@ -58,7 +56,6 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 // GET lesson history (Admin only)
 router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Validate and sanitize ID to prevent NoSQL injection
         const lessonId = String(req.params.id);
         if (!lessonId || lessonId.length > 100) {
             return res.status(400).json({ error: 'Invalid lesson ID' });
@@ -76,15 +73,14 @@ router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => 
 // POST restore lesson version (Admin only)
 router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Validate and sanitize inputs to prevent NoSQL injection
         const lessonId = String(req.params.id);
-        const versionNum = Number.parseInt(req.params.version, 10);
+        const versionNum = parseInt(req.params.version, 10);
 
         if (!lessonId || lessonId.length > 100) {
             return res.status(400).json({ error: 'Invalid lesson ID' });
         }
 
-        if (!Number.isInteger(versionNum) || versionNum < 1) {
+        if (isNaN(versionNum) || versionNum < 1) {
             return res.status(400).json({ error: 'Invalid version number' });
         }
 
@@ -98,14 +94,13 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
             return res.status(404).json({ error: 'Version not found' });
         }
 
-        // Get current lesson to save to history
+        // Get current lesson to save to history before restoring
         const currentLesson = await Lesson.findOne({ id: lessonId });
-
         if (!currentLesson) {
             return res.status(404).json({ error: 'Current lesson not found' });
         }
 
-        // Save current version to history before restoring
+        // Save current version to history
         await new LessonHistory({
             lessonId: currentLesson.id,
             version: currentLesson.version || 1,
@@ -125,6 +120,7 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
                 title: history.title,
                 content: history.content,
                 description: history.description,
+                level: history.level,
                 editedAt: new Date(),
                 version: (currentLesson.version || 1) + 1
             }
@@ -133,55 +129,6 @@ router.post('/:id/restore/:version', authenticateToken, requireAdmin, async (req
         res.json({ success: true, message: 'Version restored successfully' });
     } catch (error) {
         console.error('Error restoring lesson version:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// GET lesson history (Admin only)
-router.get('/:id/history', authenticateToken, requireAdmin, async (req, res) => {
-    try {
-        const lessonId = String(req.params.id);
-        const history = await LessonHistory.find({ lessonId }).sort({ version: -1 });
-        res.json(history);
-    } catch (error) {
-        console.error('Error fetching history:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// POST revert to version (Admin only)
-router.post('/:id/revert', authenticateToken, requireAdmin, async (req, res) => {
-    try {
-        const { version } = req.body;
-        const lessonId = String(req.params.id);
-        const historyEntry = await LessonHistory.findOne({ lessonId, version: Number.parseInt(version, 10) });
-
-        if (!historyEntry) {
-            return res.status(404).json({ error: 'Version not found' });
-        }
-
-        // Get current lesson to save IT to history before reverting?
-        // Usually reversion is just a new update. 
-        // Let's just update the lesson content to match historyEntry.
-
-        await Lesson.findOneAndUpdate(
-            { id: lessonId },
-            {
-                title: historyEntry.title,
-                content: historyEntry.content,
-                description: historyEntry.description,
-                level: historyEntry.level,
-                editedAt: new Date(),
-                // We increment version or keep it? modifying typically increments.
-                // But we are reverting. Let's increment validation to current + 1
-                $inc: { version: 1 }
-            }
-        );
-
-        res.json({ success: true, message: `Reverted to version ${version}` });
-
-    } catch (error) {
-        console.error('Error reverting lesson:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });

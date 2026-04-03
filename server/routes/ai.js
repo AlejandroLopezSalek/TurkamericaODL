@@ -115,7 +115,7 @@ const buildSystemPrompt = (user, context, lessonContentContext, memoryContext, l
     let userContext = "User: Guest";
 
     if (user) {
-        userContext = `User: ${user.username} | Level: ${user.profile?.level || 'A1'} | Streak: ${user.stats?.streak || 0} days`;
+        userContext = `User: ${user.username || 'Student'} | Level: ${user.profile?.level || 'A1'} | Streak: ${user.stats?.streak || 0} days`;
     }
 
     const contextStr = typeof context === 'object' ? JSON.stringify(context) : String(context || '');
@@ -168,6 +168,59 @@ NAVIGATION:
 - Only navigate if explicitly asked (e.g., "Go to profile" or "Ir a perfil").
 - Valid: /Inicio, /Consejos/, /Gramatica/, /Community-Lessons/, /NivelA1/ thru /NivelC1/, /Perfil/
 - Example: "Take me to profile" -> "Let's go. [[NAVIGATE:/Perfil/]]"`;
+};
+
+// Helper: Get User Lab Context (Personal RAG)
+const getUserLabContext = async (userId, lang) => {
+    if (!userId) return "";
+    
+    try {
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const LabStory = require('../models/LabStory');
+        const LabExam = require('../models/LabExam');
+        const DailyWord = require('../models/DailyWord');
+
+        const [recentStories, recentExam, dailyWord] = await Promise.all([
+            LabStory.find({ userId }).sort({ lastUpdated: -1 }).limit(2).select('title genre level'),
+            LabExam.findOne({ userId }).sort({ date: -1 }).select('score panda_advice level'),
+            DailyWord.findOne({ date: todayStr })
+        ]);
+
+        let context = "\n*** USER LAB PROGRESS (Personal RAG) ***\n";
+        
+        // 1. Stories
+        if (recentStories.length > 0) {
+            context += "- Recent Stories Practiced:\n";
+            recentStories.forEach(s => {
+                context += `  * "${s.title}" (${s.genre}, Level ${s.level})\n`;
+            });
+        }
+
+        // 2. Exams
+        if (recentExam) {
+            context += `- Latest Exam Result: Score ${recentExam.score}/100 (Level ${recentExam.level}).\n`;
+            if (recentExam.panda_advice) {
+                context += `  * Last Advice: "${recentExam.panda_advice}"\n`;
+            }
+        }
+
+        // 3. Word of the Day
+        if (dailyWord) {
+            const wod = (dailyWord.translations instanceof Map) 
+                ? (dailyWord.translations.get(lang) || dailyWord.translations.get('es'))
+                : (dailyWord.translations?.[lang] || dailyWord.translations?.es);
+                
+            if (wod) {
+                context += `\n*** WORD OF THE DAY (WoD) ***\nToday's featured word is: ${wod.word || wod.character} - "${wod.translation || wod.word_translation}". Encourage the user to use it!\n`;
+            }
+        }
+
+        return context;
+    } catch (error) {
+        console.warn('Error fetching User Lab Context:', error);
+        return "";
+    }
 };
 
 // --- TTS Import ---
@@ -560,19 +613,24 @@ router.post('/', async (req, res) => {
             });
         }
 
-        const systemPrompt = buildSystemPrompt(user, context, lessonContentContext, memoryContext, lang, ragContext);
+        // --- PERSONAL LAB CONTEXT ---
+        const userLabContext = await getUserLabContext(user?._id, lang || 'es');
+
+        const systemPrompt = buildSystemPrompt(user, context, lessonContentContext, memoryContext, lang, `${ragContext}\n${userLabContext}`);
+
 
         const messages = [{ role: "system", content: systemPrompt }];
 
         // Add history
         // SECURE SERVER-SIDE MEMORY: Load recent context from the database instead of trusting the frontend array.
-        let queryVars = {};
+        const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+        let queryVars = { timestamp: { $gte: twoHoursAgo } };
+
         if (user) {
-            queryVars = { userId: user._id };
+            queryVars.userId = user._id;
         } else {
-            // For guests, use IP to track recent history over the last 2 hours
-            const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-            queryVars = { 'metadata.ip': req.ip, timestamp: { $gte: twoHoursAgo } };
+            // For guests, use IP to track recent history
+            queryVars['metadata.ip'] = req.ip;
         }
 
         const pastLogs = await ChatLog.find(queryVars)
