@@ -14,6 +14,7 @@ const BADGE_INACTIVE_CLASSES = ['bg-slate-100', 'dark:bg-slate-700', 'text-slate
 
 // New Global for Lessons Cache
 let allPublishedLessons = [];
+let allAdminUsers = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     // Only run on admin dashboard
@@ -61,6 +62,14 @@ function initAdminDashboard() {
         });
     }
 
+    // Search Listener for Users
+    const userSearchInput = document.getElementById('userSearch');
+    if (userSearchInput) {
+        userSearchInput.addEventListener('input', (e) => {
+            filterUsersTable(e.target.value);
+        });
+    }
+
     // Filter tabs
     document.querySelectorAll('.filter-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
@@ -77,8 +86,10 @@ function initAdminDashboard() {
 globalThis.switchMainTab = function (tabName) {
     const requestsSection = document.getElementById('requestsSection');
     const lessonsSection = document.getElementById('lessonsSection');
+    const usersSection = document.getElementById('usersSection');
     const tabRequests = document.getElementById('tabRequests');
     const tabLessons = document.getElementById('tabLessons');
+    const tabUsers = document.getElementById('tabUsers');
 
     const activeClasses = 'px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400';
     const inactiveClasses = 'px-6 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50';
@@ -86,24 +97,40 @@ globalThis.switchMainTab = function (tabName) {
     if (tabName === 'requests') {
         requestsSection.classList.remove('hidden');
         lessonsSection.classList.add('hidden');
+        usersSection.classList.add('hidden');
 
         // Update styling
         tabRequests.className = activeClasses;
         tabLessons.className = inactiveClasses;
-    } else {
+        tabUsers.className = inactiveClasses;
+    } else if (tabName === 'lessons') {
         requestsSection.classList.add('hidden');
         lessonsSection.classList.remove('hidden');
+        usersSection.classList.add('hidden');
 
         // Update styling
         tabLessons.className = activeClasses;
         tabRequests.className = inactiveClasses;
+        tabUsers.className = inactiveClasses;
 
         // Load lessons if empty
         if (allPublishedLessons.length === 0) {
             loadPublishedLessons();
         }
+    } else if (tabName === 'users') {
+        requestsSection.classList.add('hidden');
+        lessonsSection.classList.add('hidden');
+        usersSection.classList.remove('hidden');
+
+        // Update styling
+        tabUsers.className = activeClasses;
+        tabRequests.className = inactiveClasses;
+        tabLessons.className = inactiveClasses;
+
+        // Load users if not already loaded or every time? Same as Chino.
+        loadAdminUsers();
     }
-}
+};
 
 function handleTabClick(target) {
     // Reset all tabs
@@ -338,7 +365,7 @@ async function viewRequest(id) {
             globalThis.adminEditorInstance.setContent(request.data.newContent || '');
         }
 
-    } else {
+    } else if (request.type === 'book_upload') {
         modalBody.innerHTML = `
             <div class="space-y-6">
                 <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
@@ -891,6 +918,126 @@ globalThis.deletePublishedLesson = async function (id) {
         loadPublishedLessons(); // Refresh
     } catch (e) {
         showToast('Error al eliminar: ' + e.message, 'error');
+    }
+};
+
+// ========================================
+// USERS MANAGEMENT
+// ========================================
+
+globalThis.loadAdminUsers = async function () {
+    const tableBody = document.getElementById('usersTableBody');
+    const loading = document.getElementById('usersLoading');
+
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+    loading.classList.remove('hidden');
+
+    try {
+        const users = await globalThis.ContributionService.getAdminUsers();
+        allAdminUsers = users;
+        renderUsersTable(users);
+    } catch (error) {
+        console.error('Error loading users:', error);
+        tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar usuarios</td></tr>';
+    } finally {
+        loading.classList.add('hidden');
+    }
+};
+
+function renderUsersTable(users) {
+    const tableBody = document.getElementById('usersTableBody');
+    if (!tableBody) return;
+
+    if (users.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No se encontraron usuarios.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = users.map(user => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0">
+            <td class="p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400">
+                        ${user.profile?.avatar ? `<img src="${user.profile.avatar}" class="w-full h-full rounded-full object-cover">` : '<i class="fas fa-user"></i>'}
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-800 dark:text-white">${escHtml(user.username)}</div>
+                        <div class="text-xs text-slate-500 font-mono opacity-75">${user._id}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
+                ${escHtml(user.email)}
+            </td>
+            <td class="p-4">
+                <select onchange="changeUserRole('${user._id}', this.value)" 
+                    class="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-xs font-bold px-2 py-1 outline-none focus:ring-2 focus:ring-blue-500
+                    ${user.role === 'admin' ? 'text-blue-700 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}">
+                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>USER</option>
+                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ADMIN</option>
+                </select>
+            </td>
+            <td class="p-4">
+                <div class="text-sm text-slate-800 dark:text-slate-200">🔥 ${user.stats?.streak?.current || 0} días</div>
+                <div class="text-xs text-slate-500 mt-1">${formatDate(user.createdAt)}</div>
+            </td>
+            <td class="p-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                    <button onclick="deleteUserAdmin('${user._id}', '${escHtml(user.username)}')"
+                        class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Eliminar Usuario">
+                        <i class="fas fa-user-slash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function filterUsersTable(query) {
+    if (!query) {
+        renderUsersTable(allAdminUsers);
+        return;
+    }
+
+    query = query.toLowerCase();
+    const filtered = allAdminUsers.filter(u =>
+        u.username.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        u.role.toLowerCase().includes(query) ||
+        u._id.toLowerCase().includes(query)
+    );
+    renderUsersTable(filtered);
+}
+
+globalThis.changeUserRole = async function (id, role) {
+    const userToUpdate = allAdminUsers.find(u => u._id === id);
+    if (!userToUpdate) return;
+    
+    if (!confirm(`¿Estás seguro de cambiar el rol de ${userToUpdate.username} a ${role.toUpperCase()}?`)) {
+        renderUsersTable(allAdminUsers); // Reset selection
+        return;
+    }
+
+    try {
+        await globalThis.ContributionService.updateUserRole(id, role);
+        showToast(`Rol de ${userToUpdate.username} actualizado a ${role}`, 'success');
+        loadAdminUsers(); // Refresh
+    } catch (error) {
+        showToast('Error al actualizar rol: ' + error.message, 'error');
+        renderUsersTable(allAdminUsers);
+    }
+};
+
+globalThis.deleteUserAdmin = async function (id, username) {
+    if (!confirm(`¿ATENCIÓN: Estás seguro de eliminar permanentemente al usuario ${username}? Esta acción no se puede deshacer.`)) return;
+
+    try {
+        await globalThis.ContributionService.deleteUser(id);
+        showToast(`Usuario ${username} eliminado`, 'success');
+        loadAdminUsers(); // Refresh
+    } catch (error) {
+        showToast('Error al eliminar usuario: ' + error.message, 'error');
     }
 };
 

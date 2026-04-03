@@ -13,7 +13,8 @@
       },
       "tabs": {
         "requests": "Solicitudes",
-        "lessons": "Lecciones Publicadas"
+        "lessons": "Lecciones Publicadas",
+        "users": "Usuarios"
       },
       "filters": {
         "all": "Todas",
@@ -33,6 +34,17 @@
           "level": "Nivel",
           "author": "Autor",
           "updated": "Actualizado",
+          "actions": "Acciones"
+        }
+      },
+      "users_list": {
+        "search_placeholder": "Buscar por nombre, email o rol...",
+        "reload": "Recargar",
+        "table": {
+          "user": "Usuario",
+          "email": "Email",
+          "role": "Rol",
+          "streak": "Racha / Registro",
           "actions": "Acciones"
         }
       },
@@ -71,7 +83,8 @@
       },
       "tabs": {
         "requests": "Requests",
-        "lessons": "Published Lessons"
+        "lessons": "Published Lessons",
+        "users": "Users"
       },
       "filters": {
         "all": "All",
@@ -91,6 +104,17 @@
           "level": "Level",
           "author": "Author",
           "updated": "Updated",
+          "actions": "Actions"
+        }
+      },
+      "users_list": {
+        "search_placeholder": "Search by name, email or role...",
+        "reload": "Reload",
+        "table": {
+          "user": "User",
+          "email": "Email",
+          "role": "Role",
+          "streak": "Streak / Registered",
           "actions": "Actions"
         }
       },
@@ -125,7 +149,8 @@
       },
       "tabs": {
         "requests": "Solicitações",
-        "lessons": "Lições Publicadas"
+        "lessons": "Lições Publicadas",
+        "users": "Usuários"
       },
       "filters": {
         "all": "Todas",
@@ -144,6 +169,17 @@
           "level": "Nível",
           "author": "Autor",
           "updated": "Atualizado",
+          "actions": "Ações"
+        }
+      },
+      "users_list": {
+        "search_placeholder": "Buscar por nome, e-mail ou função...",
+        "reload": "Recarregar",
+        "table": {
+          "user": "Usuário",
+          "email": "E-mail",
+          "role": "Função",
+          "streak": "Sequência / Registro",
           "actions": "Ações"
         }
       },
