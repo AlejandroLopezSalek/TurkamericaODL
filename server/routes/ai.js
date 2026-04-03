@@ -11,7 +11,7 @@ const ChatLog = require('../models/ChatLog');
 const LabStory = require('../models/LabStory');
 const LabExam = require('../models/LabExam');
 const redisClient = require('../redisClient');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, getUserFromRequest } = require('../middleware/auth');
 
 // Load Lesson Data for Context
 let allLessons = {};
@@ -56,20 +56,16 @@ const getMaxChapters = (level, role) => {
     return limit;
 };
 
-
-// Helper to get user from token
-const getUserFromRequest = async (req) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader?.split(' ')[1];
-    if (!token) return null;
-
+// Helper: Robust JSON Extraction from AI response
+const safeJsonParse = (text, fallbackError = 'Invalid JSON from AI') => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return await User.findById(String(decoded.userId));
+        const match = text.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error(fallbackError);
+        const jsonStr = match[0].trim();
+        return JSON.parse(jsonStr);
     } catch (err) {
-        // Token invalid or expired
-        if (process.env.NODE_ENV === 'development') console.debug('Auth check failed:', err.message);
-        return null;
+        console.error('[AI JSON Error] Failed to parse:', text);
+        throw new Error(`${fallbackError}: ${err.message}`);
     }
 };
 
@@ -357,9 +353,7 @@ FORMAT:
         temperature: 0.7,
     });
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('AI failed to provide valid JSON');
-    return JSON.parse(jsonMatch[0]);
+    return safeJsonParse(text, 'AI failed to provide valid JSON for WOD');
 }
 
 // Helper: Translate existing WOD word to new language
@@ -382,9 +376,7 @@ Output ONLY raw JSON.`;
         temperature: 0.3,
     });
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('AI failed to provide valid translation JSON');
-    const translated = JSON.parse(jsonMatch[0]);
+    const translated = safeJsonParse(text, 'AI failed to provide valid translation JSON');
     
     // Safety Force Sync
     translated.word = existingData.word;
@@ -478,9 +470,7 @@ Evaluate this translation strictly but fairly, and output the grading JSON objec
             temperature: 0.2,
             maxTokens: 600,
         });
-        const gradeJsonMatch = gradeRaw.match(/\{[\s\S]*\}/);
-        if (!gradeJsonMatch) throw new Error('AI did not return valid grading JSON');
-        const gradingData = JSON.parse(gradeJsonMatch[0]);
+        const gradingData = safeJsonParse(gradeRaw, 'AI did not return valid grading JSON');
 
         res.json(gradingData);
 
@@ -715,9 +705,7 @@ router.get('/lab/analyze-dna', authenticateToken, async (req, res) => {
             Output MUST be valid JSON matching this schema:
             { "word": string, "root": { "text": string, "meaning": string }, "suffixes": [{ "text": string, "type": string, "meaning": string }], "overall_meaning": string }`,
         });
-        const jsonMatch = dnaRaw.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('AI did not return valid JSON for DNA');
-        const object = JSON.parse(jsonMatch[0]);
+        const object = safeJsonParse(dnaRaw, 'AI did not return valid JSON for DNA');
 
         if (user.role !== 'admin') {
             await User.findByIdAndUpdate(user._id, { 'stats.labUsage.dnaDate': today });
@@ -804,9 +792,7 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
                 }] 
             }`
         });
-        const jsonMatch = examRaw.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('AI did not return valid JSON for Exam');
-        const object = JSON.parse(jsonMatch[0]);
+        const object = safeJsonParse(examRaw, 'AI did not return valid JSON for Exam');
 
         // Persist to History
         const savedExam = await LabExam.create({
