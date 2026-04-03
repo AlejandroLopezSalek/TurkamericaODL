@@ -18,7 +18,8 @@
       "filters": {
         "all": "Todas",
         "lessons": "Lecciones",
-        "books": "Libros"
+        "books": "Libros",
+        "exams": "Exámenes"
       },
       "requests_list": {
         "title": "Solicitudes Pendientes",
@@ -37,6 +38,10 @@
       },
       "modal": {
         "title": "Detalles de la Solicitud",
+        "file_link": "Enlace al Archivo",
+        "exam_info": "Información del Examen",
+        "passage": "Texto de Lectura",
+        "questions": "Preguntas",
         "close": "Cerrar",
         "approve": "Aprobar",
         "reject": "Rechazar",
@@ -71,7 +76,8 @@
       "filters": {
         "all": "All",
         "lessons": "Lessons",
-        "books": "Books"
+        "books": "Books",
+        "exams": "Exams"
       },
       "requests_list": {
         "title": "Pending Requests",

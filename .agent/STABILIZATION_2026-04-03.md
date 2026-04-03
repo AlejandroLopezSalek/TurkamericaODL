@@ -19,7 +19,15 @@ Critical runtime errors and infrastructure instability were reported in producti
 - **Added**: `getUserLabContext` (Personal RAG) to `ai.js` to match ChinoStandardS features.
 - **Cleanup**: Consolidated redundant `history` and `restore` routes in `lessons.js` to a single robust `restore/:version` endpoint.
 
-### 4. Infrastructure Stabilization
+### 4. AI Exam Infrastructure & Admin Stabilization
+- **Change**: Added community-driven exam submission and internal admin review tools.
+- **Grading**: Standardized mathematical grading to `(correct/total)*100`.
+- **Passages**: Implemented level-based dynamic difficulty (A1: short, A2+: progressively longer).
+- **Writing**: Added A2-C1 production word limits (100-250 words).
+- **Admin Details**: Modal now renders full exam context (passage + questions with correct answers).
+- **Bugfixes**: Resolved syntax errors in `contributions.js` (missing blocks) and `admin-contributions.js` (logic corruption).
+
+### 5. Infrastructure Stabilization
 - **Guards**: Added safety guards for all `user.stats` and `user.profile` access to prevent 500 errors on new/guest users.
 - **Monitoring**: Verified MongoDB and Qdrant connectivity; services are healthy but require PM2 restarts to apply code changes.
 

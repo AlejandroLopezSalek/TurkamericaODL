@@ -148,6 +148,9 @@ async function loadStats() {
         document.getElementById('badgeAll').textContent = stats.pending;
         document.getElementById('badgeLessons').textContent = stats.lessonEdits;
         document.getElementById('badgeBooks').textContent = stats.bookUploads;
+        if (document.getElementById('badgeExams')) {
+            document.getElementById('badgeExams').textContent = stats.communityExams || 0;
+        }
 
     } catch (error) {
         console.error('Error loading stats:', error);
@@ -182,11 +185,11 @@ async function loadRequests() {
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden" data-id="${request.id}">
                 <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100 dark:border-slate-700/50">
                     <div class="flex items-center gap-3">
-                         <div class="w-10 h-10 rounded-xl flex items-center justify-center ${request.type === 'lesson_edit' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'}">
-                             <i class="fas ${request.type === 'lesson_edit' ? 'fa-book-open' : 'fa-file-pdf'}"></i>
+                         <div class="w-10 h-10 rounded-xl flex items-center justify-center ${request.type === 'lesson_edit' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : request.type === 'community_exam' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'}">
+                             <i class="fas ${request.type === 'lesson_edit' ? 'fa-book-open' : request.type === 'community_exam' ? 'fa-graduation-cap' : 'fa-file-pdf'}"></i>
                          </div>
                          <span class="font-semibold text-slate-700 dark:text-slate-200 text-sm">
-                             ${request.type === 'lesson_edit' ? 'Edición de Lección' : 'Libro Compartido'}
+                             ${request.type === 'lesson_edit' ? 'Edición de Lección' : request.type === 'community_exam' ? 'Examen de IA' : 'Libro Compartido'}
                          </span>
                     </div>
                     <span class="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-full">
@@ -393,6 +396,57 @@ async function viewRequest(id) {
                     <div>
                         <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">Enviado por</p>
                         <p class="font-semibold text-slate-800 dark:text-white">${request.submittedBy?.username || 'Usuario Desconocido'} <span class="text-slate-400 font-normal">(${request.submittedBy?.email || 'Sin email'})</span></p>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (request.type === 'community_exam') {
+        modalBody.innerHTML = `
+            <div class="space-y-6">
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold pb-2 border-b border-slate-200 dark:border-slate-700">
+                        <i class="fas fa-info-circle text-blue-500"></i> Información del Examen
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1">
+                            <strong class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Nivel</strong>
+                            <span class="font-semibold text-slate-800 dark:text-white">${request.data.level}</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <strong class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Enviado por</strong>
+                            <span class="font-semibold text-slate-800 dark:text-white">${request.submittedBy?.username || 'Usuario Desconocido'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                ${request.data.reading_passage ? `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold">
+                        <i class="fas fa-book-reader text-blue-500"></i> Texto de Lectura
+                    </h3>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700/50 text-slate-800 dark:text-slate-200 italic leading-relaxed">
+                        ${escHtml(request.data.reading_passage)}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h3 class="flex items-center gap-2 mb-4 text-slate-800 dark:text-white font-bold">
+                        <i class="fas fa-question-circle text-blue-500"></i> Preguntas
+                    </h3>
+                    <div class="space-y-4">
+                        ${(request.data.sections || []).flatMap(s => s.questions || []).map((q, idx) => `
+                            <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                <p class="font-bold text-slate-800 dark:text-white mb-2">${idx + 1}. ${escHtml(q.question)}</p>
+                                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                    ${(q.options || []).map(opt => `
+                                        <li class="flex items-center gap-2 ${opt === q.correct_answer ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500'}">
+                                            <i class="fas ${opt === q.correct_answer ? 'fa-check-circle' : 'fa-circle text-[8px]'}"></i> ${escHtml(opt)}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             </div>

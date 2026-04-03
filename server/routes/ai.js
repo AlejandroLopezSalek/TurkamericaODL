@@ -920,7 +920,7 @@ router.post('/lab/grade-exam', authenticateToken, async (req, res) => {
             CRITICAL:
             1. Accept answers in ${languageName} if translated correctly.
             2. For Writing production tasks (A2+), evaluate coherence, grammar, and length (ensure they met the requested word count).
-            3. Score should be an integer 0-100.
+            3. Score should be an integer 0-100. Calculate it mathematically: (Correct Answers / Total Questions) * 100.
             Schema: { "score": number, "feedback": [{ "question_id": string, "status": "correct"|"incorrect"|"partial", "explanation": string, "user_answer": string }], "capi_advice": string }`
         });
         const jsonMatch = gradeRaw.match(/\{[\s\S]*\}/);
@@ -963,6 +963,41 @@ router.get('/lab/exams/history', authenticateToken, async (req, res) => {
             .sort({ date: -1 })
             .limit(10);
         res.json(exams);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /lab/exams/:id
+router.delete('/lab/exams/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = req.user;
+        const exam = await LabExam.findOneAndDelete({ _id: req.params.id, userId: user._id });
+        if (!exam) return res.status(404).json({ error: 'Examen no encontrado' });
+        res.json({ message: 'Examen eliminado correctamente' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /lab/exams/:id/publish
+router.post('/lab/exams/:id/publish', authenticateToken, async (req, res) => {
+    try {
+        const user = req.user;
+        const exam = await LabExam.findOne({ _id: req.params.id, userId: user._id });
+        if (!exam) return res.status(404).json({ error: 'Examen no encontrado' });
+
+        const Contribution = require('../models/Contribution');
+        await Contribution.create({
+            type: 'community_exam',
+            title: exam.exam_data?.title || `Reto IA - ${exam.level}`,
+            description: `Examen generado por usuario (${user.username})`,
+            data: { ...exam.exam_data, level: exam.level },
+            submittedBy: { id: user._id, username: user.username, email: user.email },
+            status: 'pending'
+        });
+
+        res.json({ message: 'Solicitud de publicación enviada' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
