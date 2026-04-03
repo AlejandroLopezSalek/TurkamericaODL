@@ -106,7 +106,6 @@
             <!-- Turkish word (big) -->
             <div class="text-center mb-2">
                 <div id="wodWord" class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-1">${escHtml(data.word)}</div>
-                <div class="text-white/60 text-xs sm:text-sm"><i class="fas fa-volume-low mr-1"></i>${escHtml(data.pronunciation)}</div>
             </div>
 
             <!-- Example sentence -->

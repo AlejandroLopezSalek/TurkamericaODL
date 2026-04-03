@@ -833,7 +833,11 @@ router.post('/lab/generate-exam', authenticateToken, async (req, res) => {
             STRUCTURE & LANGUAGE RULES:
             1. Listening: ${config.listening} questions. Generate ONE "listening_passage" (detailed conversation or monologue in Turkish, ~1 minute of speech).
             2. Reading: ${config.reading} questions. Generate ONE "reading_passage" (an article or story).
-            3. Writing: ${config.writing} questions (Grammar transformation or essay-style).
+               - Length: A1 (~50 chars), A2 (~120), B1 (~250), B2 (~400), C1 (~600+ chars).
+            3. Writing: 
+               - A1: ${config.writing} questions (Grammar transformation).
+               - A2+: ONE single production task.
+               - Word count requirements: A2: 100 words, B1: 150 words, B2: 200 words, C1: 250 words.
             
             STRICT IMMERSION RULES:
             - A1: Questions in ${languageName}, Options in Turkish.
@@ -912,7 +916,12 @@ router.post('/lab/grade-exam', authenticateToken, async (req, res) => {
             Exam: ${JSON.stringify(original_exam)}
             User Answers: ${JSON.stringify(answers)}
             
-            Feedback and advice in ${languageName}. Schema: { "score": number, "feedback": [{ "question_id": string, "status": "correct"|"incorrect"|"partial", "explanation": string, "user_answer": string }], "capi_advice": string }`
+            Feedback and advice in ${languageName}. 
+            CRITICAL:
+            1. Accept answers in ${languageName} if translated correctly.
+            2. For Writing production tasks (A2+), evaluate coherence, grammar, and length (ensure they met the requested word count).
+            3. Score should be an integer 0-100.
+            Schema: { "score": number, "feedback": [{ "question_id": string, "status": "correct"|"incorrect"|"partial", "explanation": string, "user_answer": string }], "capi_advice": string }`
         });
         const jsonMatch = gradeRaw.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('AI did not return valid JSON for Grading');
