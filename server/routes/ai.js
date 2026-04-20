@@ -71,15 +71,26 @@ const getMaxChapters = (level, role) => {
 // Helper: Robust JSON Extraction from AI response
 const safeJsonParse = (text, fallbackError = 'Invalid JSON from AI') => {
     try {
-        const match = text.match(/\{[\s\S]*\}/);
+        if (!text) throw new Error('Empty response from AI');
+
+        // 1. Remove reasoning/thinking blocks commonly found in reasoning models (like Qwen/DeepSeek R1)
+        let cleanText = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+        // 2. Strip out any potential markdown blocks
+        cleanText = cleanText.replace(/```json\n?|```/g, '').trim();
+
+        // 3. Extract the JSON object using bracket matching
+        const match = cleanText.match(/\{[\s\S]*\}/);
         if (!match) throw new Error(fallbackError);
-        const jsonStr = match[0].trim();
-        return JSON.parse(jsonStr);
+
+        return JSON.parse(match[0]);
     } catch (err) {
         console.error('[AI JSON Error] Failed to parse:', text);
+        if (typeof text === 'object' && text !== null) return text;
         throw new Error(`${fallbackError}: ${err.message}`);
     }
 };
+
 
 // POST / (Mounted at /api/chat)
 // Helper to extract lesson context
@@ -1311,4 +1322,4 @@ module.exports = {
     router,
     preGenerateWod
 };
-// Models: kimi-k2-instruct-0905 (WoD, grade) | kimi-k2-instruct (chat)
+
