@@ -14,7 +14,13 @@ function initTurkBot() {
         return;
     }
 
-
+    // HIDE ON AUTH PAGES
+    const path = window.location.pathname;
+    if (path.includes('/login/') || path.includes('/register/')) {
+        const btn = document.getElementById('turkbot-btn');
+        if (btn) btn.classList.add('hidden');
+        return;
+    }
 
     createMascotUI();
 
