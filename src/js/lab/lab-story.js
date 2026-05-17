@@ -39,25 +39,9 @@ class LabStory {
 
         this.fetchHistory();
         this.checkActiveStory();
-        this.setupGenreListener();
     }
 
-    setupGenreListener() {
-        const genreSelect = document.getElementById('story-genre');
-        const customContainer = document.getElementById('custom-genre-container');
-        if (!genreSelect || !customContainer) return;
 
-        const handleGenreChange = (val) => {
-            if (val === 'custom') {
-                customContainer.classList.remove('hidden');
-            } else {
-                customContainer.classList.add('hidden');
-            }
-        };
-
-        genreSelect.addEventListener('change', (e) => handleGenreChange(e.target.value));
-        handleGenreChange(genreSelect.value);
-    }
 
     async fetchHistory() {
         try {
@@ -95,14 +79,16 @@ class LabStory {
             return this.notify(window.I18N?.limit_reached || "Solo puedes generar una historia al día. ¡Vuelve mañana!", "warning");
         }
 
-        let genre = document.getElementById('story-genre').value;
-        if (genre === 'custom') {
-            const customValue = document.getElementById('custom-genre').value.trim();
-            if (!customValue) return this.notify("Por favor, ingresa un género para tu historia.", "warning");
-            genre = customValue;
-        }
+        const genre = document.getElementById('story-genre').value.trim() || 'Aventura';
         const charName = document.getElementById('character-name').value.trim() || 'Un aventurero';
         const userPrompt = document.getElementById('story-prompt').value.trim();
+        
+        if (charName.split(/\s+/).length > 5) {
+            return this.notify("El nombre del héroe no puede tener más de 5 palabras.", "warning");
+        }
+        if (userPrompt.split(/\s+/).length > 50) {
+            return this.notify("El detalle no puede tener más de 50 palabras.", "warning");
+        }
         const level = document.getElementById('story-level').value;
         const isPublic = document.getElementById('story-public-toggle').checked;
 
@@ -118,6 +104,12 @@ class LabStory {
             });
 
             const data = await response.json();
+            if (!response.ok) {
+                this.notify(data.error || "Error al iniciar historia.", "warning");
+                this.setState('placeholder');
+                return;
+            }
+
             this.currentStory = data;
             this.storyHistory = [data.first_chapter];
             this.currentChapterIndex = 0;
@@ -325,6 +317,11 @@ class LabStory {
             });
 
             const data = await response.json();
+            if (!response.ok) {
+                this.notify(data.error || data.message || "Error al continuar.", "warning");
+                this.setState('content');
+                return;
+            }
             if (response.status === 403) {
                 this.notify(data.message || data.error, "info");
                 this.setState('content');
