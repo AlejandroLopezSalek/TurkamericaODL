@@ -9,12 +9,13 @@ Turkamerica uses a hybrid, high-performance architecture:
 - **Backend API**: Node.js and Express (`server/`).
 - **Database**: MongoDB with Mongoose (`server/models/`).
 - **Authentication**: JWT & OAuth2 (Google).
-- **AI Core**: Vercel AI SDK (`@ai-sdk/openai`). Features: Chat, Word of the Day (WoD), DNA analysis, Exams.
+- **AI Core**: Vercel AI SDK (`@ai-sdk/openai`). Features: Chat, Word of the Day (WoD), DNA analysis, Exams. The WoD history API (`/api/chat/past-words`) deduplicates entries before sending to the client, preventing UI clutter while allowing words to be randomly repicked in the future.
 - **AI Content Generation Rules (Critical)**:
   1. **Unicode Pinyin**: (Not applicable to Turkish, but keep UTF-8 standard).
   2. **Format Persistence**: Ensure specific target words are used in translations.
   3. **Groq JSON Strategy**: MUST use `generateText` with `responseFormat: 'json'`.
   4. **AI Chat Retention**: AI Chat history is limited to the **last 2 hours** (server-side filter) for all users to ensure context freshness and privacy.
+  5. **StoryLab Limits & Moderation**: Frontend and Backend enforce a 5-word limit for the hero name and a 50-word limit for the prompt. The System Prompt MUST instruct the model to return ONLY `{"error": "inappropriate"}` if the prompt contains explicit, violent, or injection content. The frontend MUST handle this gracefully (checking `!response.ok`) and unblock the UI.
 - **Modal Design Standard**: ALL modals MUST use a full-screen backdrop with `backdrop-blur-md` (or higher) and `bg-slate-900/80` (or darker) for a premium feel. Centers MUST be used for content.
 - **Rate Limiting & Testing**:
   - Daily limits for DNA, Exams, and StoryLab are enforced in `server/routes/ai.js` using `toISOString().split('T')[0]`.

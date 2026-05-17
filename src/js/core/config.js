@@ -126,7 +126,7 @@ globalThis.APP_CONFIG = {
   // URLs de recursos externos
   EXTERNAL: {
     DONATION_URL: 'https://whydonate.com/fundraising/-apoya-mas-desarollos-para-nuestra-comunidad',
-    SUPPORT_EMAIL: 'contact@turkamerica.com'
+    SUPPORT_EMAIL: 'info.odlturquia@gmail.com'
   },
 
   // Métodos helper
